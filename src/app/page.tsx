@@ -1,103 +1,118 @@
-import Image from "next/image";
+'use client';
+
+import { Card, Title, Text, Tab, TabList, TabGroup, TabPanel, TabPanels, Metric, AreaChart, BarChart } from '@tremor/react';
+import { useState } from 'react';
+import { BanknotesIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
+
+// Mock data - in a real app, this would come from your backend
+const currentRunway = {
+  months: 4.5,
+  cash: 450000,
+  burnRate: 100000,
+};
+
+const options = [
+  {
+    id: 1,
+    title: 'Cut Expenses',
+    description: 'Reduce monthly burn rate by 20%',
+    impact: '+2.5 months',
+    details: 'Implement cost-cutting measures across departments',
+    icon: BanknotesIcon,
+  },
+  {
+    id: 2,
+    title: 'Delay Hires',
+    description: 'Postpone planned hiring for 3 months',
+    impact: '+1.5 months',
+    details: 'Defer 3 engineering and 2 sales positions',
+    icon: UserGroupIcon,
+  },
+  {
+    id: 3,
+    title: 'Accelerate AR',
+    description: 'Implement aggressive collection strategy',
+    impact: '+1 month',
+    details: 'Focus on collecting outstanding invoices within 30 days',
+    icon: ClockIcon,
+  },
+];
+
+const monthlyData = [
+  { month: 'Jan', cash: 450000 },
+  { month: 'Feb', cash: 350000 },
+  { month: 'Mar', cash: 250000 },
+  { month: 'Apr', cash: 150000 },
+  { month: 'May', cash: 50000 },
+  { month: 'Jun', cash: 0 },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <main className="p-4 md:p-10 mx-auto max-w-7xl">
+      <Title>Runway Analysis Dashboard</Title>
+      <Text>Make informed decisions about your company's financial future</Text>
+
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Card>
+          <Text>Current Runway</Text>
+          <Metric>{currentRunway.months} months</Metric>
+          <Text className="mt-2">${currentRunway.cash.toLocaleString()} cash on hand</Text>
+        </Card>
+        <Card>
+          <Text>Monthly Burn Rate</Text>
+          <Metric>${currentRunway.burnRate.toLocaleString()}</Metric>
+          <Text className="mt-2">Monthly operating expenses</Text>
+        </Card>
+        <Card>
+          <Text>Cash Zero Date</Text>
+          <Metric>June 2024</Metric>
+          <Text className="mt-2">Based on current burn rate</Text>
+        </Card>
+      </div>
+
+      <div className="mt-6">
+        <Card>
+          <Title>Cash Projection</Title>
+          <AreaChart
+            className="mt-4 h-72"
+            data={monthlyData}
+            index="month"
+            categories={['cash']}
+            colors={['blue']}
+            valueFormatter={(number) => `$${number.toLocaleString()}`}
+          />
+        </Card>
+      </div>
+
+      <div className="mt-6">
+        <Title>Actionable Options</Title>
+        <Text>Select an option to see its impact on your runway</Text>
+        
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {options.map((option) => (
+            <Card
+              key={option.id}
+              className={`cursor-pointer transition-all ${
+                selectedOption === option.id ? 'ring-2 ring-blue-500' : ''
+              }`}
+              onClick={() => setSelectedOption(option.id)}
+            >
+              <div className="flex items-center space-x-4">
+                <option.icon className="h-6 w-6 text-blue-500" />
+                <div>
+                  <Text className="font-medium">{option.title}</Text>
+                  <Text className="text-sm text-gray-500">{option.description}</Text>
+                </div>
+              </div>
+              <Metric className="mt-4">{option.impact}</Metric>
+              <Text className="mt-2 text-sm">{option.details}</Text>
+            </Card>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
