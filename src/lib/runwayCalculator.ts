@@ -13,7 +13,7 @@ export class RunwayCalculator {
 
   constructor(financials: CompanyFinancials) {
     this.financials = financials;
-    this.currentDate = new Date();
+    this.currentDate = financials.startDate;
   }
 
   private calculateMonthlyRevenue(date: Date): number {

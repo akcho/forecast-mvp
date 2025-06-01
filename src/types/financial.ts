@@ -28,6 +28,13 @@ export interface CompanyFinancials {
   expenses: ExpenseCategory[];
   startDate: Date;
   endDate: Date;
+  initialProjection: {
+    date: Date;
+    cashBalance: number;
+    revenue: number;
+    expenses: number;
+    netCashFlow: number;
+  };
 }
 
 export interface RunwayProjection {

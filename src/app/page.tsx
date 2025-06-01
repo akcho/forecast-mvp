@@ -4,10 +4,84 @@ import { Card, Title, Text, Metric, AreaChart, BarChart, Tab, TabList, TabGroup,
 import { useState, useEffect } from 'react';
 import { BanknotesIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { RunwayCalculator } from '../lib/runwayCalculator';
-import { mockFinancials } from '../lib/mockData';
-import { RunwayAnalysis, RunwayOption } from '../types/financial';
-import { format } from 'date-fns';
+import { RunwayAnalysis, RunwayOption, CompanyFinancials, RevenueStream, ExpenseCategory, FinancialEntry, TimePeriod } from '../types/financial';
+import { format, addMonths } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
+import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { quickBooksStore } from '@/lib/quickbooks/store';
+import { useSearchParams } from 'next/navigation';
+
+interface QuickBooksRow {
+  Header?: {
+    ColData: Array<{
+      value: string;
+    }>;
+  };
+  Rows?: {
+    Row: QuickBooksRow[];
+  };
+  Summary?: {
+    ColData: Array<{
+      value: string;
+    }>;
+  };
+  type?: string;
+  group?: string;
+}
+
+interface QuickBooksBalanceSheet {
+  Header: {
+    Time: string;
+    ReportName: string;
+    DateMacro: string;
+    ReportBasis: string;
+    StartPeriod: string;
+    EndPeriod: string;
+    Currency: string;
+  };
+  Columns: {
+    Column: Array<{
+      ColTitle: string;
+      ColType: string;
+    }>;
+  };
+  Rows: {
+    Row: QuickBooksRow[];
+  };
+}
+
+interface QuickBooksProfitLoss {
+  Header: {
+    Time: string;
+    ReportName: string;
+    DateMacro: string;
+    ReportBasis: string;
+    StartPeriod: string;
+    EndPeriod: string;
+    Currency: string;
+  };
+  Rows: {
+    Row: Array<{
+      Header?: {
+        ColData: Array<{
+          value: string;
+        }>;
+      };
+      Rows?: {
+        Row: Array<{
+          ColData: Array<{
+            value: string;
+          }>;
+        }>;
+      };
+      Summary?: {
+        ColData: Array<{
+          value: string;
+        }>;
+      };
+    }>;
+  };
+}
 
 interface ChartDataPoint {
   date: string;
@@ -16,27 +90,386 @@ interface ChartDataPoint {
   'Expenses': number;
 }
 
+const generateUniqueName = (baseName: string, existingNames: Set<string>): string => {
+  let uniqueName = baseName;
+  let counter = 1;
+  while (existingNames.has(uniqueName)) {
+    uniqueName = `${baseName} (${counter})`;
+    counter++;
+  }
+  existingNames.add(uniqueName);
+  return uniqueName;
+};
+
+const DebugView = ({ data }: { data: any }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <div className="mt-8 p-4 border rounded-lg bg-gray-50">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Debug View</h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+        >
+          {isExpanded ? 'Collapse' : 'Expand'}
+        </button>
+      </div>
+      {isExpanded && (
+        <pre className="whitespace-pre-wrap text-sm overflow-auto max-h-96">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+};
+
 export default function Home() {
+  console.log('Home component rendering');
+  
   const [analysis, setAnalysis] = useState<RunwayAnalysis | null>(null);
   const [selectedOption, setSelectedOption] = useState<RunwayOption | null>(null);
   const [simulatedAnalysis, setSimulatedAnalysis] = useState<RunwayAnalysis | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connected' | 'error'>('idle');
+  const [statusDetails, setStatusDetails] = useState<any>(null);
+  const [financialData, setFinancialData] = useState<CompanyFinancials | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debugData, setDebugData] = useState<any>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const calculator = new RunwayCalculator(mockFinancials);
-    const initialAnalysis = calculator.analyzeRunway();
-    setAnalysis(initialAnalysis);
-  }, []);
+    console.log('Home component mounted');
+    const status = searchParams.get('quickbooks');
+    const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
+    const realmId = searchParams.get('realm_id');
+
+    console.log('URL parameters:', { status, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
+
+    if (status === 'connected' && accessToken && refreshToken) {
+      console.log('Setting up QuickBooks connection...');
+      const client = new QuickBooksClient();
+      quickBooksStore.setTokens(accessToken, refreshToken);
+      if (realmId) {
+        client.setRealmId(realmId);
+      }
+      setConnectionStatus('connected');
+      fetchFinancialData();
+    } else if (status === 'error') {
+      console.log('QuickBooks connection error');
+      setConnectionStatus('error');
+    } else {
+      console.log('No QuickBooks connection status');
+      const storedAccessToken = quickBooksStore.getAccessToken();
+      const storedRealmId = quickBooksStore.getRealmId();
+      
+      if (storedAccessToken && storedRealmId) {
+        console.log('Found stored tokens, fetching data...');
+        setConnectionStatus('connected');
+        fetchFinancialData();
+      } else {
+        console.log('No stored tokens found');
+        setConnectionStatus('idle');
+      }
+    }
+  }, [searchParams]);
+
+  const extractCashBalance = (balanceSheet: QuickBooksBalanceSheet): number => {
+    // Find the ASSETS section
+    const assetsSection = balanceSheet.Rows.Row.find(
+      row => row.Header?.ColData?.[0]?.value === 'ASSETS'
+    );
+    if (!assetsSection?.Rows?.Row) {
+      throw new Error('Could not find assets section');
+    }
+
+    // Find the Current Assets section within ASSETS
+    const currentAssetsSection = assetsSection.Rows.Row.find(
+      row => row.Header?.ColData?.[0]?.value === 'Current Assets'
+    );
+    if (!currentAssetsSection?.Rows?.Row) {
+      throw new Error('Could not find current assets section');
+    }
+
+    // Find the Bank Accounts section within Current Assets
+    const bankAccountsSection = currentAssetsSection.Rows.Row.find(
+      row => row.Header?.ColData?.[0]?.value === 'Bank Accounts'
+    );
+    if (!bankAccountsSection?.Summary?.ColData) {
+      throw new Error('Could not find bank accounts section');
+    }
+
+    // Get the total from the summary
+    const cashBalance = parseFloat(bankAccountsSection.Summary.ColData[1].value || '0');
+    return cashBalance;
+  };
+
+  const extractAmountsFromRows = (rows: any[]): { name: string; amount: number }[] => {
+    const amounts: { name: string; amount: number }[] = [];
+    
+    rows.forEach(row => {
+      // Handle direct data rows
+      if (row.type === 'Data' && row.ColData) {
+        const name = row.ColData[0]?.value;
+        const amount = parseFloat(row.ColData[1]?.value || '0');
+        if (name && !isNaN(amount)) {
+          amounts.push({ name, amount });
+        }
+      }
+      
+      // Handle section headers with amounts
+      if (row.Header?.ColData && row.ColData?.[1]?.value) {
+        const name = row.Header.ColData[0]?.value;
+        const amount = parseFloat(row.ColData[1]?.value || '0');
+        if (name && !isNaN(amount)) {
+          amounts.push({ name, amount });
+        }
+      }
+      
+      // Recursively process nested sections
+      if (row.Rows?.Row) {
+        amounts.push(...extractAmountsFromRows(row.Rows.Row));
+      }
+    });
+    
+    return amounts;
+  };
+
+  const extractFinancialData = async (client: QuickBooksClient): Promise<{ financialData: CompanyFinancials; debugData: any }> => {
+    // Get balance sheet for current cash balance
+    const balanceSheet = await client.getBalanceSheet() as QuickBooksBalanceSheet;
+    const cashBalance = extractCashBalance(balanceSheet);
+    console.log('Current cash balance:', cashBalance);
+
+    // Get profit and loss for revenue and expenses
+    const profitLoss = await client.getProfitAndLoss() as QuickBooksProfitLoss;
+    console.log('Profit & Loss report dates:', {
+      startPeriod: profitLoss.Header.StartPeriod,
+      endPeriod: profitLoss.Header.EndPeriod,
+      reportBasis: profitLoss.Header.ReportBasis
+    });
+
+    // Parse the date range from the report
+    const startDate = new Date(profitLoss.Header.StartPeriod);
+    const endDate = new Date(profitLoss.Header.EndPeriod);
+    
+    // Calculate the number of months in the report period
+    const monthsInPeriod = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+      (endDate.getMonth() - startDate.getMonth()) + 1;
+    console.log('Months in period:', monthsInPeriod);
+
+    // Extract revenue data from the Income section
+    const revenueSection = profitLoss.Rows.Row.find(
+      row => row.Header?.ColData?.[0]?.value === 'Income'
+    );
+    
+    const revenueItems = revenueSection?.Rows?.Row || [];
+    const revenueAmounts = extractAmountsFromRows(revenueItems);
+    console.log('Revenue items:', revenueAmounts);
+
+    // Extract expense data from the Expenses section
+    const expenseSection = profitLoss.Rows.Row.find(
+      row => row.Header?.ColData?.[0]?.value === 'Expenses'
+    );
+    
+    const expenseItems = expenseSection?.Rows?.Row || [];
+    const expenseAmounts = extractAmountsFromRows(expenseItems);
+    console.log('Expense items:', expenseAmounts);
+
+    // Calculate monthly averages using only the direct items
+    const monthlyRevenue = revenueAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod;
+    const monthlyExpenses = expenseAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod;
+    console.log('Monthly averages:', {
+      revenue: monthlyRevenue,
+      expenses: monthlyExpenses,
+      netCashFlow: monthlyRevenue - monthlyExpenses,
+      periodMonths: monthsInPeriod
+    });
+
+    // Create financial entries
+    const createInitialEntry = (amount: number): FinancialEntry => ({
+      date: startDate,
+      amount,
+      category: 'Initial',
+      type: 'actual'
+    });
+
+    // Create revenue streams from individual income items
+    const usedRevenueNames = new Set<string>();
+    const revenueStreams = revenueAmounts
+      .filter(item => item.amount !== 0)
+      .map(item => {
+        const uniqueName = generateUniqueName(item.name, usedRevenueNames);
+        const monthlyAmount = item.amount / monthsInPeriod;
+        return {
+          name: uniqueName,
+          entries: [createInitialEntry(monthlyAmount)],
+          growthRate: 0.1
+        };
+      });
+
+    // Create expense categories from individual expense items
+    const usedExpenseNames = new Set<string>();
+    const expenses = expenseAmounts
+      .filter(item => item.amount !== 0)
+      .map(item => {
+        const uniqueName = generateUniqueName(item.name, usedExpenseNames);
+        const monthlyAmount = item.amount / monthsInPeriod;
+        return {
+          name: uniqueName,
+          entries: [createInitialEntry(monthlyAmount)],
+          isFixed: true,
+          isRecurring: true,
+          frequency: 'monthly' as TimePeriod
+        };
+      });
+
+    // Create initial projection data
+    const initialProjection = {
+      date: startDate,
+      cashBalance,
+      revenue: monthlyRevenue,
+      expenses: monthlyExpenses,
+      netCashFlow: monthlyRevenue - monthlyExpenses
+    };
+
+    const financialData: CompanyFinancials = {
+      cashBalance,
+      revenueStreams,
+      expenses,
+      startDate,
+      endDate,
+      initialProjection
+    };
+
+    // Create debug data object
+    const debugData = {
+      balanceSheet,
+      profitLoss,
+      extractedData: {
+        cashBalance,
+        revenueItems: revenueAmounts,
+        expenseItems: expenseAmounts,
+        monthlyAverages: {
+          revenue: monthlyRevenue,
+          expenses: monthlyExpenses,
+          netCashFlow: monthlyRevenue - monthlyExpenses,
+          periodMonths: monthsInPeriod
+        }
+      }
+    };
+
+    return { financialData, debugData };
+  };
+
+  const fetchFinancialData = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Starting to fetch financial data...');
+      
+      const client = new QuickBooksClient();
+      
+      try {
+        const { financialData, debugData } = await extractFinancialData(client);
+        console.log('Created financial data');
+
+        setFinancialData(financialData);
+        setDebugData(debugData);
+
+        const calculator = new RunwayCalculator(financialData);
+        const initialAnalysis = calculator.analyzeRunway();
+        console.log('Generated initial analysis');
+        
+        setAnalysis(initialAnalysis);
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+        throw apiError;
+      }
+    } catch (error) {
+      console.error('Failed to fetch financial data:', error);
+      setConnectionStatus('error');
+    } finally {
+      setIsLoading(false);
+      console.log('Finished loading financial data');
+    }
+  };
+
+  const handleQuickBooksConnect = () => {
+    console.log('Connecting to QuickBooks...');
+    const client = new QuickBooksClient();
+    const authUrl = client.getAuthorizationUrl();
+    window.location.href = authUrl;
+  };
 
   const handleOptionSelect = (option: RunwayOption) => {
+    if (!financialData) return;
     setSelectedOption(option);
-    const calculator = new RunwayCalculator(mockFinancials);
+    const calculator = new RunwayCalculator(financialData);
     const simulated = calculator.simulateOption(option);
     setSimulatedAnalysis(simulated);
   };
 
-  if (!analysis) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div className="flex justify-center items-center h-64">
+          <Text>Loading financial data...</Text>
+        </div>
+      </main>
+    );
+  }
+
+  if (connectionStatus === 'error') {
+    return (
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div className="flex flex-col items-center justify-center h-64">
+          <Text className="text-red-600 mb-4">Failed to connect to QuickBooks</Text>
+          <button
+            onClick={handleQuickBooksConnect}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (connectionStatus === 'idle') {
+    return (
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div className="flex flex-col items-center justify-center h-64">
+          <Title className="mb-4">Runway Analysis Dashboard</Title>
+          <Text className="mb-8">Connect to QuickBooks to analyze your company's financial future</Text>
+          <button
+            onClick={handleQuickBooksConnect}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Connect to QuickBooks
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!analysis || !financialData) {
+    return (
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <Title>Runway Analysis Dashboard</Title>
+            <Text>Loading your financial data...</Text>
+          </div>
+          <button
+            onClick={handleQuickBooksConnect}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Reconnect to QuickBooks
+          </button>
+        </div>
+      </main>
+    );
   }
 
   const chartData = analysis.projections.map(proj => ({
@@ -59,14 +492,24 @@ export default function Home() {
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Title>Runway Analysis Dashboard</Title>
-      <Text>Make informed decisions about your company's financial future</Text>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <Title>Runway Analysis Dashboard</Title>
+          <Text>Make informed decisions about your company's financial future</Text>
+        </div>
+        <button
+          onClick={handleQuickBooksConnect}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Reconnect to QuickBooks
+        </button>
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card>
           <Text>Current Runway</Text>
           <Metric>{analysis.currentRunway.toFixed(1)} months</Metric>
-          <Text className="mt-2">${mockFinancials.cashBalance.toLocaleString()} cash on hand</Text>
+          <Text className="mt-2">${financialData.cashBalance.toLocaleString()} cash on hand</Text>
         </Card>
         <Card>
           <Text>Monthly Burn Rate</Text>
@@ -117,8 +560,8 @@ export default function Home() {
         <div className="mt-6">
           <CalculationBreakdown
             projection={currentProjection}
-            revenueStreams={mockFinancials.revenueStreams}
-            expenses={mockFinancials.expenses}
+            revenueStreams={financialData.revenueStreams}
+            expenses={financialData.expenses}
             date={currentProjection.date}
           />
         </div>
@@ -164,6 +607,8 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {debugData && <DebugView data={debugData} />}
     </main>
   );
 }

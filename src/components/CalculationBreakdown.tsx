@@ -18,15 +18,12 @@ export function CalculationBreakdown({
 }: CalculationBreakdownProps) {
   // Calculate revenue breakdown
   const revenueBreakdown = revenueStreams.map(stream => {
-    const monthlyAmount = stream.entries
-      .filter(entry => {
-        const entryDate = new Date(entry.date);
-        return (
-          entryDate.getMonth() === date.getMonth() &&
-          entryDate.getFullYear() === date.getFullYear()
-        );
-      })
-      .reduce((sum, entry) => sum + entry.amount, 0);
+    // Use the latest entry up to the current date
+    const latestEntry = stream.entries
+      .filter(entry => !isAfter(new Date(entry.date), date))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    
+    const monthlyAmount = latestEntry ? latestEntry.amount : 0;
 
     let finalAmount = monthlyAmount;
     if (stream.growthRate) {
@@ -55,55 +52,22 @@ export function CalculationBreakdown({
 
   // Calculate expense breakdown
   const expenseBreakdown = expenses.map(expense => {
-    // For monthly expenses, use the most recent entry
-    if (expense.frequency === 'monthly') {
-      const latestEntry = expense.entries
-        .filter(entry => !isAfter(new Date(entry.date), date))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-      
-      if (latestEntry) {
-        let amount = latestEntry.amount;
-        
-        // Apply growth rate for non-fixed expenses
-        if (!expense.isFixed) {
-          const monthsFromStart = Math.floor(
-            (date.getTime() - new Date(latestEntry.date).getTime()) / (30 * 24 * 60 * 60 * 1000)
-          );
-          const growthFactor = Math.pow(1 + 0.05 / 12, monthsFromStart); // 5% annual growth
-          amount *= growthFactor;
-        }
-        
-        return {
-          name: expense.name,
-          amount,
-          baseAmount: latestEntry.amount,
-          isFixed: expense.isFixed,
-          frequency: expense.frequency,
-        };
-      }
-    }
+    // Use the latest entry up to the current date for all frequencies
+    const latestEntry = expense.entries
+      .filter(entry => !isAfter(new Date(entry.date), date))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-    // For quarterly and yearly expenses, find the relevant entry
-    const relevantEntry = expense.entries.find(entry => {
-      const entryDate = new Date(entry.date);
-      return (
-        entryDate.getMonth() === date.getMonth() &&
-        entryDate.getFullYear() === date.getFullYear()
-      );
-    });
-
-    if (relevantEntry) {
-      let amount = relevantEntry.amount;
-      
+    if (latestEntry) {
+      let amount = latestEntry.amount;
       // Apply growth rate for non-fixed expenses
       if (!expense.isFixed) {
         const monthsFromStart = Math.floor(
-          (date.getTime() - new Date(relevantEntry.date).getTime()) / (30 * 24 * 60 * 60 * 1000)
+          (date.getTime() - new Date(latestEntry.date).getTime()) / (30 * 24 * 60 * 60 * 1000)
         );
         const growthFactor = Math.pow(1 + 0.05 / 12, monthsFromStart); // 5% annual growth
         amount *= growthFactor;
       }
-      
+      // Adjust for frequency
       switch (expense.frequency) {
         case 'quarterly':
           amount = amount / 3;
@@ -112,16 +76,14 @@ export function CalculationBreakdown({
           amount = amount / 12;
           break;
       }
-
       return {
         name: expense.name,
         amount,
-        baseAmount: relevantEntry.amount,
+        baseAmount: latestEntry.amount,
         isFixed: expense.isFixed,
         frequency: expense.frequency,
       };
     }
-
     return {
       name: expense.name,
       amount: 0,
