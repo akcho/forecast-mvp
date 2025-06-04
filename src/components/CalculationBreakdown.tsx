@@ -1,5 +1,5 @@
 import { Card, Title, Text, BarChart, DonutChart } from '@tremor/react';
-import { RunwayProjection, RevenueStream, ExpenseCategory } from '../types/financial';
+import { RunwayProjection, RevenueStream, ExpenseCategory } from '@/types/financial';
 import { format } from 'date-fns';
 import { FinancialCalculationService } from '../lib/services/financialCalculations';
 import React, { useEffect, useState } from 'react';

@@ -4,7 +4,14 @@ import { Card, Title, Text, Metric, AreaChart, BarChart, Tab, TabList, TabGroup,
 import { useState, useEffect } from 'react';
 import { BanknotesIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { RunwayCalculator } from '../lib/runwayCalculator';
-import { RunwayAnalysis, RunwayOption, CompanyFinancials, RevenueStream, ExpenseCategory, FinancialEntry, TimePeriod, RunwayProjection } from '../types/financial';
+import {
+  CompanyFinancials,
+  RevenueStream,
+  ExpenseCategory,
+  FinancialEntry,
+  TimePeriod,
+  RunwayProjection
+} from '@/types/financial';
 import { format, addMonths, startOfMonth } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
 import { QuickBooksClient } from '@/lib/quickbooks/client';

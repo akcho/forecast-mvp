@@ -1,4 +1,4 @@
-import { FinancialEntry, ExpenseCategory, RevenueStream, CalculatedValue } from '../types/financial';
+import { FinancialEntry, ExpenseCategory, RevenueStream, CalculatedValue } from '@/types/financial';
 import { isAfter } from 'date-fns';
 import { DatabaseService } from './database';
 

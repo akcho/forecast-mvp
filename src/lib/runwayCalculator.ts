@@ -6,7 +6,7 @@ import {
   RunwayProjection,
   TimePeriod,
   FinancialEntry,
-} from '../types/financial';
+} from '@/types/financial';
 import { FinancialCalculationService } from './services/financialCalculations';
 
 export class RunwayCalculator {

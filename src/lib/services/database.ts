@@ -1,4 +1,4 @@
-import { CalculatedValue } from '../types/financial';
+import { CalculatedValue } from '@/types/financial';
 
 export class DatabaseService {
   private static instance: DatabaseService;
