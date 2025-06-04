@@ -74,12 +74,54 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    console.log('Report data received:', {
+    console.log('Raw QuickBooks API response:', {
       endpoint,
       hasData: !!data,
-      rowCount: data?.Rows?.Row?.length || 0,
+      dataKeys: Object.keys(data),
+      responseStatus: response.status,
+      responseHeaders: Object.fromEntries(response.headers.entries()),
     });
-    return NextResponse.json(data);
+
+    // Add detailed logging of the report structure
+    console.log('Report structure:', {
+      hasRows: !!data.Rows,
+      rowTypes: data.Rows?.Row?.map((row: any) => row.type),
+      columnDefinitions: data.Columns?.Column,
+      header: data.Header,
+      reportName: data.Header?.ReportName,
+      reportBasis: data.Header?.ReportBasis,
+      currency: data.Header?.Currency,
+      startPeriod: data.Header?.StartPeriod,
+      endPeriod: data.Header?.EndPeriod,
+      time: data.Header?.Time,
+    });
+
+    // Log first few rows for debugging
+    if (data.Rows?.Row) {
+      console.log('First few rows:', data.Rows.Row.slice(0, 3).map((row: any) => ({
+        type: row.type,
+        group: row.group,
+        summary: row.Summary,
+        data: row.ColData,
+      })));
+    }
+
+    // Wrap the response in the expected structure
+    const wrappedResponse = {
+      QueryResponse: {
+        Report: data
+      }
+    };
+
+    console.log('Wrapped report data:', {
+      endpoint,
+      hasData: !!wrappedResponse,
+      hasQueryResponse: !!wrappedResponse.QueryResponse,
+      hasReport: !!wrappedResponse.QueryResponse?.Report,
+      rowCount: wrappedResponse?.QueryResponse?.Report?.Rows?.Row?.length || 0,
+    });
+
+    return NextResponse.json(wrappedResponse);
   } catch (error) {
     console.error('Error fetching report:', error);
     return NextResponse.json(

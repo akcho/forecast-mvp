@@ -31,57 +31,28 @@ interface QuickBooksRow {
   group?: string;
 }
 
-interface QuickBooksBalanceSheet {
-  Header: {
-    Time: string;
-    ReportName: string;
-    DateMacro: string;
-    ReportBasis: string;
-    StartPeriod: string;
-    EndPeriod: string;
-    Currency: string;
-  };
-  Columns: {
-    Column: Array<{
-      ColTitle: string;
-      ColType: string;
-    }>;
-  };
-  Rows: {
-    Row: QuickBooksRow[];
-  };
-}
-
-interface QuickBooksProfitLoss {
-  Header: {
-    Time: string;
-    ReportName: string;
-    DateMacro: string;
-    ReportBasis: string;
-    StartPeriod: string;
-    EndPeriod: string;
-    Currency: string;
-  };
-  Rows: {
-    Row: Array<{
-      Header?: {
-        ColData: Array<{
-          value: string;
+interface QuickBooksReport {
+  QueryResponse: {
+    Report: {
+      Header: {
+        Time: string;
+        ReportName: string;
+        DateMacro: string;
+        ReportBasis: string;
+        StartPeriod: string;
+        EndPeriod: string;
+        Currency: string;
+      };
+      Columns: {
+        Column: Array<{
+          ColTitle: string;
+          ColType: string;
         }>;
       };
-      Rows?: {
-        Row: Array<{
-          ColData: Array<{
-            value: string;
-          }>;
-        }>;
+      Rows: {
+        Row: QuickBooksRow[];
       };
-      Summary?: {
-        ColData: Array<{
-          value: string;
-        }>;
-      };
-    }>;
+    };
   };
 }
 
@@ -165,8 +136,21 @@ export default function Home() {
 
     console.log('URL parameters:', { status, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
 
+    // Check for stored tokens first
+    const storedAccessToken = quickBooksStore.getAccessToken();
+    const storedRefreshToken = quickBooksStore.getRefreshToken();
+    const storedRealmId = quickBooksStore.getRealmId();
+
+    if (storedAccessToken && storedRefreshToken && storedRealmId) {
+      console.log('Found stored tokens, fetching data...');
+      setConnectionStatus('connected');
+      fetchFinancialData();
+      return;
+    }
+
+    // If no stored tokens, check URL parameters
     if (status === 'connected' && accessToken && refreshToken) {
-      console.log('Setting up QuickBooks connection...');
+      console.log('Setting up QuickBooks connection from URL parameters...');
       const client = new QuickBooksClient();
       quickBooksStore.setTokens(accessToken, refreshToken);
       if (realmId) {
@@ -178,25 +162,21 @@ export default function Home() {
       console.log('QuickBooks connection error');
       setConnectionStatus('error');
     } else {
-      console.log('No QuickBooks connection status');
-      const storedAccessToken = quickBooksStore.getAccessToken();
-      const storedRealmId = quickBooksStore.getRealmId();
-      
-      if (storedAccessToken && storedRealmId) {
-        console.log('Found stored tokens, fetching data...');
-        setConnectionStatus('connected');
-        fetchFinancialData();
-      } else {
-        console.log('No stored tokens found');
-        setConnectionStatus('idle');
-      }
+      console.log('No QuickBooks connection');
+      setConnectionStatus('idle');
     }
   }, [searchParams]);
 
-  const extractCashBalance = (balanceSheet: QuickBooksBalanceSheet): number => {
+  const extractCashBalance = (balanceSheet: QuickBooksReport): number => {
+    // Get the actual report data from the wrapped response
+    const report = balanceSheet.QueryResponse?.Report;
+    if (!report?.Rows?.Row) {
+      throw new Error('Could not find rows in balance sheet');
+    }
+
     // Find the ASSETS section
-    const assetsSection = balanceSheet.Rows.Row.find(
-      row => row.Header?.ColData?.[0]?.value === 'ASSETS'
+    const assetsSection = report.Rows.Row.find(
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'ASSETS'
     );
     if (!assetsSection?.Rows?.Row) {
       throw new Error('Could not find assets section');
@@ -204,7 +184,7 @@ export default function Home() {
 
     // Find the Current Assets section within ASSETS
     const currentAssetsSection = assetsSection.Rows.Row.find(
-      row => row.Header?.ColData?.[0]?.value === 'Current Assets'
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Current Assets'
     );
     if (!currentAssetsSection?.Rows?.Row) {
       throw new Error('Could not find current assets section');
@@ -212,7 +192,7 @@ export default function Home() {
 
     // Find the Bank Accounts section within Current Assets
     const bankAccountsSection = currentAssetsSection.Rows.Row.find(
-      row => row.Header?.ColData?.[0]?.value === 'Bank Accounts'
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Bank Accounts'
     );
     if (!bankAccountsSection?.Summary?.ColData) {
       throw new Error('Could not find bank accounts section');
@@ -256,23 +236,23 @@ export default function Home() {
 
   const extractFinancialData = async (client: QuickBooksClient): Promise<{ financialData: CompanyFinancials; debugData: any }> => {
     // Get balance sheet for current cash balance
-    const balanceSheet = await client.getBalanceSheet() as QuickBooksBalanceSheet;
+    const balanceSheet = await client.getBalanceSheet();
     const cashBalance = extractCashBalance(balanceSheet);
     console.log('Current cash balance:', cashBalance);
 
     // Get profit and loss for revenue and expenses
-    const profitLoss = await client.getProfitAndLoss() as QuickBooksProfitLoss;
+    const profitLoss = await client.getProfitAndLoss();
     console.log('Profit & Loss report dates:', {
-      startPeriod: profitLoss.Header.StartPeriod,
-      endPeriod: profitLoss.Header.EndPeriod,
-      reportBasis: profitLoss.Header.ReportBasis,
-      startDate: new Date(profitLoss.Header.StartPeriod).toISOString(),
-      endDate: new Date(profitLoss.Header.EndPeriod).toISOString()
+      startPeriod: profitLoss.QueryResponse.Report.Header.StartPeriod,
+      endPeriod: profitLoss.QueryResponse.Report.Header.EndPeriod,
+      reportBasis: profitLoss.QueryResponse.Report.Header.ReportBasis,
+      startDate: new Date(profitLoss.QueryResponse.Report.Header.StartPeriod).toISOString(),
+      endDate: new Date(profitLoss.QueryResponse.Report.Header.EndPeriod).toISOString()
     });
 
     // Parse the date range from the report
-    const startDate = new Date(profitLoss.Header.StartPeriod + 'T12:00:00.000Z');
-    const endDate = new Date(profitLoss.Header.EndPeriod + 'T12:00:00.000Z');
+    const startDate = new Date(profitLoss.QueryResponse.Report.Header.StartPeriod + 'T12:00:00.000Z');
+    const endDate = new Date(profitLoss.QueryResponse.Report.Header.EndPeriod + 'T12:00:00.000Z');
     
     // Calculate the number of months in the report period
     const monthsInPeriod = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
@@ -280,8 +260,8 @@ export default function Home() {
     console.log('Months in period:', monthsInPeriod);
 
     // Extract revenue data from the Income section
-    const revenueSection = profitLoss.Rows.Row.find(
-      row => row.Header?.ColData?.[0]?.value === 'Income'
+    const revenueSection = profitLoss.QueryResponse.Report.Rows.Row.find(
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Income'
     );
     
     const revenueItems = revenueSection?.Rows?.Row || [];
@@ -289,8 +269,8 @@ export default function Home() {
     console.log('Revenue items:', revenueAmounts);
 
     // Extract expense data from the Expenses section
-    const expenseSection = profitLoss.Rows.Row.find(
-      row => row.Header?.ColData?.[0]?.value === 'Expenses'
+    const expenseSection = profitLoss.QueryResponse.Report.Rows.Row.find(
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Expenses'
     );
     
     const expenseItems = expenseSection?.Rows?.Row || [];

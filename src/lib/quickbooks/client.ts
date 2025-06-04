@@ -27,38 +27,42 @@ interface QuickBooksCompanyInfo {
 }
 
 interface QuickBooksReport {
-  Header: {
-    Time: string;
-    ReportName: string;
-    DateMacro: string;
-    ReportBasis: string;
-    StartPeriod: string;
-    EndPeriod: string;
-    Currency: string;
-  };
-  Columns: {
-    Column: Array<{
-      ColTitle: string;
-      ColType: string;
-    }>;
-  };
-  Rows: {
-    Row: Array<{
+  QueryResponse: {
+    Report: {
       Header: {
-        ColData: Array<{
-          value: string;
+        Time: string;
+        ReportName: string;
+        DateMacro: string;
+        ReportBasis: string;
+        StartPeriod: string;
+        EndPeriod: string;
+        Currency: string;
+      };
+      Columns: {
+        Column: Array<{
+          ColTitle: string;
+          ColType: string;
         }>;
       };
-      Rows?: {
-        Row: Array<any>;
-      };
-      Summary?: {
-        ColData: Array<{
-          value: string;
+      Rows: {
+        Row: Array<{
+          Header: {
+            ColData: Array<{
+              value: string;
+            }>;
+          };
+          Rows?: {
+            Row: Array<any>;
+          };
+          Summary?: {
+            ColData: Array<{
+              value: string;
+            }>;
+          };
+          type: string;
         }>;
       };
-      type: string;
-    }>;
+    };
   };
 }
 
@@ -206,7 +210,22 @@ export class QuickBooksClient {
 
   async getBalanceSheet(): Promise<QuickBooksReport> {
     try {
-      return await this.makeRequest<QuickBooksReport>('reports', 'balance-sheet');
+      console.log('Fetching balance sheet...');
+      const response = await this.makeRequest<QuickBooksReport>('reports', 'balance-sheet');
+      console.log('Balance sheet response:', {
+        hasData: !!response,
+        hasQueryResponse: !!response?.QueryResponse,
+        hasReport: !!response?.QueryResponse?.Report,
+        dataKeys: Object.keys(response || {}),
+        reportStructure: response?.QueryResponse?.Report ? {
+          keys: Object.keys(response.QueryResponse.Report),
+          hasRows: !!response.QueryResponse.Report.Rows,
+          rowsType: typeof response.QueryResponse.Report.Rows,
+          rowsKeys: response.QueryResponse.Report.Rows ? Object.keys(response.QueryResponse.Report.Rows) : [],
+          firstRow: response.QueryResponse.Report.Rows?.Row?.[0]
+        } : null
+      });
+      return response;
     } catch (error) {
       console.error('Error fetching balance sheet:', error);
       throw error;
@@ -215,7 +234,15 @@ export class QuickBooksClient {
 
   async getProfitAndLoss(): Promise<QuickBooksReport> {
     try {
-      return await this.makeRequest<QuickBooksReport>('reports', 'profit-loss');
+      console.log('Fetching profit and loss...');
+      const response = await this.makeRequest<QuickBooksReport>('reports', 'profit-loss');
+      console.log('Profit and loss response:', {
+        hasData: !!response,
+        hasQueryResponse: !!response?.QueryResponse,
+        hasReport: !!response?.QueryResponse?.Report,
+        dataKeys: Object.keys(response || {}),
+      });
+      return response;
     } catch (error) {
       console.error('Error fetching profit and loss:', error);
       throw error;
@@ -224,7 +251,15 @@ export class QuickBooksClient {
 
   async getCashFlow(): Promise<QuickBooksReport> {
     try {
-      return await this.makeRequest<QuickBooksReport>('reports', 'cash-flow');
+      console.log('Fetching cash flow...');
+      const response = await this.makeRequest<QuickBooksReport>('reports', 'cash-flow');
+      console.log('Cash flow response:', {
+        hasData: !!response,
+        hasQueryResponse: !!response?.QueryResponse,
+        hasReport: !!response?.QueryResponse?.Report,
+        dataKeys: Object.keys(response || {}),
+      });
+      return response;
     } catch (error) {
       console.error('Error fetching cash flow:', error);
       throw error;
@@ -236,6 +271,110 @@ export class QuickBooksClient {
       return await this.makeRequest<QuickBooksCompanyInfo>('company', '');
     } catch (error) {
       console.error('Error fetching company info:', error);
+      throw error;
+    }
+  }
+
+  async getTransactions() {
+    try {
+      const transactionTypes = ['Purchase', 'Invoice', 'Payment', 'Bill'];
+      
+      const queries = transactionTypes.map(type => `
+        SELECT * FROM ${type}
+        ORDER BY TxnDate DESC
+      `);
+
+      const responses = await Promise.all(
+        queries.map(query => 
+          fetch('/api/quickbooks/query', {
+            method: 'POST',
+            headers: {
+              'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
+              'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+          })
+        )
+      );
+
+      const results = await Promise.all(
+        responses.map(async (response, index) => {
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.warn(`Warning: Failed to fetch ${transactionTypes[index]}:`, errorData);
+            return { QueryResponse: { [transactionTypes[index]]: [] } };
+          }
+          return response.json();
+        })
+      );
+
+      // Combine all results into a single response
+      const combinedResponse = {
+        QueryResponse: {
+          Transaction: results.flatMap((result, index) => {
+            const transactions = result.QueryResponse[transactionTypes[index]] || [];
+            return transactions.map((txn: any) => ({
+              ...txn,
+              TxnType: transactionTypes[index]
+            }));
+          }).sort((a: any, b: any) => 
+            new Date(b.TxnDate).getTime() - new Date(a.TxnDate).getTime()
+          )
+        }
+      };
+
+      return combinedResponse;
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
+  }
+
+  async getLists() {
+    try {
+      // Focus on the most essential list types
+      const listTypes = [
+        'Account',
+        'Customer',
+        'Vendor',
+        'Item'
+      ];
+      
+      // Process lists sequentially
+      const results = [];
+      for (const type of listTypes) {
+        try {
+          const query = `SELECT * FROM ${type}`;
+          const response = await fetch('/api/quickbooks/query', {
+            method: 'POST',
+            headers: {
+              'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
+              'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.warn(`Warning: Failed to fetch ${type}:`, errorData);
+            results.push({ [type]: [] });
+          } else {
+            const data = await response.json();
+            results.push({ [type]: data.QueryResponse[type] || [] });
+          }
+        } catch (error) {
+          console.warn(`Error fetching ${type}:`, error);
+          results.push({ [type]: [] });
+        }
+      }
+
+      return {
+        QueryResponse: Object.assign({}, ...results)
+      };
+    } catch (error) {
+      console.error('Error fetching lists:', error);
       throw error;
     }
   }
