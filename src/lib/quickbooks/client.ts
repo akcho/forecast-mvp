@@ -73,9 +73,9 @@ export class QuickBooksClient {
 
   constructor() {
     console.log('Initializing QuickBooks client');
-    this.clientId = process.env.QB_CLIENT_ID || '';
-    this.clientSecret = process.env.QB_CLIENT_SECRET || '';
-    this.redirectUri = process.env.QB_REDIRECT_URI || '';
+    this.clientId = process.env.NEXT_PUBLIC_QB_CLIENT_ID || '';
+    this.clientSecret = process.env.NEXT_PUBLIC_QB_CLIENT_SECRET || '';
+    this.redirectUri = process.env.NEXT_PUBLIC_QB_REDIRECT_URI || '';
     
     console.log('QuickBooks client initialized:', {
       hasClientId: !!this.clientId,
