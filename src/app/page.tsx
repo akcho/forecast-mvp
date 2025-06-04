@@ -4,12 +4,14 @@ import { Card, Title, Text, Metric, AreaChart, BarChart, Tab, TabList, TabGroup,
 import { useState, useEffect } from 'react';
 import { BanknotesIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { RunwayCalculator } from '../lib/runwayCalculator';
-import { RunwayAnalysis, RunwayOption, CompanyFinancials, RevenueStream, ExpenseCategory, FinancialEntry, TimePeriod } from '../types/financial';
-import { format, addMonths } from 'date-fns';
+import { RunwayAnalysis, RunwayOption, CompanyFinancials, RevenueStream, ExpenseCategory, FinancialEntry, TimePeriod, RunwayProjection } from '../types/financial';
+import { format, addMonths, startOfMonth } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
+import { CalculationJob } from '@/lib/services/calculationJob';
+import { FinancialCalculationService } from '@/lib/services/financialCalculations';
 
 interface QuickBooksRow {
   Header?: {
@@ -88,6 +90,13 @@ interface ChartDataPoint {
   'Cash Balance': number;
   'Revenue': number;
   'Expenses': number;
+  cumulativeCash?: number;
+}
+
+interface ProcessedData {
+  revenueStreams: RevenueStream[];
+  expenses: ExpenseCategory[];
+  initialCashBalance: number;
 }
 
 const generateUniqueName = (baseName: string, existingNames: Set<string>): string => {
@@ -134,9 +143,18 @@ export default function Home() {
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connected' | 'error'>('idle');
   const [statusDetails, setStatusDetails] = useState<any>(null);
   const [financialData, setFinancialData] = useState<CompanyFinancials | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [debugData, setDebugData] = useState<any>(null);
   const searchParams = useSearchParams();
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [projections, setProjections] = useState<any[]>([]);
+
+  // Reset selectedMonth if it's out of bounds after filtering
+  useEffect(() => {
+    if (analysis && selectedMonth >= analysis.projections.filter(proj => proj.cashBalance > 0).length) {
+      setSelectedMonth(0);
+    }
+  }, [analysis, selectedMonth]);
 
   useEffect(() => {
     console.log('Home component mounted');
@@ -247,12 +265,14 @@ export default function Home() {
     console.log('Profit & Loss report dates:', {
       startPeriod: profitLoss.Header.StartPeriod,
       endPeriod: profitLoss.Header.EndPeriod,
-      reportBasis: profitLoss.Header.ReportBasis
+      reportBasis: profitLoss.Header.ReportBasis,
+      startDate: new Date(profitLoss.Header.StartPeriod).toISOString(),
+      endDate: new Date(profitLoss.Header.EndPeriod).toISOString()
     });
 
     // Parse the date range from the report
-    const startDate = new Date(profitLoss.Header.StartPeriod);
-    const endDate = new Date(profitLoss.Header.EndPeriod);
+    const startDate = new Date(profitLoss.Header.StartPeriod + 'T12:00:00.000Z');
+    const endDate = new Date(profitLoss.Header.EndPeriod + 'T12:00:00.000Z');
     
     // Calculate the number of months in the report period
     const monthsInPeriod = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
@@ -278,8 +298,8 @@ export default function Home() {
     console.log('Expense items:', expenseAmounts);
 
     // Calculate monthly averages using only the direct items
-    const monthlyRevenue = revenueAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod;
-    const monthlyExpenses = expenseAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod;
+    const monthlyRevenue = Math.round((revenueAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod) * 100) / 100;
+    const monthlyExpenses = Math.round((expenseAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod) * 100) / 100;
     console.log('Monthly averages:', {
       revenue: monthlyRevenue,
       expenses: monthlyExpenses,
@@ -289,48 +309,109 @@ export default function Home() {
 
     // Create financial entries
     const createInitialEntry = (amount: number): FinancialEntry => ({
-      date: startDate,
-      amount,
-      category: 'Initial',
-      type: 'actual'
+      id: crypto.randomUUID(),
+      date: startDate.toISOString(),
+      amount: Math.round(amount * 100) / 100,
+      description: 'Initial entry'
     });
 
-    // Create revenue streams from individual income items
+    // Create historical data
+    const historicalMonths = 6;
+    const historicalStartDate = new Date(startDate);
+    historicalStartDate.setMonth(historicalStartDate.getMonth() - historicalMonths);
+    
+    // Generate historical amounts with growth
+    const historicalAmounts = Array.from({ length: historicalMonths }, (_, i) => {
+      const amount = revenueAmounts[i]?.amount || 0;
+      return Math.round((amount / monthsInPeriod) * 100) / 100;
+    });
+
+    // Create historical entries
+    const historicalEntries = historicalAmounts.map((amount, i) => {
+      const entryDate = new Date(historicalStartDate);
+      entryDate.setMonth(entryDate.getMonth() + i);
+      return {
+        id: crypto.randomUUID(),
+        date: entryDate.toISOString(),
+        amount: Math.round(amount * 100) / 100,
+        description: 'Historical entry'
+      };
+    });
+
+    // Create actual entries
+    const actualEntries = Array.from({ length: monthsInPeriod }, (_, i) => {
+      const entryDate = new Date(startDate);
+      entryDate.setMonth(entryDate.getMonth() + i);
+      return {
+        id: crypto.randomUUID(),
+        date: entryDate.toISOString(),
+        amount: Math.round((revenueAmounts[i].amount / monthsInPeriod) * 100) / 100,
+        description: 'Actual entry'
+      };
+    });
+
+    // Create revenue streams
     const usedRevenueNames = new Set<string>();
     const revenueStreams = revenueAmounts
       .filter(item => item.amount !== 0)
       .map(item => {
         const uniqueName = generateUniqueName(item.name, usedRevenueNames);
-        const monthlyAmount = item.amount / monthsInPeriod;
+        const monthlyAmount = Math.round((item.amount / monthsInPeriod) * 100) / 100;
+        
+        // Create entries using only actual QuickBooks data
+        const entries = Array.from({ length: monthsInPeriod }, (_, i) => {
+          const entryDate = new Date(startDate);
+          entryDate.setMonth(entryDate.getMonth() + i);
+          return {
+            id: crypto.randomUUID(),
+            date: entryDate.toISOString(),
+            amount: monthlyAmount,
+            description: 'QuickBooks data'
+          };
+        });
+        
         return {
+          id: uniqueName,
           name: uniqueName,
-          entries: [createInitialEntry(monthlyAmount)],
-          growthRate: 0.1
+          entries,
+          isRecurring: true
         };
       });
 
-    // Create expense categories from individual expense items
+    // Create expenses
     const usedExpenseNames = new Set<string>();
     const expenses = expenseAmounts
       .filter(item => item.amount !== 0)
       .map(item => {
         const uniqueName = generateUniqueName(item.name, usedExpenseNames);
-        const monthlyAmount = item.amount / monthsInPeriod;
+        const monthlyAmount = Math.round((item.amount / monthsInPeriod) * 100) / 100;
+        
         return {
+          id: uniqueName,
           name: uniqueName,
           entries: [createInitialEntry(monthlyAmount)],
-          isFixed: true,
+          isFixed: [
+            'Rent or Lease',
+            'Insurance',
+            'Accounting',
+            'Bookkeeper',
+            'Lawyer',
+            'Telephone',
+            'Gas and Electric'
+          ].includes(item.name),
           isRecurring: true,
           frequency: 'monthly' as TimePeriod
         };
       });
 
-    // Create initial projection data
-    const initialProjection = {
+    // Create initial projection
+    const initialProjection: RunwayProjection = {
       date: startDate,
-      cashBalance,
       revenue: monthlyRevenue,
       expenses: monthlyExpenses,
+      netIncome: monthlyRevenue - monthlyExpenses,
+      cumulativeCash: cashBalance,
+      cashBalance: cashBalance,
       netCashFlow: monthlyRevenue - monthlyExpenses
     };
 
@@ -365,7 +446,7 @@ export default function Home() {
 
   const fetchFinancialData = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       console.log('Starting to fetch financial data...');
       
       const client = new QuickBooksClient();
@@ -378,7 +459,7 @@ export default function Home() {
         setDebugData(debugData);
 
         const calculator = new RunwayCalculator(financialData);
-        const initialAnalysis = calculator.analyzeRunway();
+        const initialAnalysis = await calculator.analyzeRunway();
         console.log('Generated initial analysis');
         
         setAnalysis(initialAnalysis);
@@ -390,7 +471,7 @@ export default function Home() {
       console.error('Failed to fetch financial data:', error);
       setConnectionStatus('error');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
       console.log('Finished loading financial data');
     }
   };
@@ -402,15 +483,96 @@ export default function Home() {
     window.location.href = authUrl;
   };
 
-  const handleOptionSelect = (option: RunwayOption) => {
+  const handleOptionSelect = async (option: RunwayOption) => {
     if (!financialData) return;
     setSelectedOption(option);
     const calculator = new RunwayCalculator(financialData);
-    const simulated = calculator.simulateOption(option);
+    const simulated = await calculator.simulateOption(option);
     setSimulatedAnalysis(simulated);
   };
 
-  if (isLoading) {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Initialize calculation services
+        const calculationJob = CalculationJob.getInstance();
+        const financialService = FinancialCalculationService.getInstance();
+
+        // Create initial financial data
+        const initialData: CompanyFinancials = {
+          startDate: new Date(2024, 6, 1), // July 2024
+          endDate: new Date(2025, 11, 31), // December 2025
+          revenueStreams: [],
+          expenses: [],
+          cashBalance: 0,
+          initialProjection: {
+            date: new Date(2024, 6, 1),
+            revenue: 0,
+            expenses: 0,
+            netIncome: 0,
+            cumulativeCash: 0,
+            cashBalance: 0,
+            netCashFlow: 0
+          }
+        };
+
+        // Pre-calculate values for the entire date range
+        await calculationJob.precalculateValues(initialData);
+
+        // Update state with processed data
+        setFinancialData(initialData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setConnectionStatus('error');
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Async function to build projections and chart data
+  const buildProjectionsAndChartData = async (analysis: RunwayAnalysis) => {
+    // Await all revenue/expense calculations for each projection
+    const newProjections = await Promise.all(
+      analysis.projections.map(async (proj) => {
+        // If revenue/expenses are Promises, resolve them
+        const revenue = typeof proj.revenue === 'number' ? proj.revenue : await proj.revenue;
+        const expenses = typeof proj.expenses === 'number' ? proj.expenses : await proj.expenses;
+        return {
+          ...proj,
+          revenue,
+          expenses,
+        };
+      })
+    );
+    setProjections(newProjections);
+    const chartData = newProjections.map((proj) => ({
+      date: format(proj.date, 'MMM yyyy'),
+      'Cash Balance': proj.cashBalance,
+      'Revenue': proj.revenue,
+      'Expenses': proj.expenses,
+      cumulativeCash: proj.cumulativeCash
+    }));
+    setChartData(chartData);
+  };
+
+  // Use projections/chartData from state
+  const filteredProjections = projections.filter(proj => {
+    const date = new Date(proj.date);
+    return !(date.getMonth() === 11 && date.getFullYear() === 2024);
+  });
+  const currentProjection = filteredProjections[selectedMonth];
+
+  // Use cumulativeCash for chart data
+  useEffect(() => {
+    if (analysis) {
+      buildProjectionsAndChartData(analysis);
+    }
+  }, [analysis]);
+
+  if (loading) {
     return (
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
         <div className="flex justify-center items-center h-64">
@@ -472,23 +634,17 @@ export default function Home() {
     );
   }
 
-  const chartData = analysis.projections.map(proj => ({
-    date: format(proj.date, 'MMM yyyy'),
-    'Cash Balance': proj.cashBalance,
-    'Revenue': proj.revenue,
-    'Expenses': proj.expenses,
-  }));
-
-  const simulatedChartData = simulatedAnalysis?.projections.map(proj => ({
-    date: format(proj.date, 'MMM yyyy'),
-    'Cash Balance': proj.cashBalance,
-    'Revenue': proj.revenue,
-    'Expenses': proj.expenses,
-  })) || [];
-
-  const currentProjection = selectedOption
-    ? simulatedAnalysis?.projections[selectedMonth]
-    : analysis.projections[selectedMonth];
+  const simulatedChartData = simulatedAnalysis?.projections
+    .filter(proj => {
+      const date = new Date(proj.date);
+      return !(date.getMonth() === 11 && date.getFullYear() === 2024);
+    })
+    .map(proj => ({
+      date: format(proj.date, 'MMM yyyy'),
+      'Cash Balance': proj.cashBalance,
+      'Revenue': proj.revenue,
+      'Expenses': proj.expenses,
+    })) || [];
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
@@ -509,7 +665,7 @@ export default function Home() {
         <Card>
           <Text>Current Runway</Text>
           <Metric>{analysis.currentRunway.toFixed(1)} months</Metric>
-          <Text className="mt-2">${financialData.cashBalance.toLocaleString()} cash on hand</Text>
+          <Text className="mt-2">${(financialData.initialProjection?.cumulativeCash || 0).toLocaleString()} cash on hand</Text>
         </Card>
         <Card>
           <Text>Monthly Burn Rate</Text>
@@ -532,7 +688,7 @@ export default function Home() {
           <Title>Cash Projection</Title>
           <AreaChart
             className="mt-4 h-72"
-            data={selectedOption ? simulatedChartData : chartData}
+            data={chartData}
             index="date"
             categories={['Cash Balance', 'Revenue', 'Expenses']}
             colors={['blue', 'green', 'red']}
@@ -591,8 +747,8 @@ export default function Home() {
               </div>
               <Metric className="mt-4">
                 {option.impact.type === 'expense'
-                  ? `-${option.impact.value.toLocaleString()}`
-                  : `+${option.impact.value.toLocaleString()}`}
+                  ? `-$${Math.round(option.impact.value).toLocaleString()}`
+                  : `+$${Math.round(option.impact.value).toLocaleString()}`}
               </Metric>
               <div className="mt-2 space-y-1">
                 <Text className="text-sm">Risk: {option.risk}</Text>

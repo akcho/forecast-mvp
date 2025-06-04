@@ -1,47 +1,49 @@
 export type TimePeriod = 'monthly' | 'quarterly' | 'yearly';
 
 export interface FinancialEntry {
-  date: Date;
+  id: string;
+  date: string;
   amount: number;
-  category: string;
-  type: 'actual' | 'forecast' | 'historical';
+  description?: string;
 }
 
 export interface RevenueStream {
+  id: string;
   name: string;
   entries: FinancialEntry[];
-  growthRate?: number; // Annual growth rate as decimal
-  seasonality?: number[]; // Monthly seasonality factors
+  isRecurring: boolean;
+  frequency?: 'monthly' | 'quarterly' | 'yearly';
+  growthRate?: number;
+  seasonality?: {
+    month: number;
+    factor: number;
+  }[];
 }
 
 export interface ExpenseCategory {
+  id: string;
   name: string;
   entries: FinancialEntry[];
   isFixed: boolean;
-  isRecurring: boolean;
-  frequency: TimePeriod;
+  frequency: 'monthly' | 'quarterly' | 'yearly';
 }
 
 export interface CompanyFinancials {
-  cashBalance: number;
-  revenueStreams: RevenueStream[];
-  expenses: ExpenseCategory[];
   startDate: Date;
   endDate: Date;
-  initialProjection: {
-    date: Date;
-    cashBalance: number;
-    revenue: number;
-    expenses: number;
-    netCashFlow: number;
-  };
+  revenueStreams: RevenueStream[];
+  expenses: ExpenseCategory[];
+  initialProjection: RunwayProjection;
+  cashBalance: number;
 }
 
 export interface RunwayProjection {
   date: Date;
-  cashBalance: number;
   revenue: number;
   expenses: number;
+  netIncome: number;
+  cumulativeCash: number;
+  cashBalance: number;
   netCashFlow: number;
 }
 
@@ -66,4 +68,17 @@ export interface RunwayOption {
   implementationTime?: number; // in days
   risk: 'low' | 'medium' | 'high';
   confidence: number; // 0-1
+}
+
+export interface CalculatedValue {
+  id: string;
+  type: 'expense' | 'revenue';
+  entityId: string;
+  date: Date;
+  amount: number;
+  metadata: {
+    calculatedAt: Date;
+    source: string;
+    version: string;
+  };
 } 

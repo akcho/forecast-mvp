@@ -1,7 +1,8 @@
 import { Card, Title, Text, BarChart, DonutChart } from '@tremor/react';
 import { RunwayProjection, RevenueStream, ExpenseCategory } from '../types/financial';
 import { format } from 'date-fns';
-import { isAfter } from 'date-fns';
+import { FinancialCalculationService } from '../lib/services/financialCalculations';
+import React, { useEffect, useState } from 'react';
 
 interface CalculationBreakdownProps {
   projection: RunwayProjection;
@@ -16,82 +17,59 @@ export function CalculationBreakdown({
   expenses,
   date,
 }: CalculationBreakdownProps) {
-  // Calculate revenue breakdown
-  const revenueBreakdown = revenueStreams.map(stream => {
-    // Use the latest entry up to the current date
-    const latestEntry = stream.entries
-      .filter(entry => !isAfter(new Date(entry.date), date))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-    
-    const monthlyAmount = latestEntry ? latestEntry.amount : 0;
+  const financialService = FinancialCalculationService.getInstance();
 
-    let finalAmount = monthlyAmount;
-    if (stream.growthRate) {
-      const monthsFromStart = Math.floor(
-        (date.getTime() - new Date(stream.entries[0].date).getTime()) / (30 * 24 * 60 * 60 * 1000)
-      );
-      const growthFactor = Math.pow(1 + stream.growthRate / 12, monthsFromStart);
-      finalAmount *= growthFactor;
-    }
-    if (stream.seasonality) {
-      const monthIndex = date.getMonth();
-      const seasonalityFactor = stream.seasonality[monthIndex] || 1;
-      finalAmount *= seasonalityFactor;
-    }
+  // State for async calculated values
+  const [revenueBreakdown, setRevenueBreakdown] = useState<any[] | null>(null);
+  const [expenseBreakdown, setExpenseBreakdown] = useState<any[] | null>(null);
 
-    return {
-      name: stream.name,
-      amount: finalAmount,
-      baseAmount: monthlyAmount,
-      adjustments: {
-        growth: stream.growthRate ? (finalAmount - monthlyAmount) : 0,
-        seasonality: stream.seasonality ? (finalAmount - monthlyAmount) : 0,
-      },
+  useEffect(() => {
+    let isMounted = true;
+    // Calculate revenue breakdown
+    Promise.all(
+      revenueStreams.map(async stream => {
+        const amount = await financialService.calculateRevenueAmount(stream, date);
+        const baseAmount = stream.entries[0]?.amount || 0;
+        const growthAdjustment = amount - baseAmount;
+        return {
+          name: stream.name,
+          amount,
+          baseAmount,
+          adjustments: {
+            growth: growthAdjustment,
+            seasonality: 0,
+          },
+        };
+      })
+    ).then(results => {
+      if (isMounted) setRevenueBreakdown(results);
+    });
+
+    // Calculate expense breakdown
+    Promise.all(
+      expenses.map(async expense => {
+        const amount = await financialService.calculateExpenseAmount(expense, date);
+        const baseAmount = expense.entries[0]?.amount || 0;
+        return {
+          name: expense.name,
+          amount,
+          baseAmount,
+          isFixed: expense.isFixed,
+          frequency: expense.frequency,
+        };
+      })
+    ).then(results => {
+      if (isMounted) setExpenseBreakdown(results);
+    });
+
+    return () => {
+      isMounted = false;
     };
-  });
+  }, [revenueStreams, expenses, date, financialService]);
 
-  // Calculate expense breakdown
-  const expenseBreakdown = expenses.map(expense => {
-    // Use the latest entry up to the current date for all frequencies
-    const latestEntry = expense.entries
-      .filter(entry => !isAfter(new Date(entry.date), date))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-
-    if (latestEntry) {
-      let amount = latestEntry.amount;
-      // Apply growth rate for non-fixed expenses
-      if (!expense.isFixed) {
-        const monthsFromStart = Math.floor(
-          (date.getTime() - new Date(latestEntry.date).getTime()) / (30 * 24 * 60 * 60 * 1000)
-        );
-        const growthFactor = Math.pow(1 + 0.05 / 12, monthsFromStart); // 5% annual growth
-        amount *= growthFactor;
-      }
-      // Adjust for frequency
-      switch (expense.frequency) {
-        case 'quarterly':
-          amount = amount / 3;
-          break;
-        case 'yearly':
-          amount = amount / 12;
-          break;
-      }
-      return {
-        name: expense.name,
-        amount,
-        baseAmount: latestEntry.amount,
-        isFixed: expense.isFixed,
-        frequency: expense.frequency,
-      };
-    }
-    return {
-      name: expense.name,
-      amount: 0,
-      baseAmount: 0,
-      isFixed: expense.isFixed,
-      frequency: expense.frequency,
-    };
-  });
+  if (!revenueBreakdown || !expenseBreakdown) {
+    return <div>Loading breakdown...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -101,8 +79,8 @@ export function CalculationBreakdown({
           <BarChart
             data={revenueBreakdown}
             index="name"
-            categories={['amount']}
-            colors={['blue']}
+            categories={["amount"]}
+            colors={["blue"]}
             valueFormatter={(number) => `$${number.toLocaleString()}`}
             className="h-72"
           />
@@ -120,12 +98,6 @@ export function CalculationBreakdown({
                   <div className="flex justify-between text-green-600">
                     <Text>Growth Adjustment:</Text>
                     <Text>+${stream.adjustments.growth.toLocaleString()}</Text>
-                  </div>
-                )}
-                {stream.adjustments.seasonality > 0 && (
-                  <div className="flex justify-between text-blue-600">
-                    <Text>Seasonality Adjustment:</Text>
-                    <Text>+${stream.adjustments.seasonality.toLocaleString()}</Text>
                   </div>
                 )}
                 <div className="flex justify-between font-medium">
@@ -199,8 +171,11 @@ export function CalculationBreakdown({
           </div>
           <div className="flex justify-between text-xl font-bold border-t pt-4">
             <Text>Net Cash Flow:</Text>
-            <Text className={projection.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}>
-              ${projection.netCashFlow.toLocaleString()}
+            <Text className={revenueBreakdown.reduce((sum, r) => sum + r.amount, 0) - expenseBreakdown.reduce((sum, e) => sum + e.amount, 0) >= 0 ? 'text-green-600' : 'text-red-600'}>
+              ${(
+                revenueBreakdown.reduce((sum, r) => sum + r.amount, 0) -
+                expenseBreakdown.reduce((sum, e) => sum + e.amount, 0)
+              ).toLocaleString()}
             </Text>
           </div>
         </div>

@@ -1,0 +1,3825 @@
+main-app.js?v=1748934613130:94 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+store.ts:11 Initializing QuickBooks store
+store.ts:18 QuickBooksStore initialized from localStorage: {hasAccessToken: true, hasRefreshToken: true, hasRealmId: true, accessTokenLength: 603, refreshTokenLength: 41}
+page.tsx:128 Home component rendering
+page.tsx:128 Home component rendering
+page.tsx:149 Home component mounted
+page.tsx:155 URL parameters: {status: null, hasAccessToken: false, hasRefreshToken: false, hasRealmId: false}
+page.tsx:170 No QuickBooks connection status
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:175 Found stored tokens, fetching data...
+page.tsx:400 Starting to fetch financial data...
+client.ts:71 Initializing QuickBooks client
+client.ts:76 QuickBooks client initialized: {hasClientId: true, hasClientSecret: true, hasRedirectUri: true}
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:149 Home component mounted
+page.tsx:155 URL parameters: {status: null, hasAccessToken: false, hasRefreshToken: false, hasRealmId: false}
+page.tsx:170 No QuickBooks connection status
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:175 Found stored tokens, fetching data...
+page.tsx:400 Starting to fetch financial data...
+client.ts:71 Initializing QuickBooks client
+client.ts:76 QuickBooks client initialized: {hasClientId: true, hasClientSecret: true, hasRedirectUri: true}
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:128 Home component rendering
+page.tsx:128 Home component rendering
+page.tsx:250 Current cash balance: 2001
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:250 Current cash balance: 2001
+store.ts:46 Getting access token: {hasToken: true, tokenLength: 603}
+store.ts:71 Getting realm ID: {hasRealmId: true, realmId: '9341454766470181'}
+page.tsx:254 Profit & Loss report dates: {startPeriod: '2025-01-01', endPeriod: '2025-06-03', reportBasis: 'Accrual', startDate: '2025-01-01T00:00:00.000Z', endDate: '2025-06-03T00:00:00.000Z'}
+page.tsx:269 Months in period: 7
+ Revenue items: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ Expense items: (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ Monthly averages: {revenue: 1246.18, expenses: 629.75, netCashFlow: 616.4300000000001, periodMonths: 7}
+ Revenue item Design income: {originalAmount: 2250, monthsInPeriod: 7, monthlyAmount: 321.43}
+ Revenue item Discounts given: {originalAmount: -89.5, monthsInPeriod: 7, monthlyAmount: -12.79}
+ Revenue item Fountains and Garden Lighting: {originalAmount: 2246.5, monthsInPeriod: 7, monthlyAmount: 320.93}
+ Revenue item Plants and Soil: {originalAmount: 2351.97, monthsInPeriod: 7, monthlyAmount: 336}
+ Revenue item Sprinklers and Drip Systems: {originalAmount: 138, monthsInPeriod: 7, monthlyAmount: 19.71}
+ Revenue item Installation: {originalAmount: 250, monthsInPeriod: 7, monthlyAmount: 35.71}
+ Revenue item Maintenance and Repair: {originalAmount: 50, monthsInPeriod: 7, monthlyAmount: 7.14}
+ Revenue item Pest Control Services: {originalAmount: 110, monthsInPeriod: 7, monthlyAmount: 15.71}
+ Revenue item Sales of Product Income: {originalAmount: 912.75, monthsInPeriod: 7, monthlyAmount: 130.39}
+ Revenue item Services: {originalAmount: 503.55, monthsInPeriod: 7, monthlyAmount: 71.94}
+ Expense item Advertising: {originalAmount: 74.86, monthsInPeriod: 7, monthlyAmount: 10.69}
+ Expense item Fuel: {originalAmount: 349.41, monthsInPeriod: 7, monthlyAmount: 49.92}
+ Expense item Equipment Rental: {originalAmount: 112, monthsInPeriod: 7, monthlyAmount: 16}
+ Expense item Insurance: {originalAmount: 241.23, monthsInPeriod: 7, monthlyAmount: 34.46}
+ Expense item Decks and Patios: {originalAmount: 234.04, monthsInPeriod: 7, monthlyAmount: 33.43}
+ Expense item Plants and Soil: {originalAmount: 353.12, monthsInPeriod: 7, monthlyAmount: 50.45}
+ Expense item Sprinklers and Drip Systems: {originalAmount: 215.66, monthsInPeriod: 7, monthlyAmount: 30.81}
+ Expense item Accounting: {originalAmount: 640, monthsInPeriod: 7, monthlyAmount: 91.43}
+ Expense item Bookkeeper: {originalAmount: 55, monthsInPeriod: 7, monthlyAmount: 7.86}
+ Expense item Lawyer: {originalAmount: 100, monthsInPeriod: 7, monthlyAmount: 14.29}
+ Expense item Equipment Repairs: {originalAmount: 755, monthsInPeriod: 7, monthlyAmount: 107.86}
+ Expense item Meals and Entertainment: {originalAmount: 28.49, monthsInPeriod: 7, monthlyAmount: 4.07}
+ Expense item Office Expenses: {originalAmount: 18.08, monthsInPeriod: 7, monthlyAmount: 2.58}
+ Expense item Rent or Lease: {originalAmount: 900, monthsInPeriod: 7, monthlyAmount: 128.57}
+ Expense item Gas and Electric: {originalAmount: 200.53, monthsInPeriod: 7, monthlyAmount: 28.65}
+ Expense item Telephone: {originalAmount: 130.86, monthsInPeriod: 7, monthlyAmount: 18.69}
+ Created financial data
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+ Running total after Plants and Soil: 197.1803194731988
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.196731916232636
+ Running total after Sprinklers and Drip Systems: 228.37705138943144
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.0026288215242
+ Running total after Accounting: 320.37968021095566
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.909227414822052
+ Running total after Bookkeeper: 328.2889076257777
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.379498696922024
+ Running total after Lawyer: 342.66840632269975
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.213875510706
+ Running total after Equipment Repairs: 451.8822818334057
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.121087273582176
+ Running total after Meals and Entertainment: 456.0033691069879
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.612384561631944
+ Running total after Office Expenses: 458.61575366861985
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.37523775110319
+ Running total after Rent or Lease: 587.9909914197231
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.829435805935336
+ Running total after Gas and Electric: 616.8204272256584
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.807056028374575
+ Running total after Telephone: 635.627483254033
+ Final monthly expenses: 635.63
+ Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 332.279008101032
+ Running total after Design income: 332.279008101032
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.221692168161647
+ Running total after Discounts given: 319.0573159328703
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 331.7621319412133
+ Running total after Fountains and Garden Lighting: 650.8194478740836
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 347.3407793981481
+ Running total after Plants and Soil: 998.1602272722316
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.375258220052082
+ Running total after Sprinklers and Drip Systems: 1018.5354854922837
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.915295334249606
+ Running total after Installation: 1055.4507808265332
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.380991562210647
+ Running total after Maintenance and Repair: 1062.831772388744
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.2402489415027
+ Running total after Pest Control Services: 1079.0720213302466
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 134.79096495751347
+ Running total after Sales of Product Income: 1213.8629862877601
+ Base amount for Services: 71.94
+ After growth for Services: 74.36814187471063
+ Running total after Services: 1288.2311281624707
+ Final monthly revenue: 1288.23
+ Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.86928330472668
+ Running total after Advertising: 10.86928330472668
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.75721445949073
+ Running total after Fuel: 61.62649776421741
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.26833796778549
+ Running total after Equipment Rental: 77.8948357320029
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.74806530953228
+ Running total after Insurance: 112.64290104153518
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.99065864144181
+ Running total after Decks and Patios: 146.633559682977
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.29610315467363
+ Running total after Plants and Soil: 197.92966283765062
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.326718299216935
+ Running total after Sprinklers and Drip Systems: 229.25638113686756
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.1943009649024
+ Running total after Accounting: 321.45068210177
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.925704971936265
+ Running total after Bookkeeper: 329.37638707370627
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.409455985873947
+ Running total after Lawyer: 343.7858430595802
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.66893332533394
+ Running total after Equipment Repairs: 453.4547763849141
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.138258470555435
+ Running total after Meals and Entertainment: 457.59303485546957
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.6232694973054107
+ Running total after Office Expenses: 460.21630435277496
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.644769496418
+ Running total after Rent or Lease: 589.861073849193
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.88949713053104
+ Running total after Gas and Electric: 618.750570979724
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.846237395100356
+ Running total after Telephone: 637.5968083748244
+ Final monthly expenses: 637.6
+ Calculating break even date...
+ Start date: Tue Dec 31 2024 16:00:00 GMT-0800 (Pacific Standard Time)
+ Projections: (6) [{…}, {…}, {…}, {…}, {…}, {…}]
+ Checking projection for 2025-01-01T00:00:00.000Z: {isAfterStart: true, hasPositiveFlow: true, netCashFlow: 616.4100000000001}
+ Break even projection: {date: '2025-01-01T00:00:00.000Z', netCashFlow: 616.4100000000001}
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+ Running total after Plants and Soil: 197.1803194731988
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.196731916232636
+ Running total after Sprinklers and Drip Systems: 228.37705138943144
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.0026288215242
+ Running total after Accounting: 320.37968021095566
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.909227414822052
+ Running total after Bookkeeper: 328.2889076257777
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.379498696922024
+ Running total after Lawyer: 342.66840632269975
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.213875510706
+ Running total after Equipment Repairs: 451.8822818334057
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.121087273582176
+ Running total after Meals and Entertainment: 456.0033691069879
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.612384561631944
+ Running total after Office Expenses: 458.61575366861985
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.37523775110319
+ Running total after Rent or Lease: 587.9909914197231
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.829435805935336
+ Running total after Gas and Electric: 616.8204272256584
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.807056028374575
+ Running total after Telephone: 635.627483254033
+ Final monthly expenses: 635.63
+ Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 332.279008101032
+ Running total after Design income: 332.279008101032
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.221692168161647
+ Running total after Discounts given: 319.0573159328703
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 331.7621319412133
+ Running total after Fountains and Garden Lighting: 650.8194478740836
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 347.3407793981481
+ Running total after Plants and Soil: 998.1602272722316
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.375258220052082
+ Running total after Sprinklers and Drip Systems: 1018.5354854922837
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.915295334249606
+ Running total after Installation: 1055.4507808265332
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.380991562210647
+ Running total after Maintenance and Repair: 1062.831772388744
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.2402489415027
+ Running total after Pest Control Services: 1079.0720213302466
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 134.79096495751347
+ Running total after Sales of Product Income: 1213.8629862877601
+ Base amount for Services: 71.94
+ After growth for Services: 74.36814187471063
+ Running total after Services: 1288.2311281624707
+ Final monthly revenue: 1288.23
+ Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.86928330472668
+ Running total after Advertising: 10.86928330472668
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.75721445949073
+ Running total after Fuel: 61.62649776421741
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.26833796778549
+ Running total after Equipment Rental: 77.8948357320029
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.74806530953228
+ Running total after Insurance: 112.64290104153518
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.99065864144181
+ Running total after Decks and Patios: 146.633559682977
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.29610315467363
+ Running total after Plants and Soil: 197.92966283765062
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.326718299216935
+ Running total after Sprinklers and Drip Systems: 229.25638113686756
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.1943009649024
+ Running total after Accounting: 321.45068210177
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.925704971936265
+ Running total after Bookkeeper: 329.37638707370627
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.409455985873947
+ Running total after Lawyer: 343.7858430595802
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.66893332533394
+ Running total after Equipment Repairs: 453.4547763849141
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.138258470555435
+ Running total after Meals and Entertainment: 457.59303485546957
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.6232694973054107
+ Running total after Office Expenses: 460.21630435277496
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.644769496418
+ Running total after Rent or Lease: 589.861073849193
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.88949713053104
+ Running total after Gas and Electric: 618.750570979724
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.846237395100356
+ Running total after Telephone: 637.5968083748244
+ Final monthly expenses: 637.6
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+runwayCalculator.ts:114 Running total after Plants and Soil: 197.1803194731988
+runwayCalculator.ts:71 Base amount for Sprinklers and Drip Systems: 30.81
+runwayCalculator.ts:78 After growth for Sprinklers and Drip Systems: 31.196731916232636
+runwayCalculator.ts:114 Running total after Sprinklers and Drip Systems: 228.37705138943144
+runwayCalculator.ts:71 Base amount for Accounting: 91.43
+runwayCalculator.ts:78 After growth for Accounting: 92.0026288215242
+runwayCalculator.ts:114 Running total after Accounting: 320.37968021095566
+runwayCalculator.ts:71 Base amount for Bookkeeper: 7.86
+runwayCalculator.ts:78 After growth for Bookkeeper: 7.909227414822052
+runwayCalculator.ts:114 Running total after Bookkeeper: 328.2889076257777
+runwayCalculator.ts:71 Base amount for Lawyer: 14.29
+runwayCalculator.ts:78 After growth for Lawyer: 14.379498696922024
+runwayCalculator.ts:114 Running total after Lawyer: 342.66840632269975
+runwayCalculator.ts:71 Base amount for Equipment Repairs: 107.86
+runwayCalculator.ts:78 After growth for Equipment Repairs: 109.213875510706
+runwayCalculator.ts:114 Running total after Equipment Repairs: 451.8822818334057
+runwayCalculator.ts:71 Base amount for Meals and Entertainment: 4.07
+runwayCalculator.ts:78 After growth for Meals and Entertainment: 4.121087273582176
+runwayCalculator.ts:114 Running total after Meals and Entertainment: 456.0033691069879
+runwayCalculator.ts:71 Base amount for Office Expenses: 2.58
+runwayCalculator.ts:78 After growth for Office Expenses: 2.612384561631944
+runwayCalculator.ts:114 Running total after Office Expenses: 458.61575366861985
+runwayCalculator.ts:71 Base amount for Rent or Lease: 128.57
+runwayCalculator.ts:78 After growth for Rent or Lease: 129.37523775110319
+runwayCalculator.ts:114 Running total after Rent or Lease: 587.9909914197231
+runwayCalculator.ts:71 Base amount for Gas and Electric: 28.65
+runwayCalculator.ts:78 After growth for Gas and Electric: 28.829435805935336
+runwayCalculator.ts:114 Running total after Gas and Electric: 616.8204272256584
+runwayCalculator.ts:71 Base amount for Telephone: 18.69
+runwayCalculator.ts:78 After growth for Telephone: 18.807056028374575
+runwayCalculator.ts:114 Running total after Telephone: 635.627483254033
+runwayCalculator.ts:119 Final monthly expenses: 635.63
+runwayCalculator.ts:20 Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+runwayCalculator.ts:30 Base amount for Design income: 321.43
+runwayCalculator.ts:37 After growth for Design income: 332.279008101032
+runwayCalculator.ts:49 Running total after Design income: 332.279008101032
+runwayCalculator.ts:30 Base amount for Discounts given: -12.79
+runwayCalculator.ts:37 After growth for Discounts given: -13.221692168161647
+runwayCalculator.ts:49 Running total after Discounts given: 319.0573159328703
+runwayCalculator.ts:30 Base amount for Fountains and Garden Lighting: 320.93
+runwayCalculator.ts:37 After growth for Fountains and Garden Lighting: 331.7621319412133
+runwayCalculator.ts:49 Running total after Fountains and Garden Lighting: 650.8194478740836
+runwayCalculator.ts:30 Base amount for Plants and Soil: 336
+runwayCalculator.ts:37 After growth for Plants and Soil: 347.3407793981481
+runwayCalculator.ts:49 Running total after Plants and Soil: 998.1602272722316
+runwayCalculator.ts:30 Base amount for Sprinklers and Drip Systems: 19.71
+runwayCalculator.ts:37 After growth for Sprinklers and Drip Systems: 20.375258220052082
+runwayCalculator.ts:49 Running total after Sprinklers and Drip Systems: 1018.5354854922837
+runwayCalculator.ts:30 Base amount for Installation: 35.71
+runwayCalculator.ts:37 After growth for Installation: 36.915295334249606
+runwayCalculator.ts:49 Running total after Installation: 1055.4507808265332
+runwayCalculator.ts:30 Base amount for Maintenance and Repair: 7.14
+runwayCalculator.ts:37 After growth for Maintenance and Repair: 7.380991562210647
+runwayCalculator.ts:49 Running total after Maintenance and Repair: 1062.831772388744
+runwayCalculator.ts:30 Base amount for Pest Control Services: 15.71
+runwayCalculator.ts:37 After growth for Pest Control Services: 16.2402489415027
+runwayCalculator.ts:49 Running total after Pest Control Services: 1079.0720213302466
+runwayCalculator.ts:30 Base amount for Sales of Product Income: 130.39
+runwayCalculator.ts:37 After growth for Sales of Product Income: 134.79096495751347
+runwayCalculator.ts:49 Running total after Sales of Product Income: 1213.8629862877601
+runwayCalculator.ts:30 Base amount for Services: 71.94
+runwayCalculator.ts:37 After growth for Services: 74.36814187471063
+runwayCalculator.ts:49 Running total after Services: 1288.2311281624707
+runwayCalculator.ts:54 Final monthly revenue: 1288.23
+runwayCalculator.ts:59 Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+runwayCalculator.ts:71 Base amount for Advertising: 10.69
+runwayCalculator.ts:78 After growth for Advertising: 10.86928330472668
+runwayCalculator.ts:114 Running total after Advertising: 10.86928330472668
+runwayCalculator.ts:71 Base amount for Fuel: 49.92
+runwayCalculator.ts:78 After growth for Fuel: 50.75721445949073
+runwayCalculator.ts:114 Running total after Fuel: 61.62649776421741
+runwayCalculator.ts:71 Base amount for Equipment Rental: 16
+runwayCalculator.ts:78 After growth for Equipment Rental: 16.26833796778549
+runwayCalculator.ts:114 Running total after Equipment Rental: 77.8948357320029
+runwayCalculator.ts:71 Base amount for Insurance: 34.46
+runwayCalculator.ts:78 After growth for Insurance: 34.74806530953228
+runwayCalculator.ts:114 Running total after Insurance: 112.64290104153518
+runwayCalculator.ts:71 Base amount for Decks and Patios: 33.43
+runwayCalculator.ts:78 After growth for Decks and Patios: 33.99065864144181
+runwayCalculator.ts:114 Running total after Decks and Patios: 146.633559682977
+runwayCalculator.ts:71 Base amount for Plants and Soil: 50.45
+runwayCalculator.ts:78 After growth for Plants and Soil: 51.29610315467363
+runwayCalculator.ts:114 Running total after Plants and Soil: 197.92966283765062
+runwayCalculator.ts:71 Base amount for Sprinklers and Drip Systems: 30.81
+runwayCalculator.ts:78 After growth for Sprinklers and Drip Systems: 31.326718299216935
+runwayCalculator.ts:114 Running total after Sprinklers and Drip Systems: 229.25638113686756
+runwayCalculator.ts:71 Base amount for Accounting: 91.43
+runwayCalculator.ts:78 After growth for Accounting: 92.1943009649024
+runwayCalculator.ts:114 Running total after Accounting: 321.45068210177
+runwayCalculator.ts:71 Base amount for Bookkeeper: 7.86
+runwayCalculator.ts:78 After growth for Bookkeeper: 7.925704971936265
+runwayCalculator.ts:114 Running total after Bookkeeper: 329.37638707370627
+runwayCalculator.ts:71 Base amount for Lawyer: 14.29
+runwayCalculator.ts:78 After growth for Lawyer: 14.409455985873947
+runwayCalculator.ts:114 Running total after Lawyer: 343.7858430595802
+runwayCalculator.ts:71 Base amount for Equipment Repairs: 107.86
+runwayCalculator.ts:78 After growth for Equipment Repairs: 109.66893332533394
+runwayCalculator.ts:114 Running total after Equipment Repairs: 453.4547763849141
+runwayCalculator.ts:71 Base amount for Meals and Entertainment: 4.07
+runwayCalculator.ts:78 After growth for Meals and Entertainment: 4.138258470555435
+runwayCalculator.ts:114 Running total after Meals and Entertainment: 457.59303485546957
+runwayCalculator.ts:71 Base amount for Office Expenses: 2.58
+runwayCalculator.ts:78 After growth for Office Expenses: 2.6232694973054107
+runwayCalculator.ts:114 Running total after Office Expenses: 460.21630435277496
+runwayCalculator.ts:71 Base amount for Rent or Lease: 128.57
+runwayCalculator.ts:78 After growth for Rent or Lease: 129.644769496418
+runwayCalculator.ts:114 Running total after Rent or Lease: 589.861073849193
+runwayCalculator.ts:71 Base amount for Gas and Electric: 28.65
+runwayCalculator.ts:78 After growth for Gas and Electric: 28.88949713053104
+runwayCalculator.ts:114 Running total after Gas and Electric: 618.750570979724
+runwayCalculator.ts:71 Base amount for Telephone: 18.69
+runwayCalculator.ts:78 After growth for Telephone: 18.846237395100356
+runwayCalculator.ts:114 Running total after Telephone: 637.5968083748244
+runwayCalculator.ts:119 Final monthly expenses: 637.6
+page.tsx:413 Generated initial analysis
+page.tsx:425 Finished loading financial data
+page.tsx:128 Home component rendering
+page.tsx:128 Home component rendering
+page.tsx:254 Profit & Loss report dates: {startPeriod: '2025-01-01', endPeriod: '2025-06-03', reportBasis: 'Accrual', startDate: '2025-01-01T00:00:00.000Z', endDate: '2025-06-03T00:00:00.000Z'}
+page.tsx:269 Months in period: 7
+ Revenue items: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ Expense items: (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ Monthly averages: {revenue: 1246.18, expenses: 629.75, netCashFlow: 616.4300000000001, periodMonths: 7}
+ Revenue item Design income: {originalAmount: 2250, monthsInPeriod: 7, monthlyAmount: 321.43}
+ Revenue item Discounts given: {originalAmount: -89.5, monthsInPeriod: 7, monthlyAmount: -12.79}
+ Revenue item Fountains and Garden Lighting: {originalAmount: 2246.5, monthsInPeriod: 7, monthlyAmount: 320.93}
+ Revenue item Plants and Soil: {originalAmount: 2351.97, monthsInPeriod: 7, monthlyAmount: 336}
+ Revenue item Sprinklers and Drip Systems: {originalAmount: 138, monthsInPeriod: 7, monthlyAmount: 19.71}
+ Revenue item Installation: {originalAmount: 250, monthsInPeriod: 7, monthlyAmount: 35.71}
+ Revenue item Maintenance and Repair: {originalAmount: 50, monthsInPeriod: 7, monthlyAmount: 7.14}
+ Revenue item Pest Control Services: {originalAmount: 110, monthsInPeriod: 7, monthlyAmount: 15.71}
+ Revenue item Sales of Product Income: {originalAmount: 912.75, monthsInPeriod: 7, monthlyAmount: 130.39}
+ Revenue item Services: {originalAmount: 503.55, monthsInPeriod: 7, monthlyAmount: 71.94}
+ Expense item Advertising: {originalAmount: 74.86, monthsInPeriod: 7, monthlyAmount: 10.69}
+ Expense item Fuel: {originalAmount: 349.41, monthsInPeriod: 7, monthlyAmount: 49.92}
+ Expense item Equipment Rental: {originalAmount: 112, monthsInPeriod: 7, monthlyAmount: 16}
+ Expense item Insurance: {originalAmount: 241.23, monthsInPeriod: 7, monthlyAmount: 34.46}
+ Expense item Decks and Patios: {originalAmount: 234.04, monthsInPeriod: 7, monthlyAmount: 33.43}
+ Expense item Plants and Soil: {originalAmount: 353.12, monthsInPeriod: 7, monthlyAmount: 50.45}
+ Expense item Sprinklers and Drip Systems: {originalAmount: 215.66, monthsInPeriod: 7, monthlyAmount: 30.81}
+ Expense item Accounting: {originalAmount: 640, monthsInPeriod: 7, monthlyAmount: 91.43}
+ Expense item Bookkeeper: {originalAmount: 55, monthsInPeriod: 7, monthlyAmount: 7.86}
+ Expense item Lawyer: {originalAmount: 100, monthsInPeriod: 7, monthlyAmount: 14.29}
+ Expense item Equipment Repairs: {originalAmount: 755, monthsInPeriod: 7, monthlyAmount: 107.86}
+ Expense item Meals and Entertainment: {originalAmount: 28.49, monthsInPeriod: 7, monthlyAmount: 4.07}
+ Expense item Office Expenses: {originalAmount: 18.08, monthsInPeriod: 7, monthlyAmount: 2.58}
+ Expense item Rent or Lease: {originalAmount: 900, monthsInPeriod: 7, monthlyAmount: 128.57}
+ Expense item Gas and Electric: {originalAmount: 200.53, monthsInPeriod: 7, monthlyAmount: 28.65}
+ Expense item Telephone: {originalAmount: 130.86, monthsInPeriod: 7, monthlyAmount: 18.69}
+ Created financial data
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+ Running total after Plants and Soil: 197.1803194731988
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.196731916232636
+ Running total after Sprinklers and Drip Systems: 228.37705138943144
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.0026288215242
+ Running total after Accounting: 320.37968021095566
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.909227414822052
+ Running total after Bookkeeper: 328.2889076257777
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.379498696922024
+ Running total after Lawyer: 342.66840632269975
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.213875510706
+ Running total after Equipment Repairs: 451.8822818334057
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.121087273582176
+ Running total after Meals and Entertainment: 456.0033691069879
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.612384561631944
+ Running total after Office Expenses: 458.61575366861985
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.37523775110319
+ Running total after Rent or Lease: 587.9909914197231
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.829435805935336
+ Running total after Gas and Electric: 616.8204272256584
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.807056028374575
+ Running total after Telephone: 635.627483254033
+ Final monthly expenses: 635.63
+ Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 332.279008101032
+ Running total after Design income: 332.279008101032
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.221692168161647
+ Running total after Discounts given: 319.0573159328703
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 331.7621319412133
+ Running total after Fountains and Garden Lighting: 650.8194478740836
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 347.3407793981481
+ Running total after Plants and Soil: 998.1602272722316
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.375258220052082
+ Running total after Sprinklers and Drip Systems: 1018.5354854922837
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.915295334249606
+ Running total after Installation: 1055.4507808265332
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.380991562210647
+ Running total after Maintenance and Repair: 1062.831772388744
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.2402489415027
+ Running total after Pest Control Services: 1079.0720213302466
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 134.79096495751347
+ Running total after Sales of Product Income: 1213.8629862877601
+ Base amount for Services: 71.94
+ After growth for Services: 74.36814187471063
+ Running total after Services: 1288.2311281624707
+ Final monthly revenue: 1288.23
+ Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.86928330472668
+ Running total after Advertising: 10.86928330472668
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.75721445949073
+ Running total after Fuel: 61.62649776421741
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.26833796778549
+ Running total after Equipment Rental: 77.8948357320029
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.74806530953228
+ Running total after Insurance: 112.64290104153518
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.99065864144181
+ Running total after Decks and Patios: 146.633559682977
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.29610315467363
+ Running total after Plants and Soil: 197.92966283765062
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.326718299216935
+ Running total after Sprinklers and Drip Systems: 229.25638113686756
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.1943009649024
+ Running total after Accounting: 321.45068210177
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.925704971936265
+ Running total after Bookkeeper: 329.37638707370627
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.409455985873947
+ Running total after Lawyer: 343.7858430595802
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.66893332533394
+ Running total after Equipment Repairs: 453.4547763849141
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.138258470555435
+ Running total after Meals and Entertainment: 457.59303485546957
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.6232694973054107
+ Running total after Office Expenses: 460.21630435277496
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.644769496418
+ Running total after Rent or Lease: 589.861073849193
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.88949713053104
+ Running total after Gas and Electric: 618.750570979724
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.846237395100356
+ Running total after Telephone: 637.5968083748244
+ Final monthly expenses: 637.6
+ Calculating break even date...
+ Start date: Tue Dec 31 2024 16:00:00 GMT-0800 (Pacific Standard Time)
+ Projections: (6) [{…}, {…}, {…}, {…}, {…}, {…}]
+ Checking projection for 2025-01-01T00:00:00.000Z: {isAfterStart: true, hasPositiveFlow: true, netCashFlow: 616.4100000000001}
+ Break even projection: {date: '2025-01-01T00:00:00.000Z', netCashFlow: 616.4100000000001}
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+ Running total after Plants and Soil: 197.1803194731988
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.196731916232636
+ Running total after Sprinklers and Drip Systems: 228.37705138943144
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.0026288215242
+ Running total after Accounting: 320.37968021095566
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.909227414822052
+ Running total after Bookkeeper: 328.2889076257777
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.379498696922024
+ Running total after Lawyer: 342.66840632269975
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.213875510706
+ Running total after Equipment Repairs: 451.8822818334057
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.121087273582176
+ Running total after Meals and Entertainment: 456.0033691069879
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.612384561631944
+ Running total after Office Expenses: 458.61575366861985
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.37523775110319
+ Running total after Rent or Lease: 587.9909914197231
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.829435805935336
+ Running total after Gas and Electric: 616.8204272256584
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.807056028374575
+ Running total after Telephone: 635.627483254033
+ Final monthly expenses: 635.63
+ Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 332.279008101032
+ Running total after Design income: 332.279008101032
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.221692168161647
+ Running total after Discounts given: 319.0573159328703
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 331.7621319412133
+ Running total after Fountains and Garden Lighting: 650.8194478740836
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 347.3407793981481
+ Running total after Plants and Soil: 998.1602272722316
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.375258220052082
+ Running total after Sprinklers and Drip Systems: 1018.5354854922837
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.915295334249606
+ Running total after Installation: 1055.4507808265332
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.380991562210647
+ Running total after Maintenance and Repair: 1062.831772388744
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.2402489415027
+ Running total after Pest Control Services: 1079.0720213302466
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 134.79096495751347
+ Running total after Sales of Product Income: 1213.8629862877601
+ Base amount for Services: 71.94
+ After growth for Services: 74.36814187471063
+ Running total after Services: 1288.2311281624707
+ Final monthly revenue: 1288.23
+ Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.86928330472668
+ Running total after Advertising: 10.86928330472668
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.75721445949073
+ Running total after Fuel: 61.62649776421741
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.26833796778549
+ Running total after Equipment Rental: 77.8948357320029
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.74806530953228
+ Running total after Insurance: 112.64290104153518
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.99065864144181
+ Running total after Decks and Patios: 146.633559682977
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.29610315467363
+ Running total after Plants and Soil: 197.92966283765062
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.326718299216935
+ Running total after Sprinklers and Drip Systems: 229.25638113686756
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 92.1943009649024
+ Running total after Accounting: 321.45068210177
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.925704971936265
+ Running total after Bookkeeper: 329.37638707370627
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.409455985873947
+ Running total after Lawyer: 343.7858430595802
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 109.66893332533394
+ Running total after Equipment Repairs: 453.4547763849141
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.138258470555435
+ Running total after Meals and Entertainment: 457.59303485546957
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.6232694973054107
+ Running total after Office Expenses: 460.21630435277496
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.644769496418
+ Running total after Rent or Lease: 589.861073849193
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.88949713053104
+ Running total after Gas and Electric: 618.750570979724
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.846237395100356
+ Running total after Telephone: 637.5968083748244
+ Final monthly expenses: 637.6
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-01-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 321.43
+ Running total after Design income: 321.43
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.79
+ Running total after Discounts given: 308.64
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 320.93
+ Running total after Fountains and Garden Lighting: 629.5699999999999
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 336
+ Running total after Plants and Soil: 965.5699999999999
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.71
+ Running total after Sprinklers and Drip Systems: 985.28
+ Base amount for Installation: 35.71
+ After growth for Installation: 35.71
+ Running total after Installation: 1020.99
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.14
+ Running total after Maintenance and Repair: 1028.13
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.71
+ Running total after Pest Control Services: 1043.8400000000001
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 130.39
+ Running total after Sales of Product Income: 1174.23
+ Base amount for Services: 71.94
+ After growth for Services: 71.94
+ Running total after Services: 1246.17
+ Final monthly revenue: 1246.17
+ Calculating monthly expenses for: 2025-01-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.69
+ Running total after Advertising: 10.69
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 49.92
+ Running total after Fuel: 60.61
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16
+ Running total after Equipment Rental: 76.61
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.46
+ Running total after Insurance: 111.07
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.43
+ Running total after Decks and Patios: 144.5
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.45
+ Running total after Plants and Soil: 194.95
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.81
+ Running total after Sprinklers and Drip Systems: 225.76
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.43
+ Running total after Accounting: 317.19
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.86
+ Running total after Bookkeeper: 325.05
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.29
+ Running total after Lawyer: 339.34000000000003
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 107.86
+ Running total after Equipment Repairs: 447.20000000000005
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.07
+ Running total after Meals and Entertainment: 451.27000000000004
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.58
+ Running total after Office Expenses: 453.85
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.57
+ Running total after Rent or Lease: 582.4200000000001
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.65
+ Running total after Gas and Electric: 611.07
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.69
+ Running total after Telephone: 629.7600000000001
+ Final monthly expenses: 629.76
+ Calculating monthly revenue for: 2025-02-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 324.10858333333334
+ Running total after Design income: 324.10858333333334
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -12.896583333333332
+ Running total after Discounts given: 311.212
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 323.6044166666667
+ Running total after Fountains and Garden Lighting: 634.8164166666667
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 338.8
+ Running total after Plants and Soil: 973.6164166666667
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 19.87425
+ Running total after Sprinklers and Drip Systems: 993.4906666666667
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.007583333333336
+ Running total after Installation: 1029.49825
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.1995
+ Running total after Maintenance and Repair: 1036.69775
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.840916666666667
+ Running total after Pest Control Services: 1052.5386666666668
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 131.4765833333333
+ Running total after Sales of Product Income: 1184.0152500000002
+ Base amount for Services: 71.94
+ After growth for Services: 72.53949999999999
+ Running total after Services: 1256.5547500000002
+ Final monthly revenue: 1256.55
+ Calculating monthly expenses for: 2025-02-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.734541666666667
+ Running total after Advertising: 10.734541666666667
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.128
+ Running total after Fuel: 60.862541666666665
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.066666666666666
+ Running total after Equipment Rental: 76.92920833333334
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.53179166666667
+ Running total after Insurance: 111.46100000000001
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.569291666666665
+ Running total after Decks and Patios: 145.03029166666667
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.66020833333334
+ Running total after Plants and Soil: 195.69050000000001
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 30.938374999999997
+ Running total after Sprinklers and Drip Systems: 226.62887500000002
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.62047916666668
+ Running total after Accounting: 318.2493541666667
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.876375000000001
+ Running total after Bookkeeper: 326.1257291666667
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.319770833333333
+ Running total after Lawyer: 340.44550000000004
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.30941666666666
+ Running total after Equipment Repairs: 448.7549166666667
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.0869583333333335
+ Running total after Meals and Entertainment: 452.841875
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.59075
+ Running total after Office Expenses: 455.43262500000003
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 128.83785416666666
+ Running total after Rent or Lease: 584.2704791666667
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.7096875
+ Running total after Gas and Electric: 612.9801666666667
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.728937500000004
+ Running total after Telephone: 631.7091041666667
+ Final monthly expenses: 631.71
+ Calculating monthly revenue for: 2025-03-01T00:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-01T00:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-03-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 326.80948819444444
+ Running total after Design income: 326.80948819444444
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.00405486111111
+ Running total after Discounts given: 313.8054333333333
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 326.3011201388889
+ Running total after Fountains and Garden Lighting: 640.1065534722222
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 341.62333333333333
+ Running total after Plants and Soil: 981.7298868055556
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.03986875
+ Running total after Sprinklers and Drip Systems: 1001.7697555555555
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.30764652777778
+ Running total after Installation: 1038.0774020833333
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.259495833333332
+ Running total after Maintenance and Repair: 1045.3368979166667
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 15.972924305555555
+ Running total after Pest Control Services: 1061.3098222222222
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 132.57222152777777
+ Running total after Sales of Product Income: 1193.88204375
+ Base amount for Services: 71.94
+ After growth for Services: 73.14399583333332
+ Running total after Services: 1267.0260395833334
+ Final monthly revenue: 1267.03
+ Calculating monthly expenses for: 2025-03-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.779268923611111
+ Running total after Advertising: 10.779268923611111
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.33686666666667
+ Running total after Fuel: 61.116135590277786
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.13361111111111
+ Running total after Equipment Rental: 77.2497467013889
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.60373289930557
+ Running total after Insurance: 111.85347960069447
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.709163715277775
+ Running total after Decks and Patios: 145.56264331597225
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 50.87129253472223
+ Running total after Plants and Soil: 196.43393585069447
+ Base amount for Sprinklers and Drip Systems: 30.81
+ After growth for Sprinklers and Drip Systems: 31.067284895833332
+ Running total after Sprinklers and Drip Systems: 227.5012207465278
+ Base amount for Accounting: 91.43
+ After growth for Accounting: 91.81135516493059
+ Running total after Accounting: 319.3125759114584
+ Base amount for Bookkeeper: 7.86
+ After growth for Bookkeeper: 7.8927841145833355
+ Running total after Bookkeeper: 327.2053600260417
+ Base amount for Lawyer: 14.29
+ After growth for Lawyer: 14.349603689236114
+ Running total after Lawyer: 341.55496371527784
+ Base amount for Equipment Repairs: 107.86
+ After growth for Equipment Repairs: 108.76070590277779
+ Running total after Equipment Repairs: 450.3156696180556
+ Base amount for Meals and Entertainment: 4.07
+ After growth for Meals and Entertainment: 4.103987326388889
+ Running total after Meals and Entertainment: 454.4196569444445
+ Base amount for Office Expenses: 2.58
+ After growth for Office Expenses: 2.601544791666667
+ Running total after Office Expenses: 457.02120173611115
+ Base amount for Rent or Lease: 128.57
+ After growth for Rent or Lease: 129.10626636284726
+ Running total after Rent or Lease: 586.1274680989584
+ Base amount for Gas and Electric: 28.65
+ After growth for Gas and Electric: 28.76949934895834
+ Running total after Gas and Electric: 614.8969674479167
+ Base amount for Telephone: 18.69
+ After growth for Telephone: 18.767956119791673
+ Running total after Telephone: 633.6649235677083
+ Final monthly expenses: 633.66
+ Calculating monthly revenue for: 2025-04-28T23:00:00.000Z
+ Base amount for Design income: 321.43
+ After growth for Design income: 329.5329005960648
+ Running total after Design income: 329.5329005960648
+ Base amount for Discounts given: -12.79
+ After growth for Discounts given: -13.1124219849537
+ Running total after Discounts given: 316.4204786111111
+ Base amount for Fountains and Garden Lighting: 320.93
+ After growth for Fountains and Garden Lighting: 329.02029614004624
+ Running total after Fountains and Garden Lighting: 645.4407747511573
+ Base amount for Plants and Soil: 336
+ After growth for Plants and Soil: 344.4701944444444
+ Running total after Plants and Soil: 989.9109691956016
+ Base amount for Sprinklers and Drip Systems: 19.71
+ After growth for Sprinklers and Drip Systems: 20.206867656249997
+ Running total after Sprinklers and Drip Systems: 1010.1178368518516
+ Base amount for Installation: 35.71
+ After growth for Installation: 36.61021024884259
+ Running total after Installation: 1046.7280471006943
+ Base amount for Maintenance and Repair: 7.14
+ After growth for Maintenance and Repair: 7.319991631944443
+ Running total after Maintenance and Repair: 1054.0480387326388
+ Base amount for Pest Control Services: 15.71
+ After growth for Pest Control Services: 16.10603200810185
+ Running total after Pest Control Services: 1070.1540707407407
+ Base amount for Sales of Product Income: 130.39
+ After growth for Sales of Product Income: 133.67699004050922
+ Running total after Sales of Product Income: 1203.83106078125
+ Base amount for Services: 71.94
+ After growth for Services: 73.75352913194443
+ Running total after Services: 1277.5845899131943
+ Final monthly revenue: 1277.58
+ Calculating monthly expenses for: 2025-04-28T23:00:00.000Z
+ Base amount for Advertising: 10.69
+ After growth for Advertising: 10.824182544126156
+ Running total after Advertising: 10.824182544126156
+ Base amount for Fuel: 49.92
+ After growth for Fuel: 50.54660361111111
+ Running total after Fuel: 61.37078615523727
+ Base amount for Equipment Rental: 16
+ After growth for Equipment Rental: 16.20083449074074
+ Running total after Equipment Rental: 77.57162064597802
+ Base amount for Insurance: 34.46
+ After growth for Insurance: 34.67582400951245
+ Running total after Insurance: 112.24744465549047
+ Base amount for Decks and Patios: 33.43
+ After growth for Decks and Patios: 33.84961856409143
+ Running total after Decks and Patios: 146.0970632195819
+ Base amount for Plants and Soil: 50.45
+ After growth for Plants and Soil: 51.083256253616895
+runwayCalculator.ts:114 Running total after Plants and Soil: 197.1803194731988
+runwayCalculator.ts:71 Base amount for Sprinklers and Drip Systems: 30.81
+runwayCalculator.ts:78 After growth for Sprinklers and Drip Systems: 31.196731916232636
+runwayCalculator.ts:114 Running total after Sprinklers and Drip Systems: 228.37705138943144
+runwayCalculator.ts:71 Base amount for Accounting: 91.43
+runwayCalculator.ts:78 After growth for Accounting: 92.0026288215242
+runwayCalculator.ts:114 Running total after Accounting: 320.37968021095566
+runwayCalculator.ts:71 Base amount for Bookkeeper: 7.86
+runwayCalculator.ts:78 After growth for Bookkeeper: 7.909227414822052
+runwayCalculator.ts:114 Running total after Bookkeeper: 328.2889076257777
+runwayCalculator.ts:71 Base amount for Lawyer: 14.29
+runwayCalculator.ts:78 After growth for Lawyer: 14.379498696922024
+runwayCalculator.ts:114 Running total after Lawyer: 342.66840632269975
+runwayCalculator.ts:71 Base amount for Equipment Repairs: 107.86
+runwayCalculator.ts:78 After growth for Equipment Repairs: 109.213875510706
+runwayCalculator.ts:114 Running total after Equipment Repairs: 451.8822818334057
+runwayCalculator.ts:71 Base amount for Meals and Entertainment: 4.07
+runwayCalculator.ts:78 After growth for Meals and Entertainment: 4.121087273582176
+runwayCalculator.ts:114 Running total after Meals and Entertainment: 456.0033691069879
+runwayCalculator.ts:71 Base amount for Office Expenses: 2.58
+runwayCalculator.ts:78 After growth for Office Expenses: 2.612384561631944
+runwayCalculator.ts:114 Running total after Office Expenses: 458.61575366861985
+runwayCalculator.ts:71 Base amount for Rent or Lease: 128.57
+runwayCalculator.ts:78 After growth for Rent or Lease: 129.37523775110319
+runwayCalculator.ts:114 Running total after Rent or Lease: 587.9909914197231
+runwayCalculator.ts:71 Base amount for Gas and Electric: 28.65
+runwayCalculator.ts:78 After growth for Gas and Electric: 28.829435805935336
+runwayCalculator.ts:114 Running total after Gas and Electric: 616.8204272256584
+runwayCalculator.ts:71 Base amount for Telephone: 18.69
+runwayCalculator.ts:78 After growth for Telephone: 18.807056028374575
+runwayCalculator.ts:114 Running total after Telephone: 635.627483254033
+runwayCalculator.ts:119 Final monthly expenses: 635.63
+runwayCalculator.ts:20 Calculating monthly revenue for: 2025-05-28T23:00:00.000Z
+runwayCalculator.ts:30 Base amount for Design income: 321.43
+runwayCalculator.ts:37 After growth for Design income: 332.279008101032
+runwayCalculator.ts:49 Running total after Design income: 332.279008101032
+runwayCalculator.ts:30 Base amount for Discounts given: -12.79
+runwayCalculator.ts:37 After growth for Discounts given: -13.221692168161647
+runwayCalculator.ts:49 Running total after Discounts given: 319.0573159328703
+runwayCalculator.ts:30 Base amount for Fountains and Garden Lighting: 320.93
+runwayCalculator.ts:37 After growth for Fountains and Garden Lighting: 331.7621319412133
+runwayCalculator.ts:49 Running total after Fountains and Garden Lighting: 650.8194478740836
+runwayCalculator.ts:30 Base amount for Plants and Soil: 336
+runwayCalculator.ts:37 After growth for Plants and Soil: 347.3407793981481
+runwayCalculator.ts:49 Running total after Plants and Soil: 998.1602272722316
+runwayCalculator.ts:30 Base amount for Sprinklers and Drip Systems: 19.71
+runwayCalculator.ts:37 After growth for Sprinklers and Drip Systems: 20.375258220052082
+runwayCalculator.ts:49 Running total after Sprinklers and Drip Systems: 1018.5354854922837
+runwayCalculator.ts:30 Base amount for Installation: 35.71
+runwayCalculator.ts:37 After growth for Installation: 36.915295334249606
+runwayCalculator.ts:49 Running total after Installation: 1055.4507808265332
+runwayCalculator.ts:30 Base amount for Maintenance and Repair: 7.14
+runwayCalculator.ts:37 After growth for Maintenance and Repair: 7.380991562210647
+runwayCalculator.ts:49 Running total after Maintenance and Repair: 1062.831772388744
+runwayCalculator.ts:30 Base amount for Pest Control Services: 15.71
+runwayCalculator.ts:37 After growth for Pest Control Services: 16.2402489415027
+runwayCalculator.ts:49 Running total after Pest Control Services: 1079.0720213302466
+runwayCalculator.ts:30 Base amount for Sales of Product Income: 130.39
+runwayCalculator.ts:37 After growth for Sales of Product Income: 134.79096495751347
+runwayCalculator.ts:49 Running total after Sales of Product Income: 1213.8629862877601
+runwayCalculator.ts:30 Base amount for Services: 71.94
+runwayCalculator.ts:37 After growth for Services: 74.36814187471063
+runwayCalculator.ts:49 Running total after Services: 1288.2311281624707
+runwayCalculator.ts:54 Final monthly revenue: 1288.23
+runwayCalculator.ts:59 Calculating monthly expenses for: 2025-05-28T23:00:00.000Z
+runwayCalculator.ts:71 Base amount for Advertising: 10.69
+runwayCalculator.ts:78 After growth for Advertising: 10.86928330472668
+runwayCalculator.ts:114 Running total after Advertising: 10.86928330472668
+runwayCalculator.ts:71 Base amount for Fuel: 49.92
+runwayCalculator.ts:78 After growth for Fuel: 50.75721445949073
+runwayCalculator.ts:114 Running total after Fuel: 61.62649776421741
+runwayCalculator.ts:71 Base amount for Equipment Rental: 16
+runwayCalculator.ts:78 After growth for Equipment Rental: 16.26833796778549
+runwayCalculator.ts:114 Running total after Equipment Rental: 77.8948357320029
+runwayCalculator.ts:71 Base amount for Insurance: 34.46
+runwayCalculator.ts:78 After growth for Insurance: 34.74806530953228
+runwayCalculator.ts:114 Running total after Insurance: 112.64290104153518
+runwayCalculator.ts:71 Base amount for Decks and Patios: 33.43
+runwayCalculator.ts:78 After growth for Decks and Patios: 33.99065864144181
+runwayCalculator.ts:114 Running total after Decks and Patios: 146.633559682977
+runwayCalculator.ts:71 Base amount for Plants and Soil: 50.45
+runwayCalculator.ts:78 After growth for Plants and Soil: 51.29610315467363
+runwayCalculator.ts:114 Running total after Plants and Soil: 197.92966283765062
+runwayCalculator.ts:71 Base amount for Sprinklers and Drip Systems: 30.81
+runwayCalculator.ts:78 After growth for Sprinklers and Drip Systems: 31.326718299216935
+runwayCalculator.ts:114 Running total after Sprinklers and Drip Systems: 229.25638113686756
+runwayCalculator.ts:71 Base amount for Accounting: 91.43
+runwayCalculator.ts:78 After growth for Accounting: 92.1943009649024
+runwayCalculator.ts:114 Running total after Accounting: 321.45068210177
+runwayCalculator.ts:71 Base amount for Bookkeeper: 7.86
+runwayCalculator.ts:78 After growth for Bookkeeper: 7.925704971936265
+runwayCalculator.ts:114 Running total after Bookkeeper: 329.37638707370627
+runwayCalculator.ts:71 Base amount for Lawyer: 14.29
+runwayCalculator.ts:78 After growth for Lawyer: 14.409455985873947
+runwayCalculator.ts:114 Running total after Lawyer: 343.7858430595802
+runwayCalculator.ts:71 Base amount for Equipment Repairs: 107.86
+runwayCalculator.ts:78 After growth for Equipment Repairs: 109.66893332533394
+runwayCalculator.ts:114 Running total after Equipment Repairs: 453.4547763849141
+runwayCalculator.ts:71 Base amount for Meals and Entertainment: 4.07
+runwayCalculator.ts:78 After growth for Meals and Entertainment: 4.138258470555435
+runwayCalculator.ts:114 Running total after Meals and Entertainment: 457.59303485546957
+runwayCalculator.ts:71 Base amount for Office Expenses: 2.58
+runwayCalculator.ts:78 After growth for Office Expenses: 2.6232694973054107
+runwayCalculator.ts:114 Running total after Office Expenses: 460.21630435277496
+runwayCalculator.ts:71 Base amount for Rent or Lease: 128.57
+runwayCalculator.ts:78 After growth for Rent or Lease: 129.644769496418
+runwayCalculator.ts:114 Running total after Rent or Lease: 589.861073849193
+runwayCalculator.ts:71 Base amount for Gas and Electric: 28.65
+runwayCalculator.ts:78 After growth for Gas and Electric: 28.88949713053104
+runwayCalculator.ts:114 Running total after Gas and Electric: 618.750570979724
+runwayCalculator.ts:71 Base amount for Telephone: 18.69
+runwayCalculator.ts:78 After growth for Telephone: 18.846237395100356
+runwayCalculator.ts:114 Running total after Telephone: 637.5968083748244
+runwayCalculator.ts:119 Final monthly expenses: 637.6
+page.tsx:413 Generated initial analysis
+page.tsx:425 Finished loading financial data
+page.tsx:128 Home component rendering
+page.tsx:128 Home component rendering

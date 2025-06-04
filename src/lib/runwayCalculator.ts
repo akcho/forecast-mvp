@@ -5,116 +5,107 @@ import {
   RunwayOption,
   RunwayProjection,
   TimePeriod,
+  FinancialEntry,
 } from '../types/financial';
+import { FinancialCalculationService } from './services/financialCalculations';
 
 export class RunwayCalculator {
   private financials: CompanyFinancials;
   private currentDate: Date;
+  private financialService: FinancialCalculationService;
 
   constructor(financials: CompanyFinancials) {
     this.financials = financials;
-    this.currentDate = financials.startDate;
+    this.currentDate = new Date(financials.startDate);
+    this.financialService = FinancialCalculationService.getInstance();
   }
 
-  private calculateMonthlyRevenue(date: Date): number {
-    return this.financials.revenueStreams.reduce((total, stream) => {
-      // Find the base amount from the most recent entry
-      const latestEntry = stream.entries
-        .filter(entry => !isAfter(new Date(entry.date), date))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+  private calculateGrowthRate(entries: FinancialEntry[]): number {
+    if (entries.length < 2) {
+      return 0; // Not enough data to calculate growth
+    }
 
-      if (!latestEntry) return total;
+    // Sort entries by date
+    const sortedEntries = [...entries].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
 
-      let amount = latestEntry.amount;
-
-      // Apply growth rate if available
-      if (stream.growthRate) {
-        const monthsFromStart = differenceInMonths(date, this.financials.startDate);
-        const growthFactor = Math.pow(1 + stream.growthRate / 12, monthsFromStart);
-        amount *= growthFactor;
+    // Calculate month-over-month growth rates
+    const growthRates: number[] = [];
+    for (let i = 1; i < sortedEntries.length; i++) {
+      const currentAmount = sortedEntries[i].amount;
+      const previousAmount = sortedEntries[i - 1].amount;
+      
+      if (previousAmount > 0) {
+        const growthRate = (currentAmount - previousAmount) / previousAmount;
+        growthRates.push(growthRate);
       }
+    }
 
-      // Apply seasonality if available
-      if (stream.seasonality) {
-        const monthIndex = date.getMonth();
-        const seasonalityFactor = stream.seasonality[monthIndex] || 1;
-        amount *= seasonalityFactor;
-      }
+    // If we have growth rates, calculate the average
+    if (growthRates.length > 0) {
+      const averageGrowthRate = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
+      return Math.min(Math.max(averageGrowthRate, -0.1), 0.2); // Cap between -10% and +20%
+    }
 
-      return total + amount;
-    }, 0);
+    return 0;
   }
 
-  private calculateMonthlyExpenses(date: Date): number {
-    return this.financials.expenses.reduce((total, expense) => {
-      // For monthly expenses, use the most recent entry
-      if (expense.frequency === 'monthly') {
-        const latestEntry = expense.entries
-          .filter(entry => !isAfter(new Date(entry.date), date))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-        
-        if (latestEntry) {
-          let amount = latestEntry.amount;
-          
-          // Apply growth rate for non-fixed expenses
-          if (!expense.isFixed) {
-            const monthsFromStart = differenceInMonths(date, this.financials.startDate);
-            const growthFactor = Math.pow(1 + 0.05 / 12, monthsFromStart); // 5% annual growth for variable expenses
-            amount *= growthFactor;
-          }
-          
-          return total + amount;
-        }
-      }
-
-      // For quarterly and yearly expenses, find the relevant entry
-      const relevantEntry = expense.entries.find(entry => {
-        const entryDate = new Date(entry.date);
-        return (
-          entryDate.getMonth() === date.getMonth() &&
-          entryDate.getFullYear() === date.getFullYear()
-        );
-      });
-
-      if (relevantEntry) {
-        let amount = relevantEntry.amount;
-        
-        // Apply growth rate for non-fixed expenses
-        if (!expense.isFixed) {
-          const monthsFromStart = differenceInMonths(date, this.financials.startDate);
-          const growthFactor = Math.pow(1 + 0.05 / 12, monthsFromStart); // 5% annual growth for variable expenses
-          amount *= growthFactor;
-        }
-        
-        switch (expense.frequency) {
-          case 'quarterly':
-            return total + amount / 3;
-          case 'yearly':
-            return total + amount / 12;
-          default:
-            return total + amount;
-        }
-      }
-
-      return total;
-    }, 0);
+  private async calculateMonthlyRevenue(date: Date): Promise<number> {
+    console.log('Calculating monthly revenue for:', date.toISOString());
+    const amounts = await Promise.all(
+      this.financials.revenueStreams.map(stream => 
+        this.financialService.calculateRevenueAmount(stream, date)
+      )
+    );
+    const total = amounts.reduce((sum, amount) => sum + amount, 0);
+    const finalTotal = Math.round(total * 100) / 100;
+    console.log('Final monthly revenue:', finalTotal);
+    return finalTotal;
   }
 
-  private calculateProjections(): RunwayProjection[] {
+  private async calculateMonthlyExpenses(date: Date): Promise<number> {
+    console.log('Calculating monthly expenses for:', date.toISOString());
+    const amounts = await Promise.all(
+      this.financials.expenses.map(expense => 
+        this.financialService.calculateExpenseAmount(expense, date)
+      )
+    );
+    const total = amounts.reduce((sum, amount) => sum + amount, 0);
+    const finalTotal = Math.round(total * 100) / 100;
+    console.log('Final monthly expenses:', finalTotal);
+    return finalTotal;
+  }
+
+  private async calculateProjections(): Promise<RunwayProjection[]> {
     const projections: RunwayProjection[] = [];
     let currentBalance = this.financials.cashBalance;
-    let currentDate = startOfMonth(this.currentDate);
+    let currentDate = new Date(this.financials.startDate);
 
-    // Get initial revenue and expenses
-    let lastRevenue = this.calculateMonthlyRevenue(currentDate);
-    let lastExpenses = this.calculateMonthlyExpenses(currentDate);
+    // Add the initial projection
+    const initialRevenue = await this.calculateMonthlyRevenue(currentDate);
+    const initialExpenses = await this.calculateMonthlyExpenses(currentDate);
+    const initialNetCashFlow = initialRevenue - initialExpenses;
+
+    projections.push({
+      date: new Date(currentDate),
+      cashBalance: currentBalance,
+      revenue: initialRevenue,
+      expenses: initialExpenses,
+      netCashFlow: initialNetCashFlow,
+      netIncome: initialNetCashFlow,
+      cumulativeCash: currentBalance
+    });
+
+    // Move to the next month for future projections
+    currentDate = addMonths(currentDate, 1);
 
     while (isBefore(currentDate, this.financials.endDate)) {
       // Calculate new revenue with growth and seasonality
-      const revenue = this.calculateMonthlyRevenue(currentDate);
+      const revenue = await this.calculateMonthlyRevenue(currentDate);
       
       // Calculate new expenses
-      const expenses = this.calculateMonthlyExpenses(currentDate);
+      const expenses = await this.calculateMonthlyExpenses(currentDate);
       
       const netCashFlow = revenue - expenses;
       currentBalance += netCashFlow;
@@ -125,6 +116,8 @@ export class RunwayCalculator {
         revenue,
         expenses,
         netCashFlow,
+        netIncome: netCashFlow,
+        cumulativeCash: currentBalance
       });
 
       currentDate = addMonths(currentDate, 1);
@@ -139,26 +132,42 @@ export class RunwayCalculator {
   }
 
   private calculateBreakEvenDate(projections: RunwayProjection[]): Date | null {
-    const breakEvenProjection = projections.find(p => p.netCashFlow >= 0);
-    return breakEvenProjection ? breakEvenProjection.date : null;
+    console.log('Calculating break even date...');
+    console.log('Start date:', this.financials.startDate);
+    console.log('Projections:', projections.map(p => ({
+      date: p.date.toISOString(),
+      netCashFlow: p.netCashFlow
+    })));
+
+    // Find the first month where we have positive cash flow, but only after our start date
+    const breakEvenProjection = projections.find(p => {
+      const isAfterStart = !isBefore(p.date, new Date(this.financials.startDate.toISOString()));
+      const hasPositiveFlow = p.netCashFlow >= 0;
+      console.log(`Checking projection for ${p.date.toISOString()}:`, {
+        isAfterStart,
+        hasPositiveFlow,
+        netCashFlow: p.netCashFlow
+      });
+      return isAfterStart && hasPositiveFlow;
+    });
+    
+    console.log('Break even projection:', breakEvenProjection ? {
+      date: breakEvenProjection.date.toISOString(),
+      netCashFlow: breakEvenProjection.netCashFlow
+    } : null);
+    
+    return breakEvenProjection?.date || null;
   }
 
-  private calculateMonthlyBurnRate(): number {
-    const lastThreeMonths = this.financials.expenses
-      .flatMap(expense => expense.entries)
-      .filter(entry => {
-        const entryDate = new Date(entry.date);
-        const threeMonthsAgo = addMonths(this.currentDate, -3);
-        return isAfter(entryDate, threeMonthsAgo) && !isAfter(entryDate, this.currentDate);
-      })
-      .reduce((sum, entry) => sum + entry.amount, 0);
-
-    return lastThreeMonths / 3;
+  private async calculateMonthlyBurnRate(): Promise<number> {
+    // Use the same calculation as monthly expenses to ensure consistency
+    return await this.calculateMonthlyExpenses(this.currentDate);
   }
 
-  private calculateRunwayOptions(): RunwayOption[] {
-    const monthlyBurnRate = this.calculateMonthlyBurnRate();
-    const currentRunway = this.calculateCurrentRunway();
+  private async calculateRunwayOptions(): Promise<RunwayOption[]> {
+    const monthlyBurnRate = await this.calculateMonthlyBurnRate();
+    const currentRunway = await this.calculateCurrentRunway();
+    const currentRevenue = await this.calculateMonthlyRevenue(this.currentDate);
 
     return [
       {
@@ -193,7 +202,7 @@ export class RunwayCalculator {
         description: 'Implement aggressive collection strategy',
         impact: {
           type: 'revenue',
-          value: this.calculateMonthlyRevenue(this.currentDate) * 0.1,
+          value: currentRevenue * 0.1,
           period: 'monthly',
         },
         implementationTime: 15,
@@ -203,8 +212,8 @@ export class RunwayCalculator {
     ];
   }
 
-  private calculateCurrentRunway(): number {
-    const projections = this.calculateProjections();
+  private async calculateCurrentRunway(): Promise<number> {
+    const projections = await this.calculateProjections();
     const zeroBalanceProjection = projections.find(p => p.cashBalance <= 0);
     if (!zeroBalanceProjection) {
       return differenceInMonths(this.financials.endDate, this.currentDate);
@@ -212,14 +221,15 @@ export class RunwayCalculator {
     return differenceInMonths(zeroBalanceProjection.date, this.currentDate);
   }
 
-  public analyzeRunway(): RunwayAnalysis {
-    const projections = this.calculateProjections();
+  public async analyzeRunway(): Promise<RunwayAnalysis> {
+    const projections = await this.calculateProjections();
     const breakEvenDate = this.calculateBreakEvenDate(projections);
-    const monthlyBurnRate = this.calculateMonthlyBurnRate();
-    const options = this.calculateRunwayOptions();
+    const monthlyBurnRate = await this.calculateMonthlyBurnRate();
+    const currentRunway = await this.calculateCurrentRunway();
+    const options = await this.calculateRunwayOptions();
 
     return {
-      currentRunway: this.calculateCurrentRunway(),
+      currentRunway,
       projections,
       breakEvenDate,
       monthlyBurnRate,
@@ -227,31 +237,33 @@ export class RunwayCalculator {
     };
   }
 
-  public simulateOption(option: RunwayOption): RunwayAnalysis {
+  public async simulateOption(option: RunwayOption): Promise<RunwayAnalysis> {
     // Create a copy of financials to simulate the option
     const simulatedFinancials = { ...this.financials };
     
     // Apply the option's impact
     if (option.impact.type === 'expense') {
+      const monthlyBurnRate = await this.calculateMonthlyBurnRate();
       simulatedFinancials.expenses = simulatedFinancials.expenses.map(expense => ({
         ...expense,
         entries: expense.entries.map(entry => ({
           ...entry,
-          amount: entry.amount * (1 - option.impact.value / this.calculateMonthlyBurnRate()),
+          amount: entry.amount * (1 - option.impact.value / monthlyBurnRate),
         })),
       }));
     } else if (option.impact.type === 'revenue') {
+      const currentRevenue = await this.calculateMonthlyRevenue(this.currentDate);
       simulatedFinancials.revenueStreams = simulatedFinancials.revenueStreams.map(stream => ({
         ...stream,
         entries: stream.entries.map(entry => ({
           ...entry,
-          amount: entry.amount * (1 + option.impact.value / this.calculateMonthlyRevenue(this.currentDate)),
+          amount: entry.amount * (1 + option.impact.value / currentRevenue),
         })),
       }));
     }
 
     // Create new calculator with simulated data
     const simulatedCalculator = new RunwayCalculator(simulatedFinancials);
-    return simulatedCalculator.analyzeRunway();
+    return await simulatedCalculator.analyzeRunway();
   }
 } 
