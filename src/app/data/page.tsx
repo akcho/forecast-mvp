@@ -179,16 +179,142 @@ export default function DataView() {
       {/* Transactions */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Transactions</h2>
-        <Card>
-          <div className="mt-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Chronological list of all financial transactions including purchases, invoices, payments, and bills. Each transaction includes date, amount, type, and related accounts.
-            </p>
-            <pre className="text-sm overflow-auto max-h-96">
-              {JSON.stringify(reports.transactions?.QueryResponse?.Transaction, null, 2)}
-            </pre>
-          </div>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <Title>Bills</Title>
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Vendor bills and expenses. Each bill includes vendor details, due date, amount, and status.
+              </p>
+              <div className="overflow-auto max-h-96">
+                {reports.transactions?.QueryResponse?.Transaction
+                  ?.filter((txn: any) => txn.TxnType === 'Bill')
+                  .map((bill: any) => (
+                    <div key={bill.Id} className="border-b border-gray-200 py-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{bill.VendorRef?.name || 'Unknown Vendor'}</p>
+                          <p className="text-sm text-gray-600">{new Date(bill.TxnDate).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">${bill.TotalAmt?.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">Due: {new Date(bill.DueDate).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{bill.PrivateNote || 'No description'}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <Title>Invoices</Title>
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Customer invoices and sales. Each invoice includes customer details, due date, and payment status.
+              </p>
+              <div className="overflow-auto max-h-96">
+                {reports.transactions?.QueryResponse?.Transaction
+                  ?.filter((txn: any) => txn.TxnType === 'Invoice')
+                  .map((invoice: any) => (
+                    <div key={invoice.Id} className="border-b border-gray-200 py-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{invoice.CustomerRef?.name || 'Unknown Customer'}</p>
+                          <p className="text-sm text-gray-600">{new Date(invoice.TxnDate).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">${invoice.TotalAmt?.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">Due: {new Date(invoice.DueDate).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{invoice.PrivateNote || 'No description'}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <Title>Payments</Title>
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Customer payments and bill payments. Shows payment method, reference, and amount.
+              </p>
+              <div className="overflow-auto max-h-96">
+                {reports.transactions?.QueryResponse?.Transaction
+                  ?.filter((txn: any) => txn.TxnType === 'Payment')
+                  .map((payment: any) => (
+                    <div key={payment.Id} className="border-b border-gray-200 py-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{payment.CustomerRef?.name || 'Unknown Customer'}</p>
+                          <p className="text-sm text-gray-600">{new Date(payment.TxnDate).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">${payment.TotalAmt?.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">{payment.PaymentMethodRef?.name || 'No method'}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{payment.PrivateNote || 'No description'}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <Title>Purchases</Title>
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Purchase transactions and expenses. Includes vendor details, payment method, and amount.
+              </p>
+              <div className="overflow-auto max-h-96">
+                {reports.transactions?.QueryResponse?.Transaction
+                  ?.filter((txn: any) => txn.TxnType === 'Purchase')
+                  .map((purchase: any) => (
+                    <div key={purchase.Id} className="border-b border-gray-200 py-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">
+                            {purchase.EntityRef?.name || 
+                             purchase.VendorRef?.name || 
+                             purchase.AccountRef?.name || 
+                             'Unknown Source'}
+                          </p>
+                          <p className="text-sm text-gray-600">{new Date(purchase.TxnDate).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">${purchase.TotalAmt?.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">
+                            {purchase.PaymentType || 
+                             purchase.PaymentMethodRef?.name || 
+                             purchase.AccountRef?.name || 
+                             'No method'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        {purchase.Line && purchase.Line.map((line: any, index: number) => (
+                          <div key={index} className="text-sm text-gray-600">
+                            {line.Description || 
+                             (line.DetailType === 'AccountBasedExpenseLineDetail' ? 
+                              line.AccountBasedExpenseLineDetail?.AccountRef?.name : 
+                              line.DetailType) || 
+                             'Purchase item'}
+                          </div>
+                        ))}
+                      </div>
+                      {purchase.PrivateNote && (
+                        <p className="text-sm text-gray-600 mt-1">{purchase.PrivateNote}</p>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
