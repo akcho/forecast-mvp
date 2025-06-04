@@ -1,6 +1,6 @@
 import { addMonths, startOfMonth } from 'date-fns';
 import { FinancialCalculationService } from './financialCalculations';
-import { CompanyFinancials } from '../types/financial';
+import { CompanyFinancials } from '@/types/financial';
 
 export class CalculationJob {
   private static instance: CalculationJob;
