@@ -10,7 +10,9 @@ import {
   ExpenseCategory,
   FinancialEntry,
   TimePeriod,
-  RunwayProjection
+  RunwayProjection,
+  RunwayAnalysis,
+  RunwayOption
 } from '@/types/financial';
 import { format, addMonths, startOfMonth } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
