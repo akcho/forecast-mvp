@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
+import { Text } from '@tremor/react';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [companyInfo, setCompanyInfo] = useState<any>(null);
@@ -145,5 +146,19 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div className="flex justify-center items-center h-64">
+          <Text>Loading...</Text>
+        </div>
+      </main>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 } 

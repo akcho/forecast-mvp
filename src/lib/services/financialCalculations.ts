@@ -110,6 +110,7 @@ export class FinancialCalculationService {
         await this.database.storeCalculatedValue({
           id: cacheKey,
           type: 'expense',
+          entityId: expense.id,
           date,
           amount: finalAmount,
           lastCalculated: new Date(),
@@ -210,7 +211,8 @@ export class FinancialCalculationService {
       // Apply seasonality if available
       if (revenue.seasonality) {
         const monthIndex = date.getMonth();
-        const seasonalityFactor = revenue.seasonality[monthIndex] || 1;
+        const seasonalityEntry = revenue.seasonality.find(s => s.month === monthIndex);
+        const seasonalityFactor = seasonalityEntry?.factor || 1;
         amount *= seasonalityFactor;
       }
 
@@ -223,6 +225,7 @@ export class FinancialCalculationService {
         await this.database.storeCalculatedValue({
           id: cacheKey,
           type: 'revenue',
+          entityId: revenue.id,
           date,
           amount: finalAmount,
           lastCalculated: new Date(),

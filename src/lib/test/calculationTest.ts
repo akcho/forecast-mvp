@@ -65,8 +65,11 @@ export async function runTests(): Promise<void> {
       revenue: 10000,
       expenses: 7000,
       netIncome: 3000,
-      cumulativeCash: 50000
-    }
+      cumulativeCash: 50000,
+      cashBalance: 50000,
+      netCashFlow: 3000
+    },
+    cashBalance: 50000
   };
 
   try {

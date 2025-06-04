@@ -76,9 +76,15 @@ export interface CalculatedValue {
   entityId: string;
   date: Date;
   amount: number;
+  lastCalculated: Date;
   metadata: {
-    calculatedAt: Date;
-    source: string;
-    version: string;
+    calculatedAt?: Date;
+    source?: string;
+    version?: string;
+    category?: string;
+    isFixed?: boolean;
+    frequency?: TimePeriod;
+    growthRate?: number;
+    monthsFromLatest?: number;
   };
 } 
