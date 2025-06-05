@@ -70,12 +70,22 @@ I can help you understand your company's finances. What would you like to know?`
     setIsLoading(true);
 
     try {
-      // TODO: Add OpenAI API call here
-      // For now, just echo back
-      const response = `This is a placeholder response.`;
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
       
       // Add assistant message
-      const assistantMessage: Message = { role: 'assistant', content: response };
+      const assistantMessage: Message = { role: 'assistant', content: data.response };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error getting response:', error);
@@ -96,7 +106,7 @@ I can help you understand your company's finances. What would you like to know?`
   return (
     <main className="min-h-screen bg-black text-green-400 font-mono">
       <div className="p-4 md:p-10 mx-auto max-w-7xl">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center mb-8">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-500/10 rounded">
               <CurrencyDollarIcon className="h-8 w-8 text-green-400" />
@@ -105,9 +115,6 @@ I can help you understand your company's finances. What would you like to know?`
               <Title className="text-green-400 font-mono">FINANCIAL ASSISTANT</Title>
               <Text className="text-green-500/70 font-mono">Connected to QuickBooks</Text>
             </div>
-          </div>
-          <div className="text-green-500/50 font-mono text-sm">
-            {new Date().toLocaleTimeString()}
           </div>
         </div>
 
@@ -149,12 +156,15 @@ I can help you understand your company's finances. What would you like to know?`
                 {/* Input */}
                 <div className="border-t border-green-500/20 p-4">
                   <form onSubmit={handleSubmit} className="flex gap-2">
-                    <TextInput
-                      placeholder="Ask about your finances..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      className="flex-1 bg-black border-green-500/20 text-green-400 placeholder-green-500/50 font-mono"
-                    />
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        placeholder="Ask about your finances..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        className="w-full bg-black border border-green-500/20 text-green-400 placeholder-green-500/50 font-mono px-3 py-2 rounded focus:outline-none focus:border-green-500/40 focus:ring-1 focus:ring-green-500/20"
+                      />
+                    </div>
                     <button
                       type="submit"
                       disabled={isLoading}
