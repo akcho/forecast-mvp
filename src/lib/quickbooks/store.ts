@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+
 const ACCESS_TOKEN_KEY = 'qb_access_token';
 const REFRESH_TOKEN_KEY = 'qb_refresh_token';
 const REALM_ID_KEY = 'qb_realm_id';
@@ -10,12 +12,12 @@ class QuickBooksStore {
   constructor() {
     console.log('Initializing QuickBooks store');
     if (typeof window !== 'undefined') {
-      // Initialize from localStorage
-      this.accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-      this.refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-      this.realmId = localStorage.getItem(REALM_ID_KEY);
+      // Initialize from cookies in browser
+      this.accessToken = this.getCookie(ACCESS_TOKEN_KEY);
+      this.refreshToken = this.getCookie(REFRESH_TOKEN_KEY);
+      this.realmId = this.getCookie(REALM_ID_KEY);
 
-      console.log('QuickBooksStore initialized from localStorage:', {
+      console.log('QuickBooksStore initialized from cookies:', {
         hasAccessToken: !!this.accessToken,
         hasRefreshToken: !!this.refreshToken,
         hasRealmId: !!this.realmId,
@@ -27,6 +29,23 @@ class QuickBooksStore {
     }
   }
 
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+  }
+
+  private setCookie(name: string, value: string) {
+    document.cookie = `${name}=${value}; path=/; max-age=31536000; SameSite=Lax`;
+  }
+
+  private deleteCookie(name: string) {
+    document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+  }
+
   setTokens(accessToken: string, refreshToken: string) {
     console.log('Setting QuickBooks tokens:', {
       accessTokenLength: accessToken.length,
@@ -36,9 +55,9 @@ class QuickBooksStore {
     this.refreshToken = refreshToken;
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-      console.log('Tokens stored in localStorage');
+      this.setCookie(ACCESS_TOKEN_KEY, accessToken);
+      this.setCookie(REFRESH_TOKEN_KEY, refreshToken);
+      console.log('Tokens stored in cookies');
     }
   }
 
@@ -62,8 +81,8 @@ class QuickBooksStore {
     console.log('Setting realm ID:', { realmId });
     this.realmId = realmId;
     if (typeof window !== 'undefined') {
-      localStorage.setItem(REALM_ID_KEY, realmId);
-      console.log('Realm ID stored in localStorage');
+      this.setCookie(REALM_ID_KEY, realmId);
+      console.log('Realm ID stored in cookies');
     }
   }
 
@@ -81,12 +100,23 @@ class QuickBooksStore {
     this.refreshToken = null;
     this.realmId = null;
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      localStorage.removeItem(REALM_ID_KEY);
-      console.log('Store cleared from localStorage');
+      this.deleteCookie(ACCESS_TOKEN_KEY);
+      this.deleteCookie(REFRESH_TOKEN_KEY);
+      this.deleteCookie(REALM_ID_KEY);
+      console.log('Store cleared from cookies');
     }
   }
 }
 
-export const quickBooksStore = new QuickBooksStore(); 
+// Create separate instances for client and server
+export const quickBooksStore = typeof window !== 'undefined' 
+  ? new QuickBooksStore()  // Client-side instance
+  : {
+      // Server-side instance with no-op methods
+      getAccessToken: () => null,
+      getRefreshToken: () => null,
+      getRealmId: () => null,
+      setTokens: () => {},
+      setRealmId: () => {},
+      clear: () => {},
+    }; 

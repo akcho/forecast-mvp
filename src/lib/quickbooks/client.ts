@@ -199,12 +199,14 @@ export class QuickBooksClient {
       if (!retryResponse.ok) {
         throw new Error(`Failed to fetch ${endpoint} after token refresh`);
       }
+
       return retryResponse.json();
     }
 
     if (!response.ok) {
       throw new Error(`Failed to fetch ${endpoint}`);
     }
+
     return response.json();
   }
 
