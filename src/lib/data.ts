@@ -1,8 +1,49 @@
-import { QuickBooksClient } from './quickbooks/client';
+import { QuickBooksService } from './quickbooks/service';
 
-interface Expense {
-  category: string;
-  amount: number;
+interface QuickBooksColData {
+  value: string;
+}
+
+interface QuickBooksHeader {
+  ColData: QuickBooksColData[];
+}
+
+interface QuickBooksRow {
+  Header?: QuickBooksHeader;
+  Rows?: {
+    Row: QuickBooksRow[];
+  };
+  Summary?: {
+    ColData: QuickBooksColData[];
+  };
+  type: string;
+}
+
+interface QuickBooksReport {
+  Header: {
+    Time: string;
+    ReportName: string;
+    DateMacro: string;
+    ReportBasis: string;
+    StartPeriod: string;
+    EndPeriod: string;
+    Currency: string;
+  };
+  Columns: {
+    Column: Array<{
+      ColTitle: string;
+      ColType: string;
+    }>;
+  };
+  Rows: {
+    Row: QuickBooksRow[];
+  };
+}
+
+interface QuickBooksCompanyInfo {
+  CompanyInfo: {
+    CompanyName: string;
+  };
 }
 
 interface CompanyData {
@@ -10,71 +51,143 @@ interface CompanyData {
   currentCash: number;
   monthlyBurnRate: number;
   monthlyRevenue: number;
-  revenueGrowth: number;
-  topExpenses: Expense[];
+  netMonthlyCashFlow: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  totalEquity: number;
 }
 
-export async function getCompanyData(): Promise<CompanyData> {
-  const client = new QuickBooksClient();
-  
-  // Fetch all required reports
-  const [profitLoss, balanceSheet, cashFlow] = await Promise.all([
-    client.getProfitAndLoss(),
-    client.getBalanceSheet(),
-    client.getCashFlow()
-  ]);
+interface FinancialData {
+  balanceSheet: any;
+  profitAndLoss: any;
+  cashFlow: any;
+}
 
-  // Extract company name from QuickBooks data
-  const companyName = balanceSheet?.QueryResponse?.Report?.Header?.ReportName || "Your Company";
+export async function getCompanyData(sessionId: string): Promise<CompanyData> {
+  try {
+    const quickbooks = QuickBooksService.getInstance();
+    const [companyInfo, balanceSheet, profitAndLoss] = await Promise.all([
+      quickbooks.getCompanyInfo(sessionId),
+      quickbooks.getBalanceSheet(sessionId),
+      quickbooks.getProfitAndLoss(sessionId),
+    ]);
 
-  // Get current cash from balance sheet
-  const bankAccounts = balanceSheet?.QueryResponse?.Report?.Rows?.Row
-    ?.find(row => row.Header?.ColData[0].value === 'Bank Accounts')
-    ?.Rows?.Row || [];
-  const currentCash = bankAccounts
-    .filter(row => row.type === 'Data')
-    .reduce((sum, row) => sum + parseFloat(row.ColData[1].value), 0);
+    console.log('Raw API Responses:', {
+      companyInfo: JSON.stringify(companyInfo, null, 2),
+      balanceSheet: JSON.stringify(balanceSheet, null, 2),
+      profitAndLoss: JSON.stringify(profitAndLoss, null, 2)
+    });
 
-  // Get monthly revenue from profit & loss
-  const incomeSection = profitLoss?.QueryResponse?.Report?.Rows?.Row
-    ?.find(row => row.Header?.ColData[0].value === 'Income');
-  const monthlyRevenue = incomeSection?.Rows?.Row
-    ?.filter(row => row.type === 'Data')
-    .reduce((sum, row) => sum + parseFloat(row.ColData[1].value), 0) || 0;
+    // Extract relevant data from QuickBooks responses
+    const company = companyInfo.CompanyInfo;
+    if (!company) {
+      throw new Error('Company info not found in response');
+    }
 
-  // Get monthly expenses from profit & loss
-  const expenseSection = profitLoss?.QueryResponse?.Report?.Rows?.Row
-    ?.find(row => row.Header?.ColData[0].value === 'Expenses');
-  const monthlyBurnRate = expenseSection?.Rows?.Row
-    ?.filter(row => row.type === 'Data')
-    .reduce((sum, row) => sum + parseFloat(row.ColData[1].value), 0) || 0;
+    const balanceSheetData = balanceSheet as QuickBooksReport;
+    const profitAndLossData = profitAndLoss as QuickBooksReport;
 
-  // Get top expenses
-  const topExpenses = expenseSection?.Rows?.Row
-    ?.filter(row => row.type === 'Data')
-    .map(row => ({
-      category: row.ColData[0].value,
-      amount: parseFloat(row.ColData[1].value)
-    }))
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 3) || [];
+    // Calculate monthly burn rate and revenue from Profit & Loss
+    const totalExpenses = profitAndLossData.Rows.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Expenses')
+    )?.Summary?.ColData[1]?.value || '0';
 
-  // Calculate revenue growth from cash flow
-  const operatingActivities = cashFlow?.QueryResponse?.Report?.Rows?.Row
-    ?.find(row => row.Header?.ColData[0].value === 'OPERATING ACTIVITIES');
-  const netIncome = operatingActivities?.Rows?.Row
-    ?.find(row => row.Header?.ColData[0].value === 'Net Income')
-    ?.ColData[1].value || 0;
-  
-  // Simple growth calculation (can be improved with historical data)
-  const revenueGrowth = monthlyRevenue > 0 ? (netIncome / monthlyRevenue) : 0;
+    const totalIncome = profitAndLossData.Rows.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Income')
+    )?.Summary?.ColData[1]?.value || '0';
 
-  return {
-    companyName,
-    currentCash,
-    monthlyBurnRate,
-    monthlyRevenue,
-    revenueGrowth,
-    topExpenses
-  };
+    console.log('Found financial values:', {
+      totalExpenses,
+      totalIncome,
+      rawExpenses: profitAndLossData.Rows.Row.find((row: any) => 
+        row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Expenses')
+      ),
+      rawIncome: profitAndLossData.Rows.Row.find((row: any) => 
+        row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Income')
+      )
+    });
+
+    const monthlyExpenses = totalExpenses ? Math.abs(parseFloat(totalExpenses)) / 12 : 0;
+    const monthlyRevenue = totalIncome ? parseFloat(totalIncome) / 12 : 0;
+    
+    // Calculate net monthly cash flow
+    const netMonthlyCashFlow = monthlyRevenue - monthlyExpenses;
+    
+    // Burn rate is total monthly expenses, regardless of revenue
+    const monthlyBurnRate = monthlyExpenses;
+
+    // Get current cash from balance sheet - navigate through the nested structure
+    const assetsSection = balanceSheetData.Rows.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'ASSETS')
+    );
+
+    const currentAssets = assetsSection?.Rows?.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Current Assets')
+    );
+
+    const bankAccounts = currentAssets?.Rows?.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Bank Accounts')
+    );
+
+    const currentCash = bankAccounts?.Summary?.ColData[1]?.value || '0';
+
+    console.log('Found cash data:', {
+      assetsSection,
+      currentAssets,
+      bankAccounts,
+      currentCash
+    });
+
+    // Get total assets, liabilities, and equity
+    const totalAssets = assetsSection?.Summary?.ColData[1]?.value || '0';
+
+    const liabilitiesSection = balanceSheetData.Rows.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'LIABILITIES AND EQUITY')
+    );
+
+    const totalLiabilities = liabilitiesSection?.Rows?.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Total Liabilities')
+    )?.Summary?.ColData[1]?.value || '0';
+
+    const totalEquity = liabilitiesSection?.Rows?.Row.find((row: any) => 
+      row.type === 'Section' && row.Header?.ColData.some((col: any) => col.value === 'Total Equity')
+    )?.Summary?.ColData[1]?.value || '0';
+
+    const data = {
+      companyName: company.CompanyName,
+      currentCash: parseFloat(currentCash),
+      monthlyBurnRate,
+      monthlyRevenue,
+      netMonthlyCashFlow,
+      totalAssets: parseFloat(totalAssets),
+      totalLiabilities: parseFloat(totalLiabilities),
+      totalEquity: parseFloat(totalEquity),
+    };
+
+    console.log('Final processed data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error getting company data:', error);
+    throw error;
+  }
+}
+
+export async function getFinancialData(sessionId: string): Promise<FinancialData> {
+  try {
+    const quickbooks = QuickBooksService.getInstance();
+    const [balanceSheet, profitAndLoss, cashFlow] = await Promise.all([
+      quickbooks.getBalanceSheet(sessionId),
+      quickbooks.getProfitAndLoss(sessionId),
+      quickbooks.getCashFlow(sessionId),
+    ]);
+
+    return {
+      balanceSheet,
+      profitAndLoss,
+      cashFlow,
+    };
+  } catch (error) {
+    console.error('Error getting financial data:', error);
+    throw error;
+  }
 } 
