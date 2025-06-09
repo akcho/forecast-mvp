@@ -254,4 +254,117 @@ export class QuickBooksService {
       throw error;
     }
   }
+
+  async getTransactions(accessToken: string, realmId: string): Promise<any> {
+    try {
+      if (!accessToken || !realmId) {
+        throw new Error('Missing QuickBooks credentials');
+      }
+
+      console.log('Fetching transactions with:', { accessToken: accessToken.substring(0, 10) + '...', realmId });
+      
+      // First get bills (purchases)
+      const billsResponse = await fetch(
+        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Bill`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!billsResponse.ok) {
+        const errorText = await billsResponse.text();
+        console.error('QuickBooks API error (Bills):', { 
+          status: billsResponse.status, 
+          statusText: billsResponse.statusText, 
+          body: errorText,
+          headers: Object.fromEntries(billsResponse.headers.entries())
+        });
+        throw new Error(`QuickBooks API error: ${billsResponse.statusText} - ${errorText}`);
+      }
+
+      const billsData = await billsResponse.json();
+
+      // Then get invoices (sales)
+      const invoicesResponse = await fetch(
+        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Invoice`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!invoicesResponse.ok) {
+        const errorText = await invoicesResponse.text();
+        console.error('QuickBooks API error (Invoices):', { 
+          status: invoicesResponse.status, 
+          statusText: invoicesResponse.statusText, 
+          body: errorText,
+          headers: Object.fromEntries(invoicesResponse.headers.entries())
+        });
+        throw new Error(`QuickBooks API error: ${invoicesResponse.statusText} - ${errorText}`);
+      }
+
+      const invoicesData = await invoicesResponse.json();
+
+      // Combine the results
+      const combinedData = {
+        QueryResponse: {
+          Bill: billsData.QueryResponse?.Bill || [],
+          Invoice: invoicesData.QueryResponse?.Invoice || [],
+          time: new Date().toISOString()
+        }
+      };
+
+      console.log('Transactions response:', combinedData);
+      return combinedData;
+    } catch (error) {
+      console.error('Error getting transactions:', error);
+      throw error;
+    }
+  }
+
+  async getLists(accessToken: string, realmId: string): Promise<any> {
+    try {
+      if (!accessToken || !realmId) {
+        throw new Error('Missing QuickBooks credentials');
+      }
+
+      console.log('Fetching lists with:', { accessToken: accessToken.substring(0, 10) + '...', realmId });
+      const response = await fetch(
+        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Account`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('QuickBooks API error:', { 
+          status: response.status, 
+          statusText: response.statusText, 
+          body: errorText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        throw new Error(`QuickBooks API error: ${response.statusText} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Lists response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error getting lists:', error);
+      throw error;
+    }
+  }
 } 
