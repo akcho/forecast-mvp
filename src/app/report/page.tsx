@@ -68,18 +68,21 @@ export default function ReportView() {
 
   const getAIAnalysis = async (reportData: any) => {
     try {
-      // Get the current values from the UI
-      const currentValues = {
-        totalIncome: 10200.77,
-        totalExpenses: 4937.31,
-        cogs: 802.82,
-        grossProfit: 9397.95,
-        netIncome: 5263.46,
-        grossMargin: 92.1,
-        expenseRatio: 48.4,
-        cogsRatio: 7.9
-      };
-
+      // Prepare the report data first
+      const preparedData = prepareReportData(reportData);
+      
+      // Log the data being sent
+      console.log('Sending to AI Analysis:', {
+        totalIncome: preparedData.totalIncome,
+        totalExpenses: preparedData.totalExpenses,
+        cogs: preparedData.cogs,
+        grossProfit: preparedData.grossProfit,
+        netIncome: preparedData.netIncome,
+        grossMargin: preparedData.grossMargin,
+        expenseRatio: preparedData.expenseRatio,
+        cogsRatio: preparedData.cogsRatio
+      });
+      
       const response = await fetch('/api/analyze-report', {
         method: 'POST',
         headers: {
@@ -87,10 +90,7 @@ export default function ReportView() {
         },
         body: JSON.stringify({
           type: 'analysis',
-          reportData: {
-            ...prepareReportData(reportData),
-            ...currentValues
-          }
+          reportData: preparedData
         }),
       });
 
@@ -106,22 +106,36 @@ export default function ReportView() {
   };
 
   const prepareReportData = (reportData: any) => {
-    // Get all the calculated values
-    const totalIncome = getTotalIncome();
-    const totalExpenses = getTotalExpenses();
-    const cogs = getCOGS();
-    const grossProfit = getGrossProfit();
-    const netIncome = getNetIncome();
-
-    // Prepare detailed income breakdown
-    const incomeBreakdown = reportData?.Rows?.Row?.find(
+    // Get all the calculated values using the passed reportData
+    const totalIncome = reportData?.Rows?.Row?.find(
       (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
-    )?.Rows?.Row || [];
+    )?.Summary?.ColData[1]?.value ? 
+    parseFloat(reportData.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
+    ).Summary.ColData[1].value.replace(/[^0-9.-]+/g, '')) : 0;
 
-    // Prepare detailed expense breakdown
-    const expenseBreakdown = reportData?.Rows?.Row?.find(
+    const totalExpenses = reportData?.Rows?.Row?.find(
       (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
-    )?.Rows?.Row || [];
+    )?.Summary?.ColData[1]?.value ?
+    parseFloat(reportData.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+    ).Summary.ColData[1].value.replace(/[^0-9.-]+/g, '')) : 0;
+
+    const cogs = reportData?.Rows?.Row?.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+    )?.Rows?.Row?.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Job Expenses'
+    )?.Rows?.Row?.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Job Materials'
+    )?.Rows?.Row?.reduce((sum: number, row: PnLRow) => {
+      if (row.type === 'Data') {
+        return sum + parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+      }
+      return sum;
+    }, 0) || 0;
+
+    const grossProfit = totalIncome - cogs;
+    const netIncome = totalIncome - totalExpenses;
 
     // Calculate ratios
     const grossMargin = totalIncome > 0 ? (grossProfit / totalIncome) * 100 : 0;
@@ -146,7 +160,7 @@ export default function ReportView() {
       currency: reportData?.Header?.Currency,
       generated: reportData?.Header?.Time,
       
-      // Key metrics - using the actual calculated values
+      // Key metrics
       totalIncome,
       totalExpenses,
       cogs,
@@ -157,25 +171,13 @@ export default function ReportView() {
       cogsRatio,
 
       // Detailed breakdowns
-      incomeBreakdown: incomeBreakdown.map((row: PnLRow) => ({
-        name: row.Header?.ColData[0].value || row.ColData?.[0].value,
-        amount: parseFloat(row.Summary?.ColData[1].value.replace(/[^0-9.-]+/g, '') || row.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0'),
-        type: row.type,
-        children: row.Rows?.Row?.map((child: PnLRow) => ({
-          name: child.ColData?.[0].value,
-          amount: parseFloat(child.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0')
-        }))
-      })),
+      incomeBreakdown: reportData?.Rows?.Row?.find(
+        (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
+      )?.Rows?.Row || [],
 
-      expenseBreakdown: expenseBreakdown.map((row: PnLRow) => ({
-        name: row.Header?.ColData[0].value || row.ColData?.[0].value,
-        amount: parseFloat(row.Summary?.ColData[1].value.replace(/[^0-9.-]+/g, '') || row.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0'),
-        type: row.type,
-        children: row.Rows?.Row?.map((child: PnLRow) => ({
-          name: child.ColData?.[0].value,
-          amount: parseFloat(child.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0')
-        }))
-      }))
+      expenseBreakdown: reportData?.Rows?.Row?.find(
+        (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+      )?.Rows?.Row || []
     };
   };
 
@@ -486,7 +488,7 @@ export default function ReportView() {
     );
   }
 
-  const netIncome = parseFloat(getNetIncome());
+  const netIncome = getNetIncome();
   const isProfitable = netIncome >= 0;
 
   return (
@@ -521,7 +523,7 @@ export default function ReportView() {
             <Card>
               <Text>Net Income</Text>
               <Metric className={isProfitable ? 'text-green-600' : 'text-red-600'}>
-                {formatCurrency(getNetIncome())}
+                {formatCurrency(netIncome)}
               </Metric>
               <Badge color={isProfitable ? 'green' : 'red'} className="mt-2">
                 {isProfitable ? 'Profitable' : 'Not Profitable'}
