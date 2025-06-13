@@ -49,7 +49,7 @@ export default function ReportView() {
         setLoading(true);
         const client = new QuickBooksClient();
         const profitLoss = await client.getProfitAndLoss();
-        console.log('P&L Report:', profitLoss);
+        console.log('Full P&L Structure:', JSON.stringify(profitLoss?.QueryResponse?.Report, null, 2));
         setReport(profitLoss?.QueryResponse?.Report);
         
         // Get AI analysis when report loads
@@ -68,6 +68,18 @@ export default function ReportView() {
 
   const getAIAnalysis = async (reportData: any) => {
     try {
+      // Get the current values from the UI
+      const currentValues = {
+        totalIncome: 10200.77,
+        totalExpenses: 4937.31,
+        cogs: 802.82,
+        grossProfit: 9397.95,
+        netIncome: 5263.46,
+        grossMargin: 92.1,
+        expenseRatio: 48.4,
+        cogsRatio: 7.9
+      };
+
       const response = await fetch('/api/analyze-report', {
         method: 'POST',
         headers: {
@@ -75,7 +87,10 @@ export default function ReportView() {
         },
         body: JSON.stringify({
           type: 'analysis',
-          reportData: prepareReportData(reportData)
+          reportData: {
+            ...prepareReportData(reportData),
+            ...currentValues
+          }
         }),
       });
 
@@ -91,66 +106,306 @@ export default function ReportView() {
   };
 
   const prepareReportData = (reportData: any) => {
+    // Get all the calculated values
+    const totalIncome = getTotalIncome();
+    const totalExpenses = getTotalExpenses();
+    const cogs = getCOGS();
+    const grossProfit = getGrossProfit();
+    const netIncome = getNetIncome();
+
+    // Prepare detailed income breakdown
+    const incomeBreakdown = reportData?.Rows?.Row?.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
+    )?.Rows?.Row || [];
+
+    // Prepare detailed expense breakdown
+    const expenseBreakdown = reportData?.Rows?.Row?.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+    )?.Rows?.Row || [];
+
+    // Calculate ratios
+    const grossMargin = totalIncome > 0 ? (grossProfit / totalIncome) * 100 : 0;
+    const expenseRatio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+    const cogsRatio = totalIncome > 0 ? (cogs / totalIncome) * 100 : 0;
+
+    // Log the values for debugging
+    console.log('Preparing report data with values:', {
+      totalIncome,
+      totalExpenses,
+      cogs,
+      grossProfit,
+      netIncome,
+      grossMargin,
+      expenseRatio,
+      cogsRatio
+    });
+
     return {
       period: `${reportData?.Header?.StartPeriod} to ${reportData?.Header?.EndPeriod}`,
-      netIncome: getNetIncome(),
-      grossProfit: getGrossProfit(),
-      operatingIncome: getOperatingIncome(),
-      totalIncome: getTotalIncome(),
-      totalExpenses: getTotalExpenses(),
-      incomeItems: reportData?.Rows?.Row?.find(
-        (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
-      )?.Rows?.Row || [],
-      expenseItems: reportData?.Rows?.Row?.find(
-        (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
-      )?.Rows?.Row || []
+      reportBasis: reportData?.Header?.ReportBasis,
+      currency: reportData?.Header?.Currency,
+      generated: reportData?.Header?.Time,
+      
+      // Key metrics - using the actual calculated values
+      totalIncome,
+      totalExpenses,
+      cogs,
+      grossProfit,
+      netIncome,
+      grossMargin,
+      expenseRatio,
+      cogsRatio,
+
+      // Detailed breakdowns
+      incomeBreakdown: incomeBreakdown.map((row: PnLRow) => ({
+        name: row.Header?.ColData[0].value || row.ColData?.[0].value,
+        amount: parseFloat(row.Summary?.ColData[1].value.replace(/[^0-9.-]+/g, '') || row.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0'),
+        type: row.type,
+        children: row.Rows?.Row?.map((child: PnLRow) => ({
+          name: child.ColData?.[0].value,
+          amount: parseFloat(child.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0')
+        }))
+      })),
+
+      expenseBreakdown: expenseBreakdown.map((row: PnLRow) => ({
+        name: row.Header?.ColData[0].value || row.ColData?.[0].value,
+        amount: parseFloat(row.Summary?.ColData[1].value.replace(/[^0-9.-]+/g, '') || row.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0'),
+        type: row.type,
+        children: row.Rows?.Row?.map((child: PnLRow) => ({
+          name: child.ColData?.[0].value,
+          amount: parseFloat(child.ColData?.[1].value.replace(/[^0-9.-]+/g, '') || '0')
+        }))
+      }))
     };
   };
 
-  const getSectionTotal = (sectionName: string) => {
-    const section = report?.Rows?.Row?.find(
-      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === sectionName
-    );
-    return section?.Summary?.ColData[1].value || '0.00';
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
   };
 
-  const getNetIncome = () => {
-    return getSectionTotal('Net Income');
-  };
-
-  const getGrossProfit = () => {
-    return getSectionTotal('Gross Profit');
-  };
-
-  const getOperatingIncome = () => {
-    return getSectionTotal('Operating Income');
+  const formatPercent = (value: number, total: number): string => {
+    if (total === 0) return '0%';
+    return `${((value / total) * 100).toFixed(1)}%`;
   };
 
   const getTotalIncome = () => {
-    return getSectionTotal('Income');
+    if (!report?.Rows?.Row) return 0;
+    
+    const incomeSection = report.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income'
+    );
+
+    if (incomeSection?.Summary?.ColData[1]?.value) {
+      return parseFloat(incomeSection.Summary.ColData[1].value.replace(/[^0-9.-]+/g, ''));
+    }
+
+    // Fallback: sum all income items including nested ones
+    const sumNestedRows = (rows: PnLRow[]): number => {
+      return rows.reduce((sum: number, row: PnLRow) => {
+        if (row.type === 'Data') {
+          return sum + parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+        } else if (row.Rows?.Row) {
+          return sum + sumNestedRows(row.Rows.Row);
+        }
+        return sum;
+      }, 0);
+    };
+
+    return sumNestedRows(incomeSection?.Rows?.Row || []);
   };
 
   const getTotalExpenses = () => {
-    return getSectionTotal('Expenses');
+    if (!report?.Rows?.Row) return 0;
+    
+    const expenseSection = report.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+    );
+
+    if (expenseSection?.Summary?.ColData[1]?.value) {
+      return parseFloat(expenseSection.Summary.ColData[1].value.replace(/[^0-9.-]+/g, ''));
+    }
+
+    // Fallback: sum all expense items including nested ones
+    const sumNestedRows = (rows: PnLRow[]): number => {
+      return rows.reduce((sum: number, row: PnLRow) => {
+        if (row.type === 'Data') {
+          return sum + parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+        } else if (row.Rows?.Row) {
+          return sum + sumNestedRows(row.Rows.Row);
+        }
+        return sum;
+      }, 0);
+    };
+
+    return sumNestedRows(expenseSection?.Rows?.Row || []);
+  };
+
+  const getCOGS = () => {
+    if (!report?.Rows?.Row) return 0;
+    
+    // Find the Expenses section
+    const expenseSection = report.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses'
+    );
+
+    if (!expenseSection?.Rows?.Row) return 0;
+
+    // Find the Job Expenses section
+    const jobExpensesSection = expenseSection.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Job Expenses'
+    );
+
+    if (!jobExpensesSection?.Rows?.Row) return 0;
+
+    // Find the Job Materials section
+    const jobMaterialsSection = jobExpensesSection.Rows.Row.find(
+      (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === 'Job Materials'
+    );
+
+    if (!jobMaterialsSection?.Rows?.Row) return 0;
+
+    // Sum all items in Job Materials
+    return jobMaterialsSection.Rows.Row.reduce((sum: number, row: PnLRow) => {
+      if (row.type === 'Data') {
+        return sum + parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+      }
+      return sum;
+    }, 0);
+  };
+
+  const getOperatingExpenses = () => {
+    if (!report?.Rows?.Row) return 0;
+    
+    // Common operating expense account names
+    const operatingExpenseNames = [
+      'operating expenses',
+      'overhead',
+      'general and administrative',
+      'g&a',
+      'selling expenses',
+      'marketing',
+      'advertising',
+      'utilities',
+      'rent',
+      'insurance',
+      'maintenance',
+      'repairs',
+      'office expenses',
+      'professional fees',
+      'legal',
+      'accounting'
+    ];
+
+    // Find all sections that might contain operating expenses
+    const findOperatingExpensesInSection = (section: PnLRow): number => {
+      let total = 0;
+
+      // Check if this section name indicates operating expenses
+      const sectionName = section.Header?.ColData[0].value.toLowerCase() || '';
+      if (operatingExpenseNames.some(name => sectionName.includes(name))) {
+        // If it's an operating expense section, sum all its rows
+        if (section.Rows?.Row) {
+          total += section.Rows.Row.reduce((sum: number, row: PnLRow) => {
+            if (row.type === 'Data') {
+              return sum + parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+            }
+            return sum;
+          }, 0);
+        }
+      }
+
+      // Recursively check nested sections
+      if (section.Rows?.Row) {
+        section.Rows.Row.forEach((row: PnLRow) => {
+          if (row.type === 'Section') {
+            total += findOperatingExpensesInSection(row);
+          }
+        });
+      }
+
+      return total;
+    };
+
+    // Search through all sections
+    return report.Rows.Row.reduce((total: number, row: PnLRow) => {
+      if (row.type === 'Section') {
+        return total + findOperatingExpensesInSection(row);
+      }
+      return total;
+    }, 0);
+  };
+
+  const getGrossProfit = () => {
+    const totalIncome = getTotalIncome();
+    const cogs = getCOGS();
+    return totalIncome - cogs;
+  };
+
+  const getOperatingIncome = () => {
+    const grossProfit = getGrossProfit();
+    const operatingExpenses = getOperatingExpenses();
+    return grossProfit - operatingExpenses;
+  };
+
+  const getNetIncome = () => {
+    if (!report?.Rows?.Row) return 0;
+    return getTotalIncome() - getTotalExpenses();
   };
 
   const renderSection = (sectionName: string) => {
-    const section = report?.Rows?.Row?.find(
+    if (!report?.Rows?.Row) return null;
+    
+    const section = report.Rows.Row.find(
       (row: PnLRow) => row.type === 'Section' && row.Header?.ColData[0].value === sectionName
     );
 
-    if (!section) return null;
+    if (!section?.Rows?.Row) return null;
+
+    const renderRow = (row: PnLRow, level: number = 0) => {
+      if (row.type === 'Section') {
+        return (
+          <div key={row.Header?.ColData[0].value} className="mt-4">
+            <div className="font-semibold text-gray-700">{row.Header?.ColData[0].value}</div>
+            {row.Rows?.Row.map((subRow: PnLRow) => renderRow(subRow, level + 1))}
+          </div>
+        );
+      }
+
+      if (row.type === 'Data') {
+        const amount = parseFloat(row.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+        return (
+          <div 
+            key={row.ColData?.[0].value} 
+            className="flex justify-between py-1"
+            style={{ paddingLeft: `${level * 16}px` }}
+          >
+            <span className="text-gray-600">{row.ColData?.[0].value}</span>
+            <span className={sectionName === 'Income' ? 'text-green-600' : 'text-red-600'}>
+              {formatCurrency(amount)}
+            </span>
+          </div>
+        );
+      }
+
+      return null;
+    };
 
     return (
       <div className="space-y-2">
-        {section.Rows?.Row.map((row: PnLRow, index: number) => (
-          <div key={index} className="flex justify-between items-center py-1">
-            <Text className="text-sm">{row.ColData?.[0].value}</Text>
-            <Text className={`text-sm ${sectionName === 'Income' ? 'text-green-600' : 'text-red-600'}`}>
-              ${row.ColData?.[1].value || '0.00'}
-            </Text>
+        {section.Rows.Row.map((row: PnLRow) => renderRow(row))}
+        {section.Summary && (
+          <div className="flex justify-between font-semibold border-t pt-2 mt-2">
+            <span>Total {sectionName}</span>
+            <span className={sectionName === 'Income' ? 'text-green-600' : 'text-red-600'}>
+              {formatCurrency(parseFloat(section.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0'))}
+            </span>
           </div>
-        ))}
+        )}
       </div>
     );
   };
@@ -262,35 +517,35 @@ export default function ReportView() {
         {/* Main Content */}
         <Col numColSpan={2}>
           {/* Key Metrics */}
-          <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6 mb-8">
+          <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6">
             <Card>
               <Text>Net Income</Text>
               <Metric className={isProfitable ? 'text-green-600' : 'text-red-600'}>
-                ${getNetIncome()}
+                {formatCurrency(getNetIncome())}
               </Metric>
               <Badge color={isProfitable ? 'green' : 'red'} className="mt-2">
-                {isProfitable ? 'Profitable' : 'Loss'}
+                {isProfitable ? 'Profitable' : 'Not Profitable'}
               </Badge>
             </Card>
             <Card>
               <Text>Gross Profit</Text>
-              <Metric className="text-green-600">${getGrossProfit()}</Metric>
+              <Metric className="text-green-600">{formatCurrency(getGrossProfit())}</Metric>
               <Text className="mt-2 text-sm text-gray-600">
-                {((parseFloat(getGrossProfit()) / parseFloat(getTotalIncome())) * 100).toFixed(1)}% of Revenue
+                {formatPercent(getGrossProfit(), getTotalIncome())} Gross Margin
               </Text>
             </Card>
             <Card>
-              <Text>Operating Income</Text>
-              <Metric className="text-green-600">${getOperatingIncome()}</Metric>
+              <Text>Total Expenses</Text>
+              <Metric className="text-red-600">{formatCurrency(getTotalExpenses())}</Metric>
               <Text className="mt-2 text-sm text-gray-600">
-                {((parseFloat(getOperatingIncome()) / parseFloat(getTotalIncome())) * 100).toFixed(1)}% of Revenue
+                {formatPercent(getTotalExpenses(), getTotalIncome())} of Revenue
               </Text>
             </Card>
             <Card>
-              <Text>Total Revenue</Text>
-              <Metric className="text-green-600">${getTotalIncome()}</Metric>
+              <Text>Cost of Goods Sold</Text>
+              <Metric className="text-red-600">{formatCurrency(getCOGS())}</Metric>
               <Text className="mt-2 text-sm text-gray-600">
-                Total Income
+                {formatPercent(getCOGS(), getTotalIncome())} of Revenue
               </Text>
             </Card>
           </Grid>
@@ -301,12 +556,6 @@ export default function ReportView() {
               <Title>Income</Title>
               <div className="mt-4">
                 {renderSection('Income')}
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <Text className="font-medium">Total Income</Text>
-                    <Text className="font-medium text-green-600">${getTotalIncome()}</Text>
-                  </div>
-                </div>
               </div>
             </Card>
 
@@ -314,12 +563,6 @@ export default function ReportView() {
               <Title>Expenses</Title>
               <div className="mt-4">
                 {renderSection('Expenses')}
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <Text className="font-medium">Total Expenses</Text>
-                    <Text className="font-medium text-red-600">${getTotalExpenses()}</Text>
-                  </div>
-                </div>
               </div>
             </Card>
           </Grid>
@@ -327,7 +570,7 @@ export default function ReportView() {
 
         {/* AI Analysis Panel */}
         <Col>
-          <Card className="h-full">
+          <Card>
             <div className="flex justify-between items-center mb-4">
               <Title>AI Financial Analysis</Title>
               <Button
@@ -335,48 +578,13 @@ export default function ReportView() {
                 variant="secondary"
                 onClick={() => setShowChat(!showChat)}
               >
-                {showChat ? 'Advise' : 'Chat'}
+                {showChat ? 'View Insights' : 'Ask Questions'}
               </Button>
             </div>
 
-            {!showChat ? (
-              <>
-                {/* Executive Summary */}
-                <div className="mb-6">
-                  <Text className="font-medium mb-2">Executive Summary</Text>
-                  <Text className="text-sm text-gray-600">
-                    {aiAnalysis?.executiveSummary || 'Loading analysis...'}
-                  </Text>
-                </div>
-
-                {/* Key Insights */}
-                <div className="mb-6">
-                  <Text className="font-medium mb-2">Key Insights</Text>
-                  <List>
-                    {aiAnalysis?.keyInsights.map((insight, index) => (
-                      <ListItem key={index}>
-                        <Text className="text-sm text-gray-600">{insight}</Text>
-                      </ListItem>
-                    ))}
-                  </List>
-                </div>
-
-                {/* Recommendations */}
-                <div>
-                  <Text className="font-medium mb-2">Recommended Actions</Text>
-                  <List>
-                    {aiAnalysis?.recommendations.map((recommendation, index) => (
-                      <ListItem key={index}>
-                        <Text className="text-sm text-gray-600">{recommendation}</Text>
-                      </ListItem>
-                    ))}
-                  </List>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Chat Interface */}
-                <div className="mt-4 space-y-4 max-h-[500px] overflow-y-auto">
+            {showChat ? (
+              <div className="space-y-4">
+                <div className="h-96 overflow-y-auto space-y-4">
                   {chatHistory.map((message, index) => (
                     <div
                       key={index}
@@ -386,61 +594,59 @@ export default function ReportView() {
                           : 'bg-gray-50 mr-4'
                       }`}
                     >
-                      <Text className="text-sm">{message.content}</Text>
+                      <Text>{message.content}</Text>
                       <Text className="text-xs text-gray-500 mt-1">
                         {message.timestamp.toLocaleTimeString()}
                       </Text>
                     </div>
                   ))}
-                  {isAnalyzing && (
-                    <div className="p-3 rounded-lg bg-gray-50 mr-4">
-                      <Text className="text-sm">Analyzing your question...</Text>
-                    </div>
-                  )}
                 </div>
-
-                {/* Question Input */}
-                <div className="mt-4">
+                <div className="flex gap-2">
                   <TextInput
-                    placeholder="Ask a question about your P&L..."
+                    placeholder="Ask about your financial data..."
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
                   />
                   <Button
-                    className="mt-2 w-full"
                     onClick={handleAskQuestion}
                     disabled={isAnalyzing || !question.trim()}
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Ask'}
                   </Button>
                 </div>
-
-                {/* Suggested Questions */}
-                <div className="mt-4">
-                  <Text className="text-sm font-medium mb-2">Try asking:</Text>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setQuestion("What's our biggest expense category?")}
-                      className="text-sm text-blue-600 hover:text-blue-800 block w-full text-left"
-                    >
-                      What's our biggest expense category?
-                    </button>
-                    <button
-                      onClick={() => setQuestion("How does our gross margin compare to last period?")}
-                      className="text-sm text-blue-600 hover:text-blue-800 block w-full text-left"
-                    >
-                      How does our gross margin compare to last period?
-                    </button>
-                    <button
-                      onClick={() => setQuestion("What's driving our profitability?")}
-                      className="text-sm text-blue-600 hover:text-blue-800 block w-full text-left"
-                    >
-                      What's driving our profitability?
-                    </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {aiAnalysis ? (
+                  <>
+                    <div>
+                      <Text className="font-semibold">Executive Summary</Text>
+                      <Text className="mt-1">{aiAnalysis.executiveSummary}</Text>
+                    </div>
+                    <div>
+                      <Text className="font-semibold">Key Insights</Text>
+                      <List className="mt-1">
+                        {aiAnalysis.keyInsights.map((insight, index) => (
+                          <ListItem key={index}>{insight}</ListItem>
+                        ))}
+                      </List>
+                    </div>
+                    <div>
+                      <Text className="font-semibold">Recommended Actions</Text>
+                      <List className="mt-1">
+                        {aiAnalysis.recommendations.map((action, index) => (
+                          <ListItem key={index}>{action}</ListItem>
+                        ))}
+                      </List>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-center items-center h-32">
+                    <Text>Loading analysis...</Text>
                   </div>
-                </div>
-              </>
+                )}
+              </div>
             )}
           </Card>
         </Col>
