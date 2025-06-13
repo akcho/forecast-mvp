@@ -4,6 +4,21 @@ import { useState, useEffect } from 'react';
 import { Card, Title, Text, Select, SelectItem } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 
+interface PnLRow {
+  type: string;
+  Header?: {
+    ColData: Array<{ value: string }>;
+  };
+  Rows?: {
+    Row: Array<PnLRow>;
+  };
+  Summary?: {
+    ColData: Array<{ value: string }>;
+  };
+  ColData?: Array<{ value: string }>;
+  Group?: string;
+}
+
 export default function ReportView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +31,7 @@ export default function ReportView() {
         setLoading(true);
         const client = new QuickBooksClient();
         const profitLoss = await client.getProfitAndLoss();
+        console.log('P&L Report:', profitLoss);
         setReport(profitLoss?.QueryResponse?.Report);
         setLoading(false);
       } catch (error) {
@@ -27,6 +43,37 @@ export default function ReportView() {
 
     fetchReport();
   }, [dateRange]);
+
+  const renderRow = (row: PnLRow, level: number = 0) => {
+    if (row.type === 'Section') {
+      return (
+        <div key={row.Header?.ColData[0].value} className="mt-4">
+          <div className="flex justify-between items-center py-2 border-b border-gray-200">
+            <Text className={`font-medium ${level === 0 ? 'text-lg' : ''}`}>
+              {row.Header?.ColData[0].value}
+            </Text>
+            <Text className={`font-medium ${level === 0 ? 'text-lg' : ''}`}>
+              ${row.Summary?.ColData[1].value || '0.00'}
+            </Text>
+          </div>
+          {row.Rows?.Row.map((subRow) => renderRow(subRow, level + 1))}
+        </div>
+      );
+    }
+
+    if (row.type === 'Data') {
+      return (
+        <div key={row.ColData?.[0].value} className="flex justify-between items-center py-2 border-b border-gray-100">
+          <Text className={`ml-${level * 4}`}>{row.ColData?.[0].value}</Text>
+          <Text className={row.Group === 'Income' ? 'text-green-600' : 'text-red-600'}>
+            ${row.ColData?.[1].value || '0.00'}
+          </Text>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   if (loading) {
     return (
@@ -57,7 +104,12 @@ export default function ReportView() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Profit & Loss Statement</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Profit & Loss Statement</h1>
+          <Text className="text-gray-600">
+            {report?.Header?.StartPeriod} to {report?.Header?.EndPeriod}
+          </Text>
+        </div>
         <Select
           value={dateRange}
           onValueChange={setDateRange}
@@ -72,89 +124,16 @@ export default function ReportView() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {/* Summary Card */}
-        <Card>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Text>Total Income</Text>
-              <Title className="text-green-600">
-                ${report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income')?.Summary?.ColData[1].value || '0.00'}
-              </Title>
-            </div>
-            <div>
-              <Text>Total Expenses</Text>
-              <Title className="text-red-600">
-                ${report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Expenses')?.Summary?.ColData[1].value || '0.00'}
-              </Title>
-            </div>
-            <div>
-              <Text>Net Income</Text>
-              <Title className={parseFloat(report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Net Income')?.Summary?.ColData[1].value || '0') >= 0 ? 'text-green-600' : 'text-red-600'}>
-                ${report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Net Income')?.Summary?.ColData[1].value || '0.00'}
-              </Title>
-            </div>
-          </div>
-        </Card>
+      <Card>
+        <div className="space-y-4">
+          {report?.Rows?.Row?.map((row: PnLRow) => renderRow(row))}
+        </div>
+      </Card>
 
-        {/* Income Section */}
-        <Card>
-          <Title>Income</Title>
-          <div className="mt-4">
-            {report?.Rows?.Row?.filter((row: any) => 
-              row.type === 'Data' && 
-              row.Group === 'Income'
-            ).map((row: any, index: number) => (
-              <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text>{row.ColData[0].value}</Text>
-                <Text className="text-green-600">${row.ColData[1].value}</Text>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Expenses Section */}
-        <Card>
-          <Title>Expenses</Title>
-          <div className="mt-4">
-            {report?.Rows?.Row?.filter((row: any) => 
-              row.type === 'Data' && 
-              row.Group === 'Expenses'
-            ).map((row: any, index: number) => (
-              <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text>{row.ColData[0].value}</Text>
-                <Text className="text-red-600">${row.ColData[1].value}</Text>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Additional Metrics */}
-        <Card>
-          <Title>Key Metrics</Title>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div>
-              <Text>Gross Profit Margin</Text>
-              <Title>
-                {(() => {
-                  const grossProfit = parseFloat(report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Gross Profit')?.Summary?.ColData[1].value || '0');
-                  const totalIncome = parseFloat(report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income')?.Summary?.ColData[1].value || '0');
-                  return totalIncome ? ((grossProfit / totalIncome) * 100).toFixed(1) + '%' : '0%';
-                })()}
-              </Title>
-            </div>
-            <div>
-              <Text>Operating Margin</Text>
-              <Title>
-                {(() => {
-                  const operatingIncome = parseFloat(report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Operating Income')?.Summary?.ColData[1].value || '0');
-                  const totalIncome = parseFloat(report?.Rows?.Row?.find((row: any) => row.type === 'Section' && row.Header?.ColData[0].value === 'Income')?.Summary?.ColData[1].value || '0');
-                  return totalIncome ? ((operatingIncome / totalIncome) * 100).toFixed(1) + '%' : '0%';
-                })()}
-              </Title>
-            </div>
-          </div>
-        </Card>
+      <div className="mt-4 text-sm text-gray-600">
+        <p>Report Basis: {report?.Header?.ReportBasis}</p>
+        <p>Currency: {report?.Header?.Currency}</p>
+        <p>Generated: {new Date(report?.Header?.Time).toLocaleString()}</p>
       </div>
     </div>
   );
