@@ -519,52 +519,56 @@ export default function ReportView() {
         {/* Main Content */}
         <Col numColSpan={2}>
           {/* Key Metrics */}
-          <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6">
-            <Card>
-              <Text>Net Income</Text>
-              <Metric className={isProfitable ? 'text-green-600' : 'text-red-600'}>
-                {formatCurrency(netIncome)}
-              </Metric>
-              <Badge color={isProfitable ? 'green' : 'red'} className="mt-2">
-                {isProfitable ? 'Profitable' : 'Not Profitable'}
-              </Badge>
-            </Card>
-            <Card>
-              <Text>Gross Profit</Text>
-              <Metric className="text-green-600">{formatCurrency(getGrossProfit())}</Metric>
-              <Text className="mt-2 text-sm text-gray-600">
-                {formatPercent(getGrossProfit(), getTotalIncome())} Gross Margin
-              </Text>
-            </Card>
-            <Card>
-              <Text>Total Expenses</Text>
-              <Metric className="text-red-600">{formatCurrency(getTotalExpenses())}</Metric>
-              <Text className="mt-2 text-sm text-gray-600">
-                {formatPercent(getTotalExpenses(), getTotalIncome())} of Revenue
-              </Text>
-            </Card>
-            <Card>
-              <Text>Cost of Goods Sold</Text>
-              <Metric className="text-red-600">{formatCurrency(getCOGS())}</Metric>
-              <Text className="mt-2 text-sm text-gray-600">
-                {formatPercent(getCOGS(), getTotalIncome())} of Revenue
-              </Text>
-            </Card>
-          </Grid>
-
-          {/* Main P&L Sections */}
           <Grid numItems={1} numItemsSm={2} className="gap-6">
             <Card>
-              <Title>Income</Title>
-              <div className="mt-4">
-                {renderSection('Income')}
+              {/* Top row: Net Income | Gross Profit */}
+              <div className="flex flex-col sm:flex-row justify-between items-end">
+                <div>
+                  <Text>Net Income</Text>
+                  <Metric className={isProfitable ? 'text-green-600' : 'text-red-600'}>
+                    {formatCurrency(netIncome)}
+                  </Metric>
+                  <Badge color={isProfitable ? 'green' : 'red'} className="mt-2">
+                    {isProfitable ? 'Profitable' : 'Not Profitable'}
+                  </Badge>
+                </div>
+                <div>
+                  <Text>Gross Profit</Text>
+                  <Metric className="text-green-600">{formatCurrency(getGrossProfit())}</Metric>
+                  <Text className="mt-2 text-sm text-gray-600">
+                    {formatPercent(getGrossProfit(), getTotalIncome())} Gross Margin
+                  </Text>
+                </div>
+              </div>
+              {/* Income Breakdown */}
+              <div className="mt-6">
+                <Title>Income</Title>
+                <div className="mt-4">{renderSection('Income')}</div>
               </div>
             </Card>
 
             <Card>
-              <Title>Expenses</Title>
-              <div className="mt-4">
-                {renderSection('Expenses')}
+              {/* Top row: Total Expenses | COGS */}
+              <div className="flex flex-col sm:flex-row justify-between items-end">
+                <div>
+                  <Text>Total Expenses</Text>
+                  <Metric className="text-red-600">{formatCurrency(getTotalExpenses())}</Metric>
+                  <Text className="mt-2 text-sm text-gray-600">
+                    {formatPercent(getTotalExpenses(), getTotalIncome())} of Revenue
+                  </Text>
+                </div>
+                <div>
+                  <Text>Cost of Goods Sold</Text>
+                  <Metric className="text-red-600">{formatCurrency(getCOGS())}</Metric>
+                  <Text className="mt-2 text-sm text-gray-600">
+                    {formatPercent(getCOGS(), getTotalIncome())} of Revenue
+                  </Text>
+                </div>
+              </div>
+              {/* Expenses Breakdown */}
+              <div className="mt-6">
+                <Title>Expenses</Title>
+                <div className="mt-4">{renderSection('Expenses')}</div>
               </div>
             </Card>
           </Grid>
