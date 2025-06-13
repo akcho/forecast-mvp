@@ -263,61 +263,74 @@ export class QuickBooksService {
 
       console.log('Fetching transactions with:', { accessToken: accessToken.substring(0, 10) + '...', realmId });
       
-      // First get bills (purchases)
-      const billsResponse = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Bill`,
-        {
+      // Get all transaction types
+      const [billsResponse, invoicesResponse, paymentsResponse, purchasesResponse] = await Promise.all([
+        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Bill`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
-        }
-      );
-
-      if (!billsResponse.ok) {
-        const errorText = await billsResponse.text();
-        console.error('QuickBooks API error (Bills):', { 
-          status: billsResponse.status, 
-          statusText: billsResponse.statusText, 
-          body: errorText,
-          headers: Object.fromEntries(billsResponse.headers.entries())
-        });
-        throw new Error(`QuickBooks API error: ${billsResponse.statusText} - ${errorText}`);
-      }
-
-      const billsData = await billsResponse.json();
-
-      // Then get invoices (sales)
-      const invoicesResponse = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Invoice`,
-        {
+        }),
+        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Invoice`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
+        }),
+        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Payment`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Purchase`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        })
+      ]);
+
+      // Helper function to handle responses
+      const handleResponse = async (response: Response, type: string) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`QuickBooks API error (${type}):`, { 
+            status: response.status, 
+            statusText: response.statusText, 
+            body: errorText,
+            headers: Object.fromEntries(response.headers.entries())
+          });
+          throw new Error(`QuickBooks API error (${type}): ${response.statusText} - ${errorText}`);
         }
-      );
+        const data = await response.json();
+        return data.QueryResponse?.[type] || [];
+      };
 
-      if (!invoicesResponse.ok) {
-        const errorText = await invoicesResponse.text();
-        console.error('QuickBooks API error (Invoices):', { 
-          status: invoicesResponse.status, 
-          statusText: invoicesResponse.statusText, 
-          body: errorText,
-          headers: Object.fromEntries(invoicesResponse.headers.entries())
-        });
-        throw new Error(`QuickBooks API error: ${invoicesResponse.statusText} - ${errorText}`);
-      }
+      // Get all transaction data
+      const [bills, invoices, payments, purchases] = await Promise.all([
+        handleResponse(billsResponse, 'Bill'),
+        handleResponse(invoicesResponse, 'Invoice'),
+        handleResponse(paymentsResponse, 'Payment'),
+        handleResponse(purchasesResponse, 'Purchase')
+      ]);
 
-      const invoicesData = await invoicesResponse.json();
+      // Combine all transactions with their types
+      const transactions = [
+        ...bills.map((bill: any) => ({ ...bill, TxnType: 'Bill' })),
+        ...invoices.map((invoice: any) => ({ ...invoice, TxnType: 'Invoice' })),
+        ...payments.map((payment: any) => ({ ...payment, TxnType: 'Payment' })),
+        ...purchases.map((purchase: any) => ({ ...purchase, TxnType: 'Purchase' }))
+      ];
 
-      // Combine the results
+      // Return in the format expected by the frontend
       const combinedData = {
         QueryResponse: {
-          Bill: billsData.QueryResponse?.Bill || [],
-          Invoice: invoicesData.QueryResponse?.Invoice || [],
+          Transaction: transactions,
           time: new Date().toISOString()
         }
       };
