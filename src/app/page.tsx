@@ -175,39 +175,85 @@ function HomeContent() {
   }, [searchParams]);
 
   const extractCashBalance = (balanceSheet: QuickBooksReport): number => {
-    // Get the actual report data from the wrapped response
-    const report = balanceSheet.QueryResponse?.Report;
-    if (!report?.Rows?.Row) {
-      throw new Error('Could not find rows in balance sheet');
-    }
+    try {
+      // Get the actual report data from the wrapped response
+      const report = balanceSheet.QueryResponse?.Report;
+      if (!report?.Rows?.Row) {
+        console.warn('Could not find rows in balance sheet');
+        return 0;
+      }
 
-    // Find the ASSETS section
-    const assetsSection = report.Rows.Row.find(
-      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'ASSETS'
-    );
-    if (!assetsSection?.Rows?.Row) {
-      throw new Error('Could not find assets section');
-    }
+      // Find the ASSETS section
+      const assetsSection = report.Rows.Row.find(
+        (row: QuickBooksRow) => 
+          row.type === 'Section' && 
+          row.Header?.ColData?.[0]?.value === 'ASSETS'
+      );
 
-    // Find the Current Assets section within ASSETS
-    const currentAssetsSection = assetsSection.Rows.Row.find(
-      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Current Assets'
-    );
-    if (!currentAssetsSection?.Rows?.Row) {
-      throw new Error('Could not find current assets section');
-    }
+      if (!assetsSection?.Rows?.Row) {
+        console.warn('Could not find assets section, trying alternative structure');
+        // Try to find bank accounts directly
+        const bankAccounts = report.Rows.Row.find(
+          (row: QuickBooksRow) =>
+            row.type === 'Section' &&
+            row.Header?.ColData?.[0]?.value === 'Bank Accounts'
+        );
+        if (bankAccounts?.Summary?.ColData) {
+          return parseFloat(bankAccounts.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0');
+        }
+        return 0;
+      }
 
-    // Find the Bank Accounts section within Current Assets
-    const bankAccountsSection = currentAssetsSection.Rows.Row.find(
-      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Bank Accounts'
-    );
-    if (!bankAccountsSection?.Summary?.ColData) {
-      throw new Error('Could not find bank accounts section');
-    }
+      // Find the Current Assets section within ASSETS
+      const currentAssetsSection = assetsSection.Rows.Row.find(
+        (row: QuickBooksRow) => 
+          row.type === 'Section' &&
+          row.Header?.ColData?.[0]?.value === 'Current Assets'
+      );
 
-    // Get the total from the summary
-    const cashBalance = parseFloat(bankAccountsSection.Summary.ColData[1].value || '0');
-    return cashBalance;
+      if (!currentAssetsSection?.Rows?.Row) {
+        console.warn('Could not find current assets section, trying to find bank accounts directly in assets');
+        // Try to find bank accounts directly in assets
+        const bankAccounts = assetsSection.Rows.Row.find(
+          (row: QuickBooksRow) =>
+            row.type === 'Section' &&
+            row.Header?.ColData?.[0]?.value === 'Bank Accounts'
+        );
+        if (bankAccounts?.Summary?.ColData) {
+          return parseFloat(bankAccounts.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0');
+        }
+        return 0;
+      }
+
+      // Find the Bank Accounts section within Current Assets
+      const bankAccountsSection = currentAssetsSection.Rows.Row.find(
+        (row: QuickBooksRow) =>
+          row.type === 'Section' &&
+          row.Header?.ColData?.[0]?.value === 'Bank Accounts'
+      );
+
+      if (!bankAccountsSection?.Summary?.ColData) {
+        console.warn('Could not find bank accounts section with summary, trying to sum individual accounts');
+        // Try to sum individual bank account balances
+        const bankAccounts = currentAssetsSection.Rows.Row.filter(
+          (row: QuickBooksRow) =>
+            row.type === 'Data' &&
+            row.ColData?.[0]?.value?.toLowerCase().includes('bank')
+        );
+        if (bankAccounts.length > 0) {
+          return bankAccounts.reduce((sum, account) => {
+            return sum + parseFloat(account.ColData?.[1]?.value.replace(/[^0-9.-]+/g, '') || '0');
+          }, 0);
+        }
+        return 0;
+      }
+
+      // Get the total from the summary
+      return parseFloat(bankAccountsSection.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0');
+    } catch (error) {
+      console.error('Error extracting cash balance:', error);
+      return 0;
+    }
   };
 
   const extractAmountsFromRows = (rows: any[]): { name: string; amount: number }[] => {
