@@ -14,16 +14,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Forward the request to the reports endpoint
-    const response = await fetch(
-      `${request.nextUrl.origin}/api/quickbooks/reports?type=cash-flow`,
-      {
-        headers: {
-          'X-QB-Access-Token': accessToken,
-          'X-QB-Realm-ID': realmId,
-        },
-      }
-    );
+    // Forward the request to the reports endpoint, preserving search params
+    const reportsUrl = new URL(`${request.nextUrl.origin}/api/quickbooks/reports`);
+    request.nextUrl.searchParams.forEach((value, key) => {
+      reportsUrl.searchParams.append(key, value);
+    });
+    reportsUrl.searchParams.set('type', 'cash-flow');
+
+    const response = await fetch(reportsUrl.toString(), {
+      headers: {
+        'X-QB-Access-Token': accessToken,
+        'X-QB-Realm-ID': realmId,
+      },
+    });
 
     if (!response.ok) {
       const error = await response.json();

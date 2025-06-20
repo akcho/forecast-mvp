@@ -22,25 +22,14 @@ export default function AnalysisPage() {
       try {
         const client = new QuickBooksClient();
         
-        // Define date ranges
-        const today = new Date();
-        const endDate = today.toISOString().split('T')[0];
-        let startDate = new Date();
-        
-        if (timePeriod === '3months') {
-          startDate.setMonth(today.getMonth() - 3);
-        } else if (timePeriod === '6months') {
-          startDate.setMonth(today.getMonth() - 6);
-        } else if (timePeriod === '12months') {
-          startDate.setMonth(today.getMonth() - 12);
-        }
-        
-        const startDateStr = startDate.toISOString().split('T')[0];
+        // TEMPORARY: Hardcode dates to match sandbox data from screenshot
+        const startDateStr = '2025-01-01';
+        const endDateStr = '2025-06-30';
         
         const params: Record<string, string> = {
           start_date: startDateStr,
-          end_date: endDate,
-          columns: 'month'
+          end_date: endDateStr,
+          summarize_column_by: 'Month'
         };
 
         let fetchedReport;
@@ -71,7 +60,7 @@ export default function AnalysisPage() {
           <Text className="text-gray-600">Review your financial statements</Text>
         </div>
         <div className="flex gap-4">
-          <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">
+          <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48" disabled>
             <SelectItem value="3months">Last 3 Months</SelectItem>
             <SelectItem value="6months">Last 6 Months</SelectItem>
             <SelectItem value="12months">Last 12 Months</SelectItem>

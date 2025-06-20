@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const reportType = url.searchParams.get('type');
     const startDate = url.searchParams.get('start_date');
     const endDate = url.searchParams.get('end_date');
-    const columns = url.searchParams.get('columns');
+    const summarizeColumnBy = url.searchParams.get('summarize_column_by');
 
     console.log('Reports request received:', {
       hasAccessToken: !!accessToken,
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       reportType,
       startDate,
       endDate,
-      columns,
+      summarizeColumnBy,
     });
 
     if (!accessToken || !realmId) {
@@ -54,18 +54,21 @@ export async function GET(request: Request) {
 
     if (startDate) queryParams.set('start_date', startDate);
     if (endDate) queryParams.set('end_date', endDate);
-    if (columns) queryParams.set('columns', columns);
+    if (summarizeColumnBy) queryParams.set('summarize_column_by', summarizeColumnBy);
 
-    console.log('Fetching report from QuickBooks:', {
-      endpoint,
-      realmId,
-      hasAccessToken: !!accessToken,
-      queryParams: queryParams.toString(),
+    const qbApiUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${endpoint}?${queryParams.toString()}`;
+
+    console.log('--- QuickBooks API Request ---');
+    console.log('URL:', qbApiUrl);
+    console.log('Headers:', {
+      'Authorization': `Bearer ${accessToken ? '***' : 'NONE'}`,
+      'Accept': 'application/json',
     });
+    console.log('-----------------------------');
 
     // Use sandbox API endpoint
     const response = await fetch(
-      `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${endpoint}?${queryParams.toString()}`,
+      qbApiUrl,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -92,6 +95,12 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
+    
+    console.log('--- QuickBooks API Response ---');
+    console.log('Status:', response.status);
+    console.log('Response Body:', JSON.stringify(data, null, 2));
+    console.log('------------------------------');
+
     console.log('Raw QuickBooks API response:', {
       endpoint,
       hasData: !!data,
