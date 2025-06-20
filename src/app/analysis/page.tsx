@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { PnlTable } from './PnlTable';
+import { PnlTable } from '.';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
