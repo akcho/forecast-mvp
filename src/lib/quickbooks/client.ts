@@ -170,7 +170,7 @@ export class QuickBooksClient {
     };
   }
 
-  private async makeRequest<T>(endpoint: string, type: string): Promise<T> {
+  private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
     if (!(await quickBooksStore.isAuthenticatedWithQuickBooks())) {
       throw new Error('Not authenticated with QuickBooks');
     }
@@ -181,8 +181,10 @@ export class QuickBooksClient {
     if (!accessToken || !realmId) {
       throw new Error('Not authenticated with QuickBooks');
     }
+    
+    const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`/api/quickbooks/${endpoint}${type ? `?type=${type}` : ''}`, {
+    const response = await fetch(`/api/quickbooks/${endpoint}${queryString ? `?${queryString}` : ''}`, {
       headers: {
         'X-QB-Access-Token': accessToken,
         'X-QB-Realm-ID': realmId,
@@ -193,7 +195,7 @@ export class QuickBooksClient {
       const tokens = await this.refreshAccessToken();
       quickBooksStore.setTokens(tokens.access_token, tokens.refresh_token);
 
-      const retryResponse = await fetch(`/api/quickbooks/${endpoint}${type ? `?type=${type}` : ''}`, {
+      const retryResponse = await fetch(`/api/quickbooks/${endpoint}${queryString ? `?${queryString}` : ''}`, {
         headers: {
           'X-QB-Access-Token': tokens.access_token,
           'X-QB-Realm-ID': realmId,
@@ -214,28 +216,31 @@ export class QuickBooksClient {
     return response.json();
   }
 
-  async getBalanceSheet(type: string = 'BalanceSheet'): Promise<QuickBooksReport> {
-    return this.makeRequest<QuickBooksReport>('balance-sheet', type);
+  async getBalanceSheet(params: Record<string, string> = {}): Promise<QuickBooksReport> {
+    const defaultParams = { type: 'BalanceSheet' };
+    return this.makeRequest<QuickBooksReport>('balance-sheet', { ...defaultParams, ...params });
   }
 
-  async getProfitAndLoss(type: string = 'ProfitAndLoss'): Promise<QuickBooksReport> {
-    return this.makeRequest<QuickBooksReport>('profit-loss', type);
+  async getProfitAndLoss(params: Record<string, string> = {}): Promise<QuickBooksReport> {
+    const defaultParams = { type: 'ProfitAndLoss' };
+    return this.makeRequest<QuickBooksReport>('profit-loss', { ...defaultParams, ...params });
   }
 
-  async getCashFlow(type: string = 'CashFlow'): Promise<QuickBooksReport> {
-    return this.makeRequest<QuickBooksReport>('cash-flow', type);
+  async getCashFlow(params: Record<string, string> = {}): Promise<QuickBooksReport> {
+    const defaultParams = { type: 'CashFlow' };
+    return this.makeRequest<QuickBooksReport>('cash-flow', { ...defaultParams, ...params });
   }
 
   async getCompanyInfo(): Promise<QuickBooksCompanyInfo> {
-    return this.makeRequest<QuickBooksCompanyInfo>('company-info', '');
+    return this.makeRequest<QuickBooksCompanyInfo>('company-info');
   }
 
   async getTransactions() {
-    return this.makeRequest('transactions', '');
+    return this.makeRequest('transactions');
   }
 
   async getLists() {
-    return this.makeRequest('lists', '');
+    return this.makeRequest('lists');
   }
 
   setRealmId(realmId: string) {

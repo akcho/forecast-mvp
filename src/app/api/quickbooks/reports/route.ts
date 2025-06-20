@@ -6,12 +6,19 @@ export async function GET(request: Request) {
   try {
     const accessToken = request.headers.get('X-QB-Access-Token');
     const realmId = request.headers.get('X-QB-Realm-ID');
-    const reportType = new URL(request.url).searchParams.get('type');
+    const url = new URL(request.url);
+    const reportType = url.searchParams.get('type');
+    const startDate = url.searchParams.get('start_date');
+    const endDate = url.searchParams.get('end_date');
+    const columns = url.searchParams.get('columns');
 
     console.log('Reports request received:', {
       hasAccessToken: !!accessToken,
       hasRealmId: !!realmId,
       reportType,
+      startDate,
+      endDate,
+      columns,
     });
 
     if (!accessToken || !realmId) {
@@ -41,15 +48,24 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Invalid report type' }, { status: 400 });
     }
 
+    let queryParams = new URLSearchParams({
+      minorversion: '65',
+    });
+
+    if (startDate) queryParams.set('start_date', startDate);
+    if (endDate) queryParams.set('end_date', endDate);
+    if (columns) queryParams.set('columns', columns);
+
     console.log('Fetching report from QuickBooks:', {
       endpoint,
       realmId,
       hasAccessToken: !!accessToken,
+      queryParams: queryParams.toString(),
     });
 
     // Use sandbox API endpoint
     const response = await fetch(
-      `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${endpoint}?minorversion=65`,
+      `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${endpoint}?${queryParams.toString()}`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
