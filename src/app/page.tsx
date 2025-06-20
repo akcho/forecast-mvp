@@ -38,6 +38,9 @@ interface QuickBooksRow {
   };
   type?: string;
   group?: string;
+  ColData?: Array<{
+    value: string;
+  }>;
 }
 
 interface QuickBooksReport {
