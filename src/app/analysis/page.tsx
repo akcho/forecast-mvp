@@ -134,9 +134,9 @@ export default function AnalysisPage() {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4 border-none">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
-                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg bg-white">
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
+                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
                   <TabPanels>
                     <TabPanel>
                       {loading ? (
@@ -159,8 +159,8 @@ export default function AnalysisPage() {
                 </div>
               </Col>
               {!aiPanelMinimized && (
-                <Col className="h-full min-h-0 flex flex-col">
-                  <Card className="h-full flex flex-col justify-start border-t-0 border-l border-b border-r border-gray-200 rounded-lg bg-white">
+                <Col className="flex flex-col">
+                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Text>AI summary, insights, and recommendations will go here.</Text>
                   </Card>
@@ -177,7 +177,7 @@ export default function AnalysisPage() {
               </Col>
               {!aiPanelMinimized && (
                 <Col className="h-full min-h-0 flex flex-col">
-                  <Card className="h-full flex flex-col justify-start">
+                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Text>AI summary, insights, and recommendations will go here.</Text>
                   </Card>
@@ -194,7 +194,7 @@ export default function AnalysisPage() {
               </Col>
               {!aiPanelMinimized && (
                 <Col className="h-full min-h-0 flex flex-col">
-                  <Card className="h-full flex flex-col justify-start">
+                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Text>AI summary, insights, and recommendations will go here.</Text>
                   </Card>

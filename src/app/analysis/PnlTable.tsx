@@ -51,7 +51,7 @@ const formatCurrency = (value: string) => {
   }).format(amount);
 };
 
-const renderRow = (row: PnLRow, level = 0, columns: any[]): JSX.Element | null => {
+const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0): JSX.Element | null => {
   const isSectionHeader = row.type === 'Section' && row.Header;
   const isSummary = !!row.Summary;
   const isDataRow = row.type === 'Data';
@@ -74,7 +74,7 @@ const renderRow = (row: PnLRow, level = 0, columns: any[]): JSX.Element | null =
     rowClassName += ' bg-gray-50';
   }
   
-  if(row.group === 'GrossProfit' || row.group === 'NetIncome'){
+  if ((row.group === 'GrossProfit' || row.group === 'NetIncome') && rowIndex > 0) {
     rowClassName += ' border-t-2 border-gray-300';
   }
 
@@ -124,7 +124,7 @@ const renderRow = (row: PnLRow, level = 0, columns: any[]): JSX.Element | null =
           );
         })}
       </tr>
-      {row.Rows?.Row?.map((subRow) => renderRow(subRow, level + (isSectionHeader ? 1 : 0), columns))}
+      {row.Rows?.Row?.map((subRow, subIndex) => renderRow(subRow, level + (isSectionHeader ? 1 : 0), columns, subIndex))}
     </>
   );
 };
@@ -137,7 +137,7 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
   const { Header, Columns, Rows } = report;
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
+    <div className="p-4">
       <h2 className="text-xl font-bold mb-2">{Header.ReportName}</h2>
       <p className="text-sm text-gray-500 mb-4">
         {Header.StartPeriod} - {Header.EndPeriod}
@@ -148,7 +148,7 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
       >
         <table className="table-fixed" style={{ minWidth: 1200 }}>
           <thead>
-            <tr className="border-b-2 border-gray-200">
+            <tr>
               {Columns.Column.map((col, index) => (
                 <th
                   key={index}
@@ -161,7 +161,7 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
             </tr>
           </thead>
           <tbody>
-            {Rows.Row.map((row) => renderRow(row, 0, Columns.Column))}
+            {Rows.Row.map((row, rowIndex) => renderRow(row, 0, Columns.Column, rowIndex))}
           </tbody>
         </table>
       </div>
