@@ -142,20 +142,29 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
       <p className="text-sm text-gray-500 mb-4">
         {Header.StartPeriod} - {Header.EndPeriod}
       </p>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b-2 border-gray-200">
-            {Columns.Column.map((col, index) => (
-              <th key={index} className={`${index === 0 ? 'text-left' : 'text-right'} py-3 px-2 font-bold text-gray-600`}>
-                {col.ColTitle}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Rows.Row.map((row) => renderRow(row, 0, Columns.Column))}
-        </tbody>
-      </table>
+      <div
+        className="overflow-x-scroll overflow-y-auto max-w-none custom-scrollbar"
+        style={{ maxHeight: '70vh', minHeight: 0 }}
+      >
+        <table className="table-fixed" style={{ minWidth: 1200 }}>
+          <thead>
+            <tr className="border-b-2 border-gray-200">
+              {Columns.Column.map((col, index) => (
+                <th
+                  key={index}
+                  className={`${index === 0 ? 'text-left' : 'text-right'} py-3 px-2 font-bold text-gray-600`}
+                  style={{ minWidth: index === 0 ? 220 : 140 }}
+                >
+                  {col.ColTitle}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Rows.Row.map((row) => renderRow(row, 0, Columns.Column))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }; 

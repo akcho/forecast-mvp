@@ -126,44 +126,84 @@ export default function AnalysisPage() {
           </Button>
         </div>
       </div>
-      <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6">
-        <Col numColSpan={aiPanelMinimized ? 1 : 2}>
-          <TabGroup>
-            <TabList>
-              <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
-              <Tab onClick={() => setActiveStatement('balanceSheet')} disabled>Balance Sheet</Tab>
-              <Tab onClick={() => setActiveStatement('cashFlow')} disabled>Cash Flow</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                {loading ? (
-                  <Text>Loading...</Text>
-                ) : error ? (
-                  <Text color="red">{error}</Text>
-                ) : report ? (
-                  <PnlTable report={report} />
-                ) : (
-                  <Text>No report data found.</Text>
-                )}
-              </TabPanel>
-              <TabPanel>
-                {/* Balance Sheet Table */}
-              </TabPanel>
-              <TabPanel>
-                {/* Cash Flow Table */}
-              </TabPanel>
-            </TabPanels>
-          </TabGroup>
-        </Col>
-        {!aiPanelMinimized && (
-          <Col>
-            <Card>
-              <Title>AI Financial Analysis</Title>
-              <Text>AI summary, insights, and recommendations will go here.</Text>
-            </Card>
-          </Col>
-        )}
-      </Grid>
+      <TabGroup>
+        <TabList className="border-b-0">
+          <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
+          <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
+          <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4 border-none">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
+                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg bg-white">
+                  <TabPanels>
+                    <TabPanel>
+                      {loading ? (
+                        <Text>Loading...</Text>
+                      ) : error ? (
+                        <Text color="red">{error}</Text>
+                      ) : report ? (
+                        <PnlTable report={report} />
+                      ) : (
+                        <Text>No report data found.</Text>
+                      )}
+                    </TabPanel>
+                    <TabPanel>
+                      {/* Balance Sheet Table */}
+                    </TabPanel>
+                    <TabPanel>
+                      {/* Cash Flow Table */}
+                    </TabPanel>
+                  </TabPanels>
+                </div>
+              </Col>
+              {!aiPanelMinimized && (
+                <Col className="h-full min-h-0 flex flex-col">
+                  <Card className="h-full flex flex-col justify-start border-t-0 border-l border-b border-r border-gray-200 rounded-lg bg-white">
+                    <Title>AI Financial Analysis</Title>
+                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                  </Card>
+                </Col>
+              )}
+            </Grid>
+          </TabPanel>
+          <TabPanel>
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
+                <div className="flex-1 flex flex-col">
+                  {/* Balance Sheet Table */}
+                </div>
+              </Col>
+              {!aiPanelMinimized && (
+                <Col className="h-full min-h-0 flex flex-col">
+                  <Card className="h-full flex flex-col justify-start">
+                    <Title>AI Financial Analysis</Title>
+                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                  </Card>
+                </Col>
+              )}
+            </Grid>
+          </TabPanel>
+          <TabPanel>
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
+                <div className="flex-1 flex flex-col">
+                  {/* Cash Flow Table */}
+                </div>
+              </Col>
+              {!aiPanelMinimized && (
+                <Col className="h-full min-h-0 flex flex-col">
+                  <Card className="h-full flex flex-col justify-start">
+                    <Title>AI Financial Analysis</Title>
+                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                  </Card>
+                </Col>
+              )}
+            </Grid>
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
     </div>
   );
 }
