@@ -79,10 +79,7 @@ function AnalysisContent() {
       }
     };
 
-    // Only fetch if not already loaded for this tab
-    if (!reports[activeStatement]) {
-      fetchReport();
-    }
+    fetchReport();
   }, [timePeriod, activeStatement, isConnected]);
 
   if (!isConnected) {
