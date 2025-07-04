@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
 const ACCESS_TOKEN_KEY = 'qb_access_token';
 const REFRESH_TOKEN_KEY = 'qb_refresh_token';
 const REALM_ID_KEY = 'qb_realm_id';
+const COMPANY_ID = 'default_company'; // Replace with your real org/company ID if needed
 
-// In a real app, you'd store this in a database
-// For now, we'll use a simple in-memory store (this will reset on server restart)
-let sharedConnection: {
-  accessToken: string;
-  refreshToken: string;
-  realmId: string;
-  sharedBy: string;
-  sharedAt: Date;
-} | null = null;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,22 +31,23 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
       
-      // Store the shared connection
-      sharedConnection = {
-        accessToken,
-        refreshToken,
-        realmId,
-        sharedBy: userId || 'admin',
-        sharedAt: new Date()
-      };
+      // Upsert the shared connection in Supabase
+      const { error } = await supabase
+        .from('shared_connections')
+        .upsert({
+          company_id: COMPANY_ID,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          realm_id: realmId,
+          shared_by: userId || 'admin',
+          shared_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'company_id' });
       
-      console.log('QuickBooks connection shared by admin:', {
-        sharedBy: sharedConnection.sharedBy,
-        sharedAt: sharedConnection.sharedAt,
-        hasAccessToken: !!sharedConnection.accessToken,
-        hasRefreshToken: !!sharedConnection.refreshToken,
-        hasRealmId: !!sharedConnection.realmId
-      });
+      if (error) {
+        console.error('Supabase upsert error:', error);
+        return NextResponse.json({ error: 'Failed to share connection (Supabase error)' }, { status: 500 });
+      }
       
       return NextResponse.json({
         success: true,
@@ -59,20 +57,26 @@ export async function POST(request: NextRequest) {
     }
     
     if (action === 'get') {
-      if (!sharedConnection) {
+      // Fetch the shared connection from Supabase
+      const { data, error } = await supabase
+        .from('shared_connections')
+        .select('*')
+        .eq('company_id', COMPANY_ID)
+        .single();
+      
+      if (error || !data) {
         return NextResponse.json({ 
           error: 'No shared connection available. Please ask the admin to share the connection first.' 
         }, { status: 404 });
       }
       
-      // Return the shared connection tokens
       return NextResponse.json({
         success: true,
-        accessToken: sharedConnection.accessToken,
-        refreshToken: sharedConnection.refreshToken,
-        realmId: sharedConnection.realmId,
-        sharedBy: sharedConnection.sharedBy,
-        sharedAt: sharedConnection.sharedAt
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        realmId: data.realm_id,
+        sharedBy: data.shared_by,
+        sharedAt: data.shared_at
       });
     }
     
@@ -87,11 +91,18 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    // Fetch the shared connection from Supabase
+    const { data, error } = await supabase
+      .from('shared_connections')
+      .select('*')
+      .eq('company_id', COMPANY_ID)
+      .single();
+    
     return NextResponse.json({
-      hasSharedConnection: !!sharedConnection,
-      message: sharedConnection ? 'Shared connection available' : 'No shared connection found',
-      sharedBy: sharedConnection?.sharedBy,
-      sharedAt: sharedConnection?.sharedAt
+      hasSharedConnection: !!data,
+      message: data ? 'Shared connection available' : 'No shared connection found',
+      sharedBy: data?.shared_by,
+      sharedAt: data?.shared_at
     });
   } catch (error) {
     console.error('Error checking shared connection:', error);

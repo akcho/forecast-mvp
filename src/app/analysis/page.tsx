@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
@@ -9,6 +10,11 @@ import { PnlTable } from '.';
 import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
 
 // ... (interfaces for PnLRow, etc. if needed)
+
+const Chat = dynamic(() => import('@/components/chat'), {
+  ssr: false,
+  loading: () => <div className="p-4">Loading AI assistant...</div>,
+});
 
 function AnalysisContent() {
   const [activeStatement, setActiveStatement] = useState('profitLoss');
@@ -134,7 +140,9 @@ function AnalysisContent() {
                 <Col className="flex flex-col">
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
-                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                      <Chat />
+                    </Suspense>
                   </Card>
                 </Col>
               )}
@@ -159,7 +167,9 @@ function AnalysisContent() {
                 <Col className="flex flex-col">
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
-                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                      <Chat />
+                    </Suspense>
                   </Card>
                 </Col>
               )}
@@ -184,7 +194,9 @@ function AnalysisContent() {
                 <Col className="flex flex-col">
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
-                    <Text>AI summary, insights, and recommendations will go here.</Text>
+                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                      <Chat />
+                    </Suspense>
                   </Card>
                 </Col>
               )}
