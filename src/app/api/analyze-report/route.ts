@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
+// Remove the module-level OpenAI client initialization
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY || '',
+// });
 
 export async function POST(request: Request) {
   try {
+    // Initialize OpenAI client inside the function
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+
     const { type, question, reportData } = await request.json();
 
     if (type === 'analysis') {

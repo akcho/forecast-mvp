@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { QuickBooks } from 'node-quickbooks';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Remove the module-level Supabase client initialization
+// const supabase = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
 
 interface QuickBooksTokens {
   accessToken: string;
@@ -27,7 +27,20 @@ export class QuickBooksService {
     return QuickBooksService.instance;
   }
 
+  private getSupabaseClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration is missing. Please check your environment variables.');
+    }
+    
+    return createClient(supabaseUrl, supabaseKey);
+  }
+
   private async getTokens(sessionId: string): Promise<QuickBooksTokens | null> {
+    const supabase = this.getSupabaseClient();
+    
     const { data, error } = await supabase
       .from('quickbooks_tokens')
       .select('*')
@@ -75,6 +88,7 @@ export class QuickBooksService {
       const expiresAt = Date.now() + data.expires_in * 1000;
 
       // Update tokens in database
+      const supabase = this.getSupabaseClient();
       const { error } = await supabase
         .from('quickbooks_tokens')
         .upsert({
