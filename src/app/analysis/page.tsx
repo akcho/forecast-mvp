@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
@@ -13,9 +13,9 @@ export default function AnalysisPage() {
   const [activeStatement, setActiveStatement] = useState('profitLoss');
   const [timePeriod, setTimePeriod] = useState('3months');
   const [aiPanelMinimized, setAiPanelMinimized] = useState(false);
-  const [report, setReport] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [reports, setReports] = useState<{ [key: string]: any }>({});
+  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
+  const [error, setError] = useState<{ [key: string]: string | null }>({});
   const [isConnected, setIsConnected] = useState(false);
   const searchParams = useSearchParams();
 
@@ -34,25 +34,21 @@ export default function AnalysisPage() {
     } else {
       console.log('Not connected to QuickBooks');
       setIsConnected(false);
-      setLoading(false);
+      setLoading({});
     }
   }, [searchParams]);
 
   useEffect(() => {
-    if (!isConnected) return; // Don't fetch if not connected
+    if (!isConnected) return;
 
     const fetchReport = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(prev => ({ ...prev, [activeStatement]: true }));
+      setError(prev => ({ ...prev, [activeStatement]: null }));
       try {
         const client = new QuickBooksClient();
-        
-        // Always set endDate to the last day of the previous month
         const today = new Date();
-        const endDate = new Date(today.getFullYear(), today.getMonth(), 0); // 0th day = last day of previous month
+        const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
         const endDateStr = endDate.toISOString().split('T')[0];
-
-        // Set startDate to N months before endDate, on the 1st
         let months = 3;
         if (timePeriod === '6months') months = 6;
         if (timePeriod === '12months') months = 12;
@@ -60,31 +56,32 @@ export default function AnalysisPage() {
         startDate.setMonth(endDate.getMonth() - (months - 1));
         startDate.setDate(1);
         const startDateStr = startDate.toISOString().split('T')[0];
-
         const params: Record<string, string> = {
           start_date: startDateStr,
           end_date: endDateStr,
-          summarize_column_by: 'Month'
+          summarize_column_by: 'Month',
         };
-
-        let fetchedReport;
+        let fetchedReport: any;
         if (activeStatement === 'profitLoss') {
           fetchedReport = await client.getProfitAndLoss(params);
+        } else if (activeStatement === 'balanceSheet') {
+          fetchedReport = await client.getBalanceSheet(params);
+        } else if (activeStatement === 'cashFlow') {
+          fetchedReport = await client.getCashFlow(params);
         }
-        // Add else if for other statements later
-        
-        console.log('Fetched Report:', fetchedReport);
-        setReport(fetchedReport?.QueryResponse?.Report);
-
+        setReports((prev) => ({ ...prev, [activeStatement]: fetchedReport?.QueryResponse?.Report }));
       } catch (e) {
         console.error(e);
-        setError(e instanceof Error ? e.message : 'An unknown error occurred.');
+        setError(prev => ({ ...prev, [activeStatement]: e instanceof Error ? e.message : 'An unknown error occurred.' }));
       } finally {
-        setLoading(false);
+        setLoading(prev => ({ ...prev, [activeStatement]: false }));
       }
     };
 
-    fetchReport();
+    // Only fetch if not already loaded for this tab
+    if (!reports[activeStatement]) {
+      fetchReport();
+    }
   }, [timePeriod, activeStatement, isConnected]);
 
   const handleQuickBooksConnect = () => {
@@ -137,25 +134,15 @@ export default function AnalysisPage() {
             <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
               <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
                 <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
-                  <TabPanels>
-                    <TabPanel>
-                      {loading ? (
-                        <Text>Loading...</Text>
-                      ) : error ? (
-                        <Text color="red">{error}</Text>
-                      ) : report ? (
-                        <PnlTable report={report} />
-                      ) : (
-                        <Text>No report data found.</Text>
-                      )}
-                    </TabPanel>
-                    <TabPanel>
-                      {/* Balance Sheet Table */}
-                    </TabPanel>
-                    <TabPanel>
-                      {/* Cash Flow Table */}
-                    </TabPanel>
-                  </TabPanels>
+                  {loading['profitLoss'] ? (
+                    <Text>Loading...</Text>
+                  ) : error['profitLoss'] ? (
+                    <Text color="red">{error['profitLoss']}</Text>
+                  ) : reports['profitLoss'] ? (
+                    <PnlTable report={reports['profitLoss']} />
+                  ) : (
+                    <Text>No report data found.</Text>
+                  )}
                 </div>
               </Col>
               {!aiPanelMinimized && (
@@ -169,14 +156,22 @@ export default function AnalysisPage() {
             </Grid>
           </TabPanel>
           <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
-                <div className="flex-1 flex flex-col">
-                  {/* Balance Sheet Table */}
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
+                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
+                  {loading['balanceSheet'] ? (
+                    <Text>Loading...</Text>
+                  ) : error['balanceSheet'] ? (
+                    <Text color="red">{error['balanceSheet']}</Text>
+                  ) : reports['balanceSheet'] ? (
+                    <PnlTable report={reports['balanceSheet']} />
+                  ) : (
+                    <Text>No report data found.</Text>
+                  )}
                 </div>
               </Col>
               {!aiPanelMinimized && (
-                <Col className="h-full min-h-0 flex flex-col">
+                <Col className="flex flex-col">
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Text>AI summary, insights, and recommendations will go here.</Text>
@@ -186,14 +181,22 @@ export default function AnalysisPage() {
             </Grid>
           </TabPanel>
           <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-start min-h-[92vh] pb-4">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="h-full min-h-0 flex flex-col">
-                <div className="flex-1 flex flex-col">
-                  {/* Cash Flow Table */}
+            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
+              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
+                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
+                  {loading['cashFlow'] ? (
+                    <Text>Loading...</Text>
+                  ) : error['cashFlow'] ? (
+                    <Text color="red">{error['cashFlow']}</Text>
+                  ) : reports['cashFlow'] ? (
+                    <PnlTable report={reports['cashFlow']} />
+                  ) : (
+                    <Text>No report data found.</Text>
+                  )}
                 </div>
               </Col>
               {!aiPanelMinimized && (
-                <Col className="h-full min-h-0 flex flex-col">
+                <Col className="flex flex-col">
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Text>AI summary, insights, and recommendations will go here.</Text>

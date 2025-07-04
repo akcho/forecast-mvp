@@ -51,6 +51,19 @@ const formatCurrency = (value: string) => {
   }).format(amount);
 };
 
+const getFriendlyReportTitle = (reportName: string) => {
+  switch (reportName) {
+    case 'ProfitAndLoss':
+      return 'Profit & Loss Statement';
+    case 'BalanceSheet':
+      return 'Balance Sheet';
+    case 'CashFlow':
+      return 'Cash Flow Statement';
+    default:
+      return reportName;
+  }
+};
+
 const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0): JSX.Element | null => {
   const isSectionHeader = row.type === 'Section' && row.Header;
   const isSummary = !!row.Summary;
@@ -138,10 +151,7 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">{Header.ReportName}</h2>
-      <p className="text-sm text-gray-500 mb-4">
-        {Header.StartPeriod} - {Header.EndPeriod}
-      </p>
+      <h2 className="text-xl font-bold mb-2">{getFriendlyReportTitle(Header.ReportName)}</h2>
       <div
         className="overflow-x-scroll overflow-y-auto max-w-none custom-scrollbar"
         style={{ maxHeight: '70vh', minHeight: 0 }}
