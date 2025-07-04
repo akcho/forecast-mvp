@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const ACCESS_TOKEN_KEY = 'qb_access_token';
 const REFRESH_TOKEN_KEY = 'qb_refresh_token';
 const REALM_ID_KEY = 'qb_realm_id';

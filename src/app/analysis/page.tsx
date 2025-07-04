@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
@@ -9,7 +9,7 @@ import { PnlTable } from '.';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
-export default function AnalysisPage() {
+function AnalysisContent() {
   const [activeStatement, setActiveStatement] = useState('profitLoss');
   const [timePeriod, setTimePeriod] = useState('3months');
   const [aiPanelMinimized, setAiPanelMinimized] = useState(false);
@@ -208,5 +208,13 @@ export default function AnalysisPage() {
         </TabPanels>
       </TabGroup>
     </div>
+  );
+}
+
+export default function AnalysisPage() {
+  return (
+    <Suspense fallback={<div className="p-8">Loading...</div>}>
+      <AnalysisContent />
+    </Suspense>
   );
 }
