@@ -11,7 +11,7 @@ import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionMa
 
 // ... (interfaces for PnLRow, etc. if needed)
 
-const Chat = dynamic(() => import('@/components/chat'), {
+const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
   loading: () => <div className="p-4">Loading AI assistant...</div>,
 });
@@ -141,7 +141,7 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <Chat />
+                      <ChatPanel />
                     </Suspense>
                   </Card>
                 </Col>
@@ -168,7 +168,7 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <Chat />
+                      <ChatPanel />
                     </Suspense>
                   </Card>
                 </Col>
@@ -195,7 +195,7 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <Chat />
+                      <ChatPanel />
                     </Suspense>
                   </Card>
                 </Col>
