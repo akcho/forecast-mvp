@@ -6,6 +6,7 @@ import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
 import { PnlTable } from '.';
+import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
@@ -84,23 +85,10 @@ function AnalysisContent() {
     }
   }, [timePeriod, activeStatement, isConnected]);
 
-  const handleQuickBooksConnect = () => {
-    setLoading({ connect: true });
-    window.location.href = '/api/quickbooks/auth';
-  };
-
   if (!isConnected) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-        <div className="text-center">
-          <Title>Connect to QuickBooks</Title>
-          <Text className="mt-2 mb-6">
-            To analyze your financial data, please connect your QuickBooks account.
-          </Text>
-          <Button onClick={handleQuickBooksConnect} loading={!!loading.connect}>
-            Connect to QuickBooks
-          </Button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <QuickBooksConnectionManager />
       </div>
     );
   }

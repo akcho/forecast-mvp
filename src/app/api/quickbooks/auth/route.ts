@@ -1,22 +1,24 @@
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { QuickBooksClient } from '@/lib/quickbooks/client';
 
 export const dynamic = 'force-dynamic';
 
-const ACCESS_TOKEN_KEY = 'qb_access_token';
-const REFRESH_TOKEN_KEY = 'qb_refresh_token';
-const REALM_ID_KEY = 'qb_realm_id';
-
-export async function GET() {
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get(ACCESS_TOKEN_KEY)?.value;
-  const refreshToken = cookieStore.get(REFRESH_TOKEN_KEY)?.value;
-  const realmId = cookieStore.get(REALM_ID_KEY)?.value;
-
-  return NextResponse.json({
-    isAuthenticated: !!(accessToken && refreshToken && realmId),
-    hasAccessToken: !!accessToken,
-    hasRefreshToken: !!refreshToken,
-    hasRealmId: !!realmId,
-  });
+export async function GET(request: NextRequest) {
+  try {
+    const client = new QuickBooksClient();
+    const authUrl = client.getAuthorizationUrl();
+    
+    console.log('Redirecting to QuickBooks OAuth:', authUrl);
+    
+    // Redirect the user to Intuit's OAuth authorization page
+    return NextResponse.redirect(authUrl);
+  } catch (error) {
+    console.error('Error initiating QuickBooks OAuth:', error);
+    
+    // Redirect back to the app with an error
+    const baseUrl = request.nextUrl.origin;
+    return NextResponse.redirect(
+      new URL(`/?quickbooks=error&error=${encodeURIComponent('Failed to initiate QuickBooks connection')}`, baseUrl)
+    );
+  }
 } 

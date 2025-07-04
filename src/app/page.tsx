@@ -21,6 +21,7 @@ import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
+import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
 
 interface QuickBooksRow {
   Header?: {
@@ -618,46 +619,24 @@ function HomeContent() {
 
   if (connectionStatus === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <Text className="text-red-600 mb-4">Failed to connect to QuickBooks</Text>
-        <button
-          onClick={handleQuickBooksConnect}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Try Again
-        </button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <QuickBooksConnectionManager />
       </div>
     );
   }
 
   if (connectionStatus === 'idle') {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <Title className="mb-4">Runway Analysis Dashboard</Title>
-        <Text className="mb-8">Connect to QuickBooks to analyze your company's financial future</Text>
-        <button
-          onClick={handleQuickBooksConnect}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Connect to QuickBooks
-        </button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <QuickBooksConnectionManager />
       </div>
     );
   }
 
   if (!analysis || !financialData) {
     return (
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <Title>Runway Analysis Dashboard</Title>
-          <Text>Loading your financial data...</Text>
-        </div>
-        <button
-          onClick={handleQuickBooksConnect}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Reconnect to QuickBooks
-        </button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <QuickBooksConnectionManager />
       </div>
     );
   }

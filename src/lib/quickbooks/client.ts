@@ -89,13 +89,30 @@ export class QuickBooksClient {
       throw new Error('QuickBooks Client ID is not configured');
     }
     
-    // Only use the accounting scope
-    const scope = 'com.intuit.quickbooks.accounting';
+    // Use more specific scopes that are less likely to require admin permissions
+    const scope = 'com.intuit.quickbooks.accounting.readonly';
     
     const state = Math.random().toString(36).substring(2);
     
     // Use sandbox authorization endpoint
     return `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
+           `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
+           `&scope=${encodeURIComponent(scope)}&state=${state}` +
+           `&environment=sandbox`;
+  }
+
+  getAlternativeAuthorizationUrl(): string {
+    if (!this.clientId) {
+      throw new Error('QuickBooks Client ID is not configured');
+    }
+    
+    // Try with minimal scope
+    const scope = 'com.intuit.quickbooks.accounting.readonly';
+    
+    const state = Math.random().toString(36).substring(2);
+    
+    // Alternative OAuth endpoint that might work better for standard users
+    return `https://oauth.platform.intuit.com/oauth2/v1/authorize?client_id=${this.clientId}` +
            `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
            `&scope=${encodeURIComponent(scope)}&state=${state}` +
            `&environment=sandbox`;

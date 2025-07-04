@@ -34,7 +34,7 @@ class QuickBooksStore {
 
   private async checkAuthentication() {
     try {
-      const response = await fetch('/api/quickbooks/auth');
+      const response = await fetch('/api/quickbooks/status');
       const data = await response.json();
       this.isAuthenticated = data.isAuthenticated;
       console.log('Authentication status:', data);
