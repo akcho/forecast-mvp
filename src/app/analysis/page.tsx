@@ -85,7 +85,7 @@ export default function AnalysisPage() {
   }, [timePeriod, activeStatement, isConnected]);
 
   const handleQuickBooksConnect = () => {
-    setLoading(true);
+    setLoading({ connect: true });
     window.location.href = '/api/quickbooks/auth';
   };
 
@@ -97,7 +97,7 @@ export default function AnalysisPage() {
           <Text className="mt-2 mb-6">
             To analyze your financial data, please connect your QuickBooks account.
           </Text>
-          <Button onClick={handleQuickBooksConnect} loading={loading}>
+          <Button onClick={handleQuickBooksConnect} loading={!!loading.connect}>
             Connect to QuickBooks
           </Button>
         </div>
