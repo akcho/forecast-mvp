@@ -1,45 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
 
+    // If no access token is provided, use the shared connection (team member flow)
     if (!accessToken || !realmId) {
-      return NextResponse.json(
-        { error: 'Missing access token or realm ID' },
-        { status: 401 }
-      );
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
     }
 
-    // Forward the request to the reports endpoint, preserving search params
-    const reportsUrl = new URL(`${request.nextUrl.origin}/api/quickbooks/reports`);
-    request.nextUrl.searchParams.forEach((value, key) => {
-      reportsUrl.searchParams.append(key, value);
-    });
-    reportsUrl.searchParams.set('type', 'profit-loss');
+    if (!accessToken || !realmId) {
+      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
+    }
 
-    const response = await fetch(reportsUrl.toString(), {
+    // Get query parameters from the request
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get('start_date');
+    const endDate = searchParams.get('end_date');
+    const summarizeColumnBy = searchParams.get('summarize_column_by');
+
+    // Build the QuickBooks API URL with parameters
+    let url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual`;
+    
+    if (startDate) {
+      url += `&start_date=${startDate}`;
+    }
+    if (endDate) {
+      url += `&end_date=${endDate}`;
+    }
+    if (summarizeColumnBy) {
+      url += `&summarize_column_by=${summarizeColumnBy}`;
+    }
+
+    const response = await fetch(url, {
       headers: {
-        'X-QB-Access-Token': accessToken,
-        'X-QB-Realm-ID': realmId,
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
+      // @ts-ignore
+      cache: 'no-store',
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      return NextResponse.json(error, { status: response.status });
+      const errorText = await response.text();
+      return NextResponse.json({ error: errorText }, { status: response.status });
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    
+    // Wrap the response in QueryResponse.Report structure to match frontend expectations
+    return NextResponse.json({
+      QueryResponse: {
+        Report: data
+      }
+    });
   } catch (error) {
-    console.error('Error fetching profit and loss:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch profit and loss' },
-      { status: 500 }
-    );
+    console.error('Error in profit and loss API route:', error);
+    return NextResponse.json({ error: 'Failed to fetch profit and loss' }, { status: 500 });
   }
 } 

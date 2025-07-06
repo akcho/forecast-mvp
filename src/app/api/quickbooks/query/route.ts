@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
     const { query } = await request.json();
+
+    // If no access token is provided, use the shared connection (team member flow)
+    if (!accessToken || !realmId) {
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
+    }
 
     if (!accessToken || !realmId) {
       return NextResponse.json(

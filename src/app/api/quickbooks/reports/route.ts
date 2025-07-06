@@ -1,162 +1,57 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
-    const url = new URL(request.url);
-    const reportType = url.searchParams.get('type');
-    const startDate = url.searchParams.get('start_date');
-    const endDate = url.searchParams.get('end_date');
-    const summarizeColumnBy = url.searchParams.get('summarize_column_by');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
+    const type = request.nextUrl.searchParams.get('type');
 
-    console.log('Reports request received:', {
-      hasAccessToken: !!accessToken,
-      hasRealmId: !!realmId,
-      reportType,
-      startDate,
-      endDate,
-      summarizeColumnBy,
-    });
+    // If no access token is provided, use the shared connection (team member flow)
+    if (!accessToken || !realmId) {
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
+    }
 
     if (!accessToken || !realmId) {
-      console.error('Missing credentials:', { hasAccessToken: !!accessToken, hasRealmId: !!realmId });
-      return NextResponse.json({ error: 'Missing access token or realm ID' }, { status: 401 });
+      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
     }
 
-    if (!reportType) {
-      console.error('Missing report type');
-      return NextResponse.json({ error: 'Report type is required' }, { status: 400 });
-    }
+    let reportType = '';
+    if (type === 'balance-sheet') reportType = 'BalanceSheet';
+    else if (type === 'cash-flow') reportType = 'CashFlow';
+    else if (type === 'profit-loss') reportType = 'ProfitAndLoss';
+    else return NextResponse.json({ error: 'Invalid report type' }, { status: 400 });
 
-    // Map the report type to QuickBooks API format
-    let endpoint;
-    switch (reportType) {
-      case 'balance-sheet':
-        endpoint = 'BalanceSheet';
-        break;
-      case 'profit-loss':
-        endpoint = 'ProfitAndLoss';
-        break;
-      case 'cash-flow':
-        endpoint = 'CashFlow';
-        break;
-      default:
-        console.error('Invalid report type:', reportType);
-        return NextResponse.json({ error: 'Invalid report type' }, { status: 400 });
-    }
-
-    let queryParams = new URLSearchParams({
-      minorversion: '65',
+    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${reportType}?minorversion=65`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      // @ts-ignore
+      cache: 'no-store',
     });
-
-    if (startDate) queryParams.set('start_date', startDate);
-    if (endDate) queryParams.set('end_date', endDate);
-    if (summarizeColumnBy) queryParams.set('summarize_column_by', summarizeColumnBy);
-
-    const qbApiUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${endpoint}?${queryParams.toString()}`;
-
-    console.log('--- QuickBooks API Request ---');
-    console.log('URL:', qbApiUrl);
-    console.log('Headers:', {
-      'Authorization': `Bearer ${accessToken ? '***' : 'NONE'}`,
-      'Accept': 'application/json',
-    });
-    console.log('-----------------------------');
-
-    // Use sandbox API endpoint
-    const response = await fetch(
-      qbApiUrl,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-          'X-QB-Environment': 'sandbox',
-        },
-      }
-    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('QuickBooks API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-        endpoint,
-        realmId,
-      });
-      return NextResponse.json({ 
-        error: 'Failed to fetch report',
-        details: errorText,
-        status: response.status,
-      }, { status: response.status });
+      return NextResponse.json({ error: errorText }, { status: response.status });
     }
 
     const data = await response.json();
     
-    console.log('--- QuickBooks API Response ---');
-    console.log('Status:', response.status);
-    console.log('Response Body:', JSON.stringify(data, null, 2));
-    console.log('------------------------------');
-
-    console.log('Raw QuickBooks API response:', {
-      endpoint,
-      hasData: !!data,
-      dataKeys: Object.keys(data),
-      responseStatus: response.status,
-      responseHeaders: Object.fromEntries(response.headers.entries()),
-    });
-
-    // Add detailed logging of the report structure
-    console.log('Report structure:', {
-      hasRows: !!data.Rows,
-      rowTypes: data.Rows?.Row?.map((row: any) => row.type),
-      columnDefinitions: data.Columns?.Column,
-      header: data.Header,
-      reportName: data.Header?.ReportName,
-      reportBasis: data.Header?.ReportBasis,
-      currency: data.Header?.Currency,
-      startPeriod: data.Header?.StartPeriod,
-      endPeriod: data.Header?.EndPeriod,
-      time: data.Header?.Time,
-    });
-
-    // Log first few rows for debugging
-    if (data.Rows?.Row) {
-      console.log('First few rows:', data.Rows.Row.slice(0, 3).map((row: any) => ({
-        type: row.type,
-        group: row.group,
-        summary: row.Summary,
-        data: row.ColData,
-      })));
-    }
-
-    // Wrap the response in the expected structure
-    const wrappedResponse = {
+    // Wrap the response in QueryResponse.Report structure to match frontend expectations
+    return NextResponse.json({
       QueryResponse: {
         Report: data
       }
-    };
-
-    console.log('Wrapped report data:', {
-      endpoint,
-      hasData: !!wrappedResponse,
-      hasQueryResponse: !!wrappedResponse.QueryResponse,
-      hasReport: !!wrappedResponse.QueryResponse?.Report,
-      rowCount: wrappedResponse?.QueryResponse?.Report?.Rows?.Row?.length || 0,
     });
-
-    return NextResponse.json(wrappedResponse);
   } catch (error) {
-    console.error('Error fetching report:', error);
-    return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'Failed to fetch report',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
-      { status: 500 }
-    );
+    console.error('Error in reports API route:', error);
+    return NextResponse.json({ error: 'Failed to fetch report' }, { status: 500 });
   }
 } 

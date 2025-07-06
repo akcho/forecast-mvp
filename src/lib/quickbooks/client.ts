@@ -84,13 +84,21 @@ export class QuickBooksClient {
     });
   }
 
+  // Check if user is admin (has direct tokens) or team member (should use shared connection)
+  private isAdmin(): boolean {
+    const accessToken = quickBooksStore.getAccessToken();
+    const refreshToken = quickBooksStore.getRefreshToken();
+    const realmId = quickBooksStore.getRealmId();
+    return !!(accessToken && refreshToken && realmId);
+  }
+
   getAuthorizationUrl(): string {
     if (!this.clientId) {
       throw new Error('QuickBooks Client ID is not configured');
     }
     
-    // Use more specific scopes that are less likely to require admin permissions
-    const scope = 'com.intuit.quickbooks.accounting.readonly';
+    // Use correct QuickBooks Online scope
+    const scope = 'com.intuit.quickbooks.accounting';
     
     const state = Math.random().toString(36).substring(2);
     
@@ -106,8 +114,8 @@ export class QuickBooksClient {
       throw new Error('QuickBooks Client ID is not configured');
     }
     
-    // Try with minimal scope
-    const scope = 'com.intuit.quickbooks.accounting.readonly';
+    // Use correct QuickBooks Online scope
+    const scope = 'com.intuit.quickbooks.accounting';
     
     const state = Math.random().toString(36).substring(2);
     
@@ -188,68 +196,85 @@ export class QuickBooksClient {
   }
 
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
-    if (!(await quickBooksStore.isAuthenticatedWithQuickBooks())) {
-      throw new Error('Not authenticated with QuickBooks');
-    }
-
-    const accessToken = quickBooksStore.getAccessToken();
-    const realmId = quickBooksStore.getRealmId();
-
-    if (!accessToken || !realmId) {
-      throw new Error('Not authenticated with QuickBooks');
-    }
+    // Check if user is admin (has direct tokens) or team member (should use shared connection)
+    const isAdmin = this.isAdmin();
     
-    const queryString = new URLSearchParams(params).toString();
-
-    const response = await fetch(`/api/quickbooks/${endpoint}${queryString ? `?${queryString}` : ''}`, {
-      headers: {
-        'X-QB-Access-Token': accessToken,
-        'X-QB-Realm-ID': realmId,
-      },
-    });
-
-    if (response.status === 401 || response.status === 403) {
-      const tokens = await this.refreshAccessToken();
-      quickBooksStore.setTokens(tokens.access_token, tokens.refresh_token);
-
-      const retryResponse = await fetch(`/api/quickbooks/${endpoint}${queryString ? `?${queryString}` : ''}`, {
-        headers: {
-          'X-QB-Access-Token': tokens.access_token,
-          'X-QB-Realm-ID': realmId,
-        },
-      });
-
-      if (!retryResponse.ok) {
-        throw new Error(`Failed to fetch ${endpoint} after token refresh`);
+    if (isAdmin) {
+      // Admin flow: use stored tokens
+      if (!(await quickBooksStore.isAuthenticatedWithQuickBooks())) {
+        throw new Error('Not authenticated with QuickBooks');
       }
 
-      return retryResponse.json();
-    }
+      const accessToken = quickBooksStore.getAccessToken();
+      const realmId = quickBooksStore.getRealmId();
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${endpoint}`);
-    }
+      if (!accessToken || !realmId) {
+        throw new Error('Not authenticated with QuickBooks');
+      }
 
-    return response.json();
+      const headers: Record<string, string> = {
+        'X-QB-Access-Token': accessToken,
+        'X-QB-Realm-ID': realmId,
+      };
+
+      // Build URL with query parameters
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+      const url = new URL(`/api/quickbooks/${endpoint}`, baseUrl);
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.append(key, value);
+      });
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers,
+        // @ts-ignore
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${errorText}`);
+      }
+
+      return response.json();
+    } else {
+      // Team member flow: use shared connection (no headers needed)
+      // Build URL with query parameters
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+      const url = new URL(`/api/quickbooks/${endpoint}`, baseUrl);
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.append(key, value);
+      });
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        // @ts-ignore
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${errorText}`);
+      }
+
+      return response.json();
+    }
   }
 
   async getBalanceSheet(params: Record<string, string> = {}): Promise<QuickBooksReport> {
-    const defaultParams = { type: 'BalanceSheet' };
-    return this.makeRequest<QuickBooksReport>('balance-sheet', { ...defaultParams, ...params });
+    return this.makeRequest('balance-sheet', params);
   }
 
   async getProfitAndLoss(params: Record<string, string> = {}): Promise<QuickBooksReport> {
-    const defaultParams = { type: 'ProfitAndLoss' };
-    return this.makeRequest<QuickBooksReport>('profit-loss', { ...defaultParams, ...params });
+    return this.makeRequest('profit-loss', params);
   }
 
   async getCashFlow(params: Record<string, string> = {}): Promise<QuickBooksReport> {
-    const defaultParams = { type: 'CashFlow' };
-    return this.makeRequest<QuickBooksReport>('cash-flow', { ...defaultParams, ...params });
+    return this.makeRequest('cash-flow', params);
   }
 
   async getCompanyInfo(): Promise<QuickBooksCompanyInfo> {
-    return this.makeRequest<QuickBooksCompanyInfo>('company-info');
+    return this.makeRequest('company');
   }
 
   async getTransactions() {

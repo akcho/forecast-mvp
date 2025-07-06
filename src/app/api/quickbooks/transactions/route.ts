@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { QuickBooksService } from '@/lib/quickbooks/service';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
 
+    // If no access token is provided, use the shared connection (team member flow)
     if (!accessToken || !realmId) {
-      console.error('Missing QuickBooks credentials:', { 
-        hasAccessToken: !!accessToken, 
-        hasRealmId: !!realmId,
-        headers: Object.fromEntries(request.headers.entries())
-      });
-      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
     }
 
-    console.log('Processing request with:', { 
-      accessToken: accessToken.substring(0, 10) + '...', 
-      realmId,
-      headers: Object.fromEntries(request.headers.entries())
-    });
+    if (!accessToken || !realmId) {
+      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
+    }
 
     const quickbooks = QuickBooksService.getInstance();
     const transactions = await quickbooks.getTransactions(accessToken, realmId);

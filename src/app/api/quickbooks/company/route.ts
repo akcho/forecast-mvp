@@ -1,44 +1,44 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
 
+    // If no access token is provided, use the shared connection (team member flow)
     if (!accessToken || !realmId) {
-      return NextResponse.json({ error: 'Missing access token or realm ID' }, { status: 401 });
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
     }
 
-    // Use sandbox API endpoint
-    const response = await fetch(
-      `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM CompanyInfo&minorversion=65`,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-        },
-      }
-    );
+    if (!accessToken || !realmId) {
+      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
+    }
+
+    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      // @ts-ignore
+      cache: 'no-store',
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('QuickBooks API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-      });
-      return NextResponse.json({ error: 'Failed to fetch company info' }, { status: response.status });
+      return NextResponse.json({ error: errorText }, { status: response.status });
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching company info:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch company info' },
-      { status: 500 }
-    );
+    console.error('Error in company API route:', error);
+    return NextResponse.json({ error: 'Failed to fetch company info' }, { status: 500 });
   }
 } 

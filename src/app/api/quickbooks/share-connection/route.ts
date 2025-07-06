@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
           shared_by: userId || 'admin',
           shared_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        }, { onConflict: 'company_id' });
+        }, { onConflict: 'company_id,realm_id' });
       
       if (error) {
         console.error('Supabase upsert error:', error);

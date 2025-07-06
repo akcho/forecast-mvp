@@ -8,11 +8,12 @@ import { Text } from '@tremor/react';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'team-member'>('disconnected');
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [balanceSheet, setBalanceSheet] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Check for tokens in URL parameters (from callback)
@@ -33,6 +34,7 @@ function DashboardContent() {
         quickBooksStore.setRealmId(realmId);
       }
       setConnectionStatus('connected');
+      setIsAdmin(true);
       handleTestConnection();
     } else {
       // Check for existing tokens in store
@@ -42,7 +44,12 @@ function DashboardContent() {
 
       if (storedAccessToken && storedRefreshToken && storedRealmId) {
         setConnectionStatus('connected');
+        setIsAdmin(true);
         handleTestConnection();
+      } else {
+        // No tokens found - user is a team member
+        setConnectionStatus('team-member');
+        setIsAdmin(false);
       }
     }
   }, [searchParams]);
@@ -90,27 +97,44 @@ function DashboardContent() {
       
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">QuickBooks Connection</h2>
-        <div className="flex items-center gap-4">
-          <div className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</span>
-          {connectionStatus === 'disconnected' && (
-            <button
-              onClick={handleConnect}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Connect to QuickBooks
-            </button>
-          )}
-          {connectionStatus === 'connected' && (
+        
+        {isAdmin ? (
+          // Admin flow
+          <div className="flex items-center gap-4">
+            <div className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</span>
+            {connectionStatus === 'disconnected' && (
+              <button
+                onClick={handleConnect}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Connect to QuickBooks
+              </button>
+            )}
+            {connectionStatus === 'connected' && (
+              <button
+                onClick={handleTestConnection}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Testing...' : 'Test Connection'}
+              </button>
+            )}
+          </div>
+        ) : (
+          // Team member flow
+          <div className="flex items-center gap-4">
+            <div className="w-3 h-3 rounded-full bg-yellow-500" />
+            <span>Team Member - Using Shared Connection</span>
             <button
               onClick={handleTestConnection}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               disabled={isLoading}
             >
-              {isLoading ? 'Testing...' : 'Test Connection'}
+              {isLoading ? 'Testing...' : 'Test Shared Connection'}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -128,7 +152,7 @@ function DashboardContent() {
         </div>
       )}
 
-      {connectionStatus === 'connected' && (
+      {(connectionStatus === 'connected' || connectionStatus === 'team-member') && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Balance Sheet</h2>
           <button

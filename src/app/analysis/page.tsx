@@ -24,6 +24,7 @@ function AnalysisContent() {
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ [key: string]: string | null }>({});
   const [isConnected, setIsConnected] = useState(false);
+  const [hasSharedConnection, setHasSharedConnection] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -39,35 +40,66 @@ function AnalysisContent() {
       quickBooksStore.setRealmId(realmId);
       setIsConnected(true);
     } else {
-      console.log('Not connected to QuickBooks');
-      setIsConnected(false);
-      setLoading({});
+      console.log('Not connected to QuickBooks, checking for shared connection...');
+      checkSharedConnection();
     }
   }, [searchParams]);
+
+  const checkSharedConnection = async () => {
+    try {
+      console.log('Checking for shared connection...');
+      const response = await fetch('/api/quickbooks/share-connection');
+      const data = await response.json();
+      console.log('Shared connection response:', data);
+      
+      if (data.hasSharedConnection) {
+        console.log('Found shared QuickBooks connection');
+        setHasSharedConnection(true);
+        setIsConnected(true);
+        // Force the analysis view to show
+        console.log('Setting isConnected to true for shared connection');
+      } else {
+        console.log('No shared connection found');
+        setIsConnected(false);
+      }
+    } catch (error) {
+      console.error('Error checking shared connection:', error);
+      setIsConnected(false);
+    }
+  };
 
   useEffect(() => {
     if (!isConnected) return;
 
     const fetchReport = async () => {
+      console.log('Fetching report for:', activeStatement, 'with time period:', timePeriod);
       setLoading(prev => ({ ...prev, [activeStatement]: true }));
       setError(prev => ({ ...prev, [activeStatement]: null }));
       try {
         const client = new QuickBooksClient();
         const today = new Date();
-        const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        
+        // Calculate end date (last day of current month)
+        const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         const endDateStr = endDate.toISOString().split('T')[0];
+        
+        // Calculate start date based on time period
         let months = 3;
         if (timePeriod === '6months') months = 6;
         if (timePeriod === '12months') months = 12;
+        
         const startDate = new Date(endDate);
         startDate.setMonth(endDate.getMonth() - (months - 1));
         startDate.setDate(1);
         const startDateStr = startDate.toISOString().split('T')[0];
+        
         const params: Record<string, string> = {
           start_date: startDateStr,
           end_date: endDateStr,
           summarize_column_by: 'Month',
         };
+        console.log('API parameters:', params);
+        console.log('Date range:', startDateStr, 'to', endDateStr);
         let fetchedReport: any;
         if (activeStatement === 'profitLoss') {
           fetchedReport = await client.getProfitAndLoss(params);
@@ -76,9 +108,10 @@ function AnalysisContent() {
         } else if (activeStatement === 'cashFlow') {
           fetchedReport = await client.getCashFlow(params);
         }
+        console.log('Fetched report structure:', fetchedReport);
         setReports((prev) => ({ ...prev, [activeStatement]: fetchedReport?.QueryResponse?.Report }));
       } catch (e) {
-        console.error(e);
+        console.error('Error fetching report:', e);
         setError(prev => ({ ...prev, [activeStatement]: e instanceof Error ? e.message : 'An unknown error occurred.' }));
       } finally {
         setLoading(prev => ({ ...prev, [activeStatement]: false }));
@@ -88,7 +121,12 @@ function AnalysisContent() {
     fetchReport();
   }, [timePeriod, activeStatement, isConnected]);
 
+  useEffect(() => {
+    console.log('State changed - isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection, 'activeStatement:', activeStatement);
+  }, [isConnected, hasSharedConnection, activeStatement]);
+
   if (!isConnected) {
+    console.log('Not connected, showing connection manager. isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection);
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
         <QuickBooksConnectionManager />
@@ -96,12 +134,16 @@ function AnalysisContent() {
     );
   }
 
+  console.log('Connected, showing analysis view. isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection);
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold">Financial Analysis</h1>
-          <Text className="text-gray-600">Review your financial statements</Text>
+          <Text className="text-gray-600">
+            {hasSharedConnection ? 'Using shared QuickBooks connection' : 'Review your financial statements'}
+          </Text>
         </div>
         <div className="flex gap-4">
           <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">

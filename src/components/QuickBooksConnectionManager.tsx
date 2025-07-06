@@ -25,13 +25,10 @@ export function QuickBooksConnectionManager() {
 
   const checkConnectionStatus = async () => {
     try {
+      // Only set isAdmin if the user has their own tokens (not just a shared connection)
       const connected = await quickBooksStore.isAuthenticatedWithQuickBooks();
       setIsConnected(connected);
-      
-      // If connected, assume this is the admin (since only admin can connect)
-      if (connected) {
-        setIsAdmin(true);
-      }
+      setIsAdmin(connected); // Only true if user has their own tokens
     } catch (error) {
       console.error('Error checking connection status:', error);
     }
@@ -70,8 +67,13 @@ export function QuickBooksConnectionManager() {
       const data = await response.json();
       
       if (data.success) {
-        setMessage('Connection shared successfully! Your cofounder can now access QuickBooks data.');
+        setMessage('Connection shared successfully! Your team can now access QuickBooks data.');
         await checkSharedConnection();
+        
+        // Redirect to analysis page after a short delay to show the success message
+        setTimeout(() => {
+          window.location.href = '/analysis';
+        }, 1500);
       } else {
         setMessage(`Error: ${data.error}`);
       }
@@ -83,124 +85,51 @@ export function QuickBooksConnectionManager() {
     }
   };
 
-  const handleUseSharedConnection = async () => {
-    setLoading(true);
-    setMessage('');
-    
-    try {
-      const response = await fetch('/api/quickbooks/share-connection', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'get'
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // Store the shared connection tokens
-        await quickBooksStore.setTokens(data.accessToken, data.refreshToken);
-        await quickBooksStore.setRealmId(data.realmId);
-        
-        setMessage('Successfully connected using shared QuickBooks connection!');
-        setIsConnected(true);
-        setIsAdmin(false);
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error using shared connection:', error);
-      setMessage('Failed to use shared connection. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (isConnected) {
+  // Admin UI: Only show if user has their own tokens
+  if (isAdmin) {
     return (
       <Card className="max-w-md mx-auto">
         <Title>QuickBooks Connected ✅</Title>
         <Text className="mt-2">
-          {isAdmin ? 'You are connected as admin.' : 'You are using a shared connection.'}
+          You are connected as admin.
         </Text>
-        
-        {isAdmin && (
-          <div className="mt-4">
-            <Button 
-              onClick={handleShareConnection} 
-              loading={loading}
-              className="w-full"
-            >
-              Share Connection with Team
-            </Button>
-            {message && (
-              <Text className="mt-2 text-green-600">{message}</Text>
-            )}
-          </div>
-        )}
-      </Card>
-    );
-  }
-
-  if (sharedConnection?.hasSharedConnection) {
-    return (
-      <Card className="max-w-md mx-auto">
-        <Title>Shared QuickBooks Connection Available</Title>
-        <Text className="mt-2">
-          The admin has shared a QuickBooks connection with the team.
-        </Text>
-        <div className="mt-4 space-y-2">
-          <Badge color="green">Shared by: {sharedConnection.sharedBy}</Badge>
-          <Badge color="blue">Available for use</Badge>
+        <div className="mt-4">
+          <Button 
+            onClick={handleShareConnection} 
+            loading={loading}
+            className="w-full"
+          >
+            Share Connection with Team
+          </Button>
+          {message && (
+            <Text className="mt-2 text-green-600">{message}</Text>
+          )}
         </div>
-        <Button 
-          onClick={handleUseSharedConnection} 
-          loading={loading}
-          className="w-full mt-4"
-        >
-          Use Shared Connection
-        </Button>
-        {message && (
-          <Text className="mt-2 text-green-600">{message}</Text>
-        )}
       </Card>
     );
   }
 
+  // If not admin, always show the connect as admin button, even if a shared connection exists
   return (
     <Card className="max-w-md mx-auto">
       <Title>Connect to QuickBooks</Title>
       <Text className="mt-2">
-        {isAdmin 
-          ? 'Connect your QuickBooks account to share with the team.'
-          : 'Ask the admin to connect and share QuickBooks access.'
-        }
+        {sharedConnection?.hasSharedConnection
+          ? 'You are using a shared QuickBooks connection. If you are an admin, you can connect your own account below.'
+          : 'Connect your QuickBooks account to share with the team.'}
       </Text>
-      
-      {isAdmin ? (
-        <Button 
-          onClick={handleAdminConnect} 
-          className="w-full mt-4"
-        >
-          Connect as Admin
-        </Button>
-      ) : (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <Text className="text-sm text-gray-600">
-            Only admins can connect to QuickBooks. Please ask your admin to:
+      <Button 
+        onClick={handleAdminConnect} 
+        className="w-full mt-4"
+      >
+        Connect as Admin
+      </Button>
+      {sharedConnection?.hasSharedConnection && (
+        <div className="mt-4 p-3 bg-green-50 rounded-lg">
+          <Text className="text-sm text-green-700">
+            ✅ You can now access all QuickBooks data using the shared connection.
           </Text>
-          <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
-            <li>Connect their QuickBooks account</li>
-            <li>Share the connection with the team</li>
-          </ul>
         </div>
-      )}
-      
-      {message && (
-        <Text className="mt-2 text-red-600">{message}</Text>
       )}
     </Card>
   );

@@ -1,35 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { QuickBooksService } from '@/lib/quickbooks/service';
+import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
+    let accessToken = request.headers.get('X-QB-Access-Token');
+    let realmId = request.headers.get('X-QB-Realm-ID');
+
+    // If no access token is provided, use the shared connection (team member flow)
+    if (!accessToken || !realmId) {
+      const shared = await getValidSharedConnection();
+      accessToken = shared.access_token;
+      realmId = shared.realm_id;
+    }
 
     if (!accessToken || !realmId) {
-      console.error('Missing QuickBooks credentials:', { 
-        hasAccessToken: !!accessToken, 
-        hasRealmId: !!realmId,
-        headers: Object.fromEntries(request.headers.entries())
-      });
       return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
     }
 
-    console.log('Processing request with:', { 
-      accessToken: accessToken.substring(0, 10) + '...', 
-      realmId,
-      headers: Object.fromEntries(request.headers.entries())
+    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/accounts?minorversion=65`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      // @ts-ignore
+      cache: 'no-store',
     });
 
-    const quickbooks = QuickBooksService.getInstance();
-    const lists = await quickbooks.getLists(accessToken, realmId);
+    if (!response.ok) {
+      const errorText = await response.text();
+      return NextResponse.json({ error: errorText }, { status: response.status });
+    }
 
-    return NextResponse.json(lists);
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Error in lists API route:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch lists',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch lists' }, { status: 500 });
   }
 } 
