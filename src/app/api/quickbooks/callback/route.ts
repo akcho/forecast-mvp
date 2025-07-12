@@ -34,6 +34,10 @@ export async function GET(request: Request) {
     console.log('Tokens received from QuickBooks:', {
       hasAccessToken: !!tokens.access_token,
       hasRefreshToken: !!tokens.refresh_token,
+      accessTokenLength: tokens.access_token?.length,
+      refreshTokenLength: tokens.refresh_token?.length,
+      accessTokenStart: tokens.access_token?.substring(0, 20),
+      refreshTokenStart: tokens.refresh_token?.substring(0, 20),
     });
 
     // Store tokens in localStorage via URL parameters

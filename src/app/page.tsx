@@ -147,7 +147,20 @@ function HomeContent() {
 
     console.log('URL parameters:', { status, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
 
-    // Check for stored tokens first
+    // Check URL parameters first (new tokens from OAuth flow)
+    if (status === 'connected' && accessToken && refreshToken) {
+      console.log('Setting up QuickBooks connection from URL parameters...');
+      const client = new QuickBooksClient();
+      quickBooksStore.setTokens(accessToken, refreshToken);
+      if (realmId) {
+        client.setRealmId(realmId);
+      }
+      setConnectionStatus('connected');
+      fetchFinancialData();
+      return;
+    }
+
+    // If no URL parameters, check for stored tokens
     const storedAccessToken = quickBooksStore.getAccessToken();
     const storedRefreshToken = quickBooksStore.getRefreshToken();
     const storedRealmId = quickBooksStore.getRealmId();
@@ -159,17 +172,7 @@ function HomeContent() {
       return;
     }
 
-    // If no stored tokens, check URL parameters
-    if (status === 'connected' && accessToken && refreshToken) {
-      console.log('Setting up QuickBooks connection from URL parameters...');
-      const client = new QuickBooksClient();
-      quickBooksStore.setTokens(accessToken, refreshToken);
-      if (realmId) {
-        client.setRealmId(realmId);
-      }
-      setConnectionStatus('connected');
-      fetchFinancialData();
-    } else if (status === 'error') {
+    if (status === 'error') {
       console.log('QuickBooks connection error');
       setConnectionStatus('error');
     } else {

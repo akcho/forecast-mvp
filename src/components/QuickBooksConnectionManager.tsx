@@ -17,6 +17,7 @@ export function QuickBooksConnectionManager() {
   const [sharedConnection, setSharedConnection] = useState<SharedConnectionInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     checkConnectionStatus();
@@ -39,8 +40,45 @@ export function QuickBooksConnectionManager() {
       const response = await fetch('/api/quickbooks/share-connection');
       const data = await response.json();
       setSharedConnection(data);
+      
+      // Test if the shared connection is working
+      if (data.hasSharedConnection) {
+        try {
+          const testResponse = await fetch('/api/quickbooks/company');
+          if (!testResponse.ok) {
+            setConnectionError('Shared connection has expired. Admin needs to reconnect.');
+          }
+        } catch (error) {
+          setConnectionError('Shared connection has expired. Admin needs to reconnect.');
+        }
+      }
     } catch (error) {
       console.error('Error checking shared connection:', error);
+    }
+  };
+
+  const handleForceRefresh = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/quickbooks/force-refresh', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setMessage('Connection cleared. Please reconnect as admin and re-share.');
+        setConnectionError(null);
+        setIsAdmin(false);
+        setIsConnected(false);
+        await checkSharedConnection();
+      } else {
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error forcing refresh:', error);
+      setMessage('Failed to force refresh connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,6 +91,16 @@ export function QuickBooksConnectionManager() {
     setMessage('');
     
     try {
+      // Get current tokens from the store
+      const accessToken = quickBooksStore.getAccessToken();
+      const refreshToken = quickBooksStore.getRefreshToken();
+      const realmId = quickBooksStore.getRealmId();
+      
+      if (!accessToken || !refreshToken || !realmId) {
+        setMessage('No active QuickBooks connection found. Please connect as admin first.');
+        return;
+      }
+      
       const response = await fetch('/api/quickbooks/share-connection', {
         method: 'POST',
         headers: {
@@ -60,7 +108,10 @@ export function QuickBooksConnectionManager() {
         },
         body: JSON.stringify({
           action: 'share',
-          userId: 'admin'
+          userId: 'admin',
+          accessToken,
+          refreshToken,
+          realmId
         }),
       });
 
@@ -104,6 +155,20 @@ export function QuickBooksConnectionManager() {
           {message && (
             <Text className="mt-2 text-green-600">{message}</Text>
           )}
+          {connectionError && (
+            <div className="mt-4 p-3 bg-red-50 rounded-lg">
+              <Text className="text-sm text-red-700">
+                {connectionError}
+              </Text>
+              <Button 
+                onClick={handleForceRefresh} 
+                loading={loading}
+                className="mt-2 w-full"
+              >
+                Force Refresh Connection
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
     );
@@ -129,6 +194,20 @@ export function QuickBooksConnectionManager() {
           <Text className="text-sm text-green-700">
             ✅ You can now access all QuickBooks data using the shared connection.
           </Text>
+        </div>
+      )}
+      {connectionError && (
+        <div className="mt-4 p-3 bg-red-50 rounded-lg">
+          <Text className="text-sm text-red-700">
+            {connectionError}
+          </Text>
+          <Button 
+            onClick={handleForceRefresh} 
+            loading={loading}
+            className="mt-2 w-full"
+          >
+            Force Refresh Connection
+          </Button>
         </div>
       )}
     </Card>

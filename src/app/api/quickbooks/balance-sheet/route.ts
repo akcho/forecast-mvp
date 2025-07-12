@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValidSharedConnection } from '@/lib/quickbooks/sharedConnection';
+import { getValidSharedConnection, handleSharedConnectionError } from '@/lib/quickbooks/sharedConnection';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,9 +10,17 @@ export async function GET(request: NextRequest) {
 
     // If no access token is provided, use the shared connection (team member flow)
     if (!accessToken || !realmId) {
-      const shared = await getValidSharedConnection();
-      accessToken = shared.access_token;
-      realmId = shared.realm_id;
+      try {
+        const shared = await getValidSharedConnection();
+        accessToken = shared.access_token;
+        realmId = shared.realm_id;
+      } catch (error) {
+        const errorInfo = handleSharedConnectionError(error);
+        return NextResponse.json({ 
+          error: errorInfo.error,
+          code: errorInfo.code
+        }, { status: errorInfo.status });
+      }
     }
 
     if (!accessToken || !realmId) {

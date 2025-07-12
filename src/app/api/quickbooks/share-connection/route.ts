@@ -16,29 +16,46 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, userId } = await request.json();
+    const { action, userId, accessToken, refreshToken, realmId } = await request.json();
     
     if (action === 'share') {
-      // Get the current connection tokens from the admin
-      const cookieStore = cookies();
-      const accessToken = cookieStore.get(ACCESS_TOKEN_KEY)?.value;
-      const refreshToken = cookieStore.get(REFRESH_TOKEN_KEY)?.value;
-      const realmId = cookieStore.get(REALM_ID_KEY)?.value;
+      // Get tokens from request body or fall back to cookies
+      let finalAccessToken = accessToken;
+      let finalRefreshToken = refreshToken;
+      let finalRealmId = realmId;
       
-      if (!accessToken || !refreshToken || !realmId) {
+      // If not provided in request body, try to get from cookies
+      if (!finalAccessToken || !finalRefreshToken || !finalRealmId) {
+        const cookieStore = cookies();
+        finalAccessToken = cookieStore.get(ACCESS_TOKEN_KEY)?.value;
+        finalRefreshToken = cookieStore.get(REFRESH_TOKEN_KEY)?.value;
+        finalRealmId = cookieStore.get(REALM_ID_KEY)?.value;
+      }
+      
+      if (!finalAccessToken || !finalRefreshToken || !finalRealmId) {
         return NextResponse.json({ 
           error: 'No active QuickBooks connection found. Please connect as admin first.' 
         }, { status: 400 });
       }
+      
+      console.log('Sharing QuickBooks connection:', {
+        hasAccessToken: !!finalAccessToken,
+        hasRefreshToken: !!finalRefreshToken,
+        hasRealmId: !!finalRealmId,
+        accessTokenLength: finalAccessToken?.length,
+        refreshTokenLength: finalRefreshToken?.length,
+        accessTokenStart: finalAccessToken?.substring(0, 20),
+        refreshTokenStart: finalRefreshToken?.substring(0, 20),
+      });
       
       // Upsert the shared connection in Supabase
       const { error } = await supabase
         .from('shared_connections')
         .upsert({
           company_id: COMPANY_ID,
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          realm_id: realmId,
+          access_token: finalAccessToken,
+          refresh_token: finalRefreshToken,
+          realm_id: finalRealmId,
           shared_by: userId || 'admin',
           shared_at: new Date().toISOString(),
           updated_at: new Date().toISOString()

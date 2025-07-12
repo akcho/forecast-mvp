@@ -196,14 +196,37 @@ export class QuickBooksClient {
   }
 
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
-    // Check if user is admin (has direct tokens) or team member (should use shared connection)
-    const isAdmin = this.isAdmin();
-    
-    if (isAdmin) {
-      // Admin flow: use stored tokens
-      if (!(await quickBooksStore.isAuthenticatedWithQuickBooks())) {
+      // Check if user is admin (has direct tokens) or team member (should use shared connection)
+  let isAdmin = this.isAdmin();
+  
+  if (isAdmin) {
+    // Admin flow: use stored tokens
+    try {
+      // Test the tokens by making a simple API call
+      const accessToken = quickBooksStore.getAccessToken();
+      const realmId = quickBooksStore.getRealmId();
+      
+      if (!accessToken || !realmId) {
         throw new Error('Not authenticated with QuickBooks');
       }
+      
+      // Test the tokens with a simple API call
+      const testResponse = await fetch(`/api/quickbooks/company`, {
+        method: 'GET',
+        headers: {
+          'X-QB-Access-Token': accessToken,
+          'X-QB-Realm-ID': realmId,
+        },
+      });
+      
+      if (!testResponse.ok) {
+        throw new Error('Tokens are invalid');
+      }
+    } catch (error) {
+      // If admin tokens are invalid, fall back to shared connection
+      console.log('Admin tokens are invalid, falling back to shared connection');
+      isAdmin = false;
+    }
 
       const accessToken = quickBooksStore.getAccessToken();
       const realmId = quickBooksStore.getRealmId();
@@ -233,6 +256,16 @@ export class QuickBooksClient {
 
       if (!response.ok) {
         const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText };
+        }
+        // Check for specific token expiration error
+        if (response.status === 401 && errorData.code === 'TOKEN_EXPIRED') {
+          throw new Error('TOKEN_EXPIRED: QuickBooks tokens have expired. Admin needs to reconnect and re-share the connection.');
+        }
         throw new Error(`API request failed: ${errorText}`);
       }
 
@@ -254,6 +287,16 @@ export class QuickBooksClient {
 
       if (!response.ok) {
         const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText };
+        }
+        // Check for specific token expiration error
+        if (response.status === 401 && errorData.code === 'TOKEN_EXPIRED') {
+          throw new Error('TOKEN_EXPIRED: QuickBooks tokens have expired. Admin needs to reconnect and re-share the connection.');
+        }
         throw new Error(`API request failed: ${errorText}`);
       }
 

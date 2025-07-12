@@ -79,8 +79,8 @@ function AnalysisContent() {
         const client = new QuickBooksClient();
         const today = new Date();
         
-        // Calculate end date (last day of current month)
-        const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        // Calculate end date (last day of previous month)
+        const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
         const endDateStr = endDate.toISOString().split('T')[0];
         
         // Calculate start date based on time period
