@@ -9,10 +9,16 @@ const REFRESH_TOKEN_KEY = 'qb_refresh_token';
 const REALM_ID_KEY = 'qb_realm_id';
 const COMPANY_ID = 'default_company'; // Replace with your real org/company ID if needed
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
       });
       
       // Upsert the shared connection in Supabase
+      const supabase = getSupabaseClient();
       const { error } = await supabase
         .from('shared_connections')
         .upsert({
@@ -75,6 +82,7 @@ export async function POST(request: NextRequest) {
     
     if (action === 'get') {
       // Fetch the shared connection from Supabase
+      const supabase = getSupabaseClient();
       const { data, error } = await supabase
         .from('shared_connections')
         .select('*')
@@ -109,6 +117,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     // Fetch the shared connection from Supabase
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from('shared_connections')
       .select('*')

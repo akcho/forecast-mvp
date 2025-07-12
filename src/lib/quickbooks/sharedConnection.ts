@@ -2,10 +2,16 @@ import { createClient } from '@supabase/supabase-js';
 
 const COMPANY_ID = 'default_company'; // Replace with your real org/company ID if needed
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 interface SharedConnection {
   access_token: string;
@@ -58,6 +64,7 @@ export function handleSharedConnectionError(error: unknown): { error: string; co
 // Main function to get a valid shared connection (refresh if needed)
 export async function getValidSharedConnection(): Promise<SharedConnection> {
   // 1. Fetch the shared connection from Supabase
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('shared_connections')
     .select('*')
@@ -96,6 +103,7 @@ export async function getValidSharedConnection(): Promise<SharedConnection> {
     try {
       const refreshed = await refreshQuickBooksToken(data.refresh_token);
       // 4. Update Supabase with new tokens
+      const supabase = getSupabaseClient();
       const { error: updateError } = await supabase
         .from('shared_connections')
         .update({

@@ -5,14 +5,21 @@ export const dynamic = 'force-dynamic';
 
 const COMPANY_ID = 'default_company';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
     // Clear the existing shared connection
+    const supabase = getSupabaseClient();
     const { error } = await supabase
       .from('shared_connections')
       .delete()
