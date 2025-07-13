@@ -16,6 +16,12 @@ const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   loading: () => <div className="p-4">Loading AI assistant...</div>,
 });
 
+// Add a utility to detect mobile
+function useIsMobile() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768;
+}
+
 function AnalysisContent() {
   const [activeStatement, setActiveStatement] = useState('profitLoss');
   const [timePeriod, setTimePeriod] = useState('3months');
@@ -26,6 +32,7 @@ function AnalysisContent() {
   const [isConnected, setIsConnected] = useState(false);
   const [hasSharedConnection, setHasSharedConnection] = useState(false);
   const searchParams = useSearchParams();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // This effect handles the initial connection check and OAuth redirect
@@ -133,6 +140,31 @@ function AnalysisContent() {
 
   console.log('Connected, showing analysis view. isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection);
 
+  // MOBILE: Show only the chat panel, full screen
+  if (isMobile) {
+    const reportsLoaded = reports['profitLoss'] && reports['balanceSheet'] && reports['cashFlow'];
+    return (
+      <div className="fixed inset-0 bg-white z-50 flex flex-col">
+        <div className="flex-shrink-0 p-4 border-b text-lg font-bold">AI Assistant</div>
+        <div className="flex-1 overflow-y-auto">
+          {!reportsLoaded ? (
+            <div className="flex items-center justify-center h-full text-gray-500 text-lg">Loading financial data...</div>
+          ) : (
+            <ChatPanel 
+              currentReports={{
+                profitLoss: reports['profitLoss'],
+                balanceSheet: reports['balanceSheet'],
+                cashFlow: reports['cashFlow']
+              }}
+              timePeriod={timePeriod}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // DESKTOP: Show full analysis view
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
