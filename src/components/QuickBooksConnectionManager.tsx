@@ -136,6 +136,38 @@ export function QuickBooksConnectionManager() {
     }
   };
 
+  const handleClearAllTokens = async () => {
+    setLoading(true);
+    setMessage('');
+    
+    try {
+      const response = await fetch('/api/quickbooks/clear-all-tokens', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setMessage('All tokens cleared successfully. Please reconnect to QuickBooks.');
+        setConnectionError(null);
+        setIsAdmin(false);
+        setIsConnected(false);
+        await checkSharedConnection();
+        
+        // Refresh the page to reset all state
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error clearing tokens:', error);
+      setMessage('Failed to clear tokens. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Admin UI: Only show if user has their own tokens
   if (isAdmin) {
     return (
@@ -144,13 +176,21 @@ export function QuickBooksConnectionManager() {
         <Text className="mt-2">
           You are connected as admin.
         </Text>
-        <div className="mt-4">
+        <div className="mt-4 space-y-3">
           <Button 
             onClick={handleShareConnection} 
             loading={loading}
             className="w-full"
           >
             Share Connection with Team
+          </Button>
+          <Button 
+            onClick={handleClearAllTokens} 
+            loading={loading}
+            variant="secondary"
+            className="w-full"
+          >
+            Clear All Tokens
           </Button>
           {message && (
             <Text className="mt-2 text-green-600">{message}</Text>
@@ -183,12 +223,22 @@ export function QuickBooksConnectionManager() {
           ? 'You are using a shared QuickBooks connection. If you are an admin, you can connect your own account below.'
           : 'Connect your QuickBooks account to share with the team.'}
       </Text>
-      <Button 
-        onClick={handleAdminConnect} 
-        className="w-full mt-4"
-      >
-        Connect as Admin
-      </Button>
+      <div className="mt-4 space-y-3">
+        <Button 
+          onClick={handleAdminConnect} 
+          className="w-full"
+        >
+          Connect as Admin
+        </Button>
+        <Button 
+          onClick={handleClearAllTokens} 
+          loading={loading}
+          variant="secondary"
+          className="w-full"
+        >
+          Clear All Tokens
+        </Button>
+      </div>
       {sharedConnection?.hasSharedConnection && (
         <div className="mt-4 p-3 bg-green-50 rounded-lg">
           <Text className="text-sm text-green-700">
