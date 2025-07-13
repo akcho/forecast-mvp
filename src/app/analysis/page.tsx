@@ -71,55 +71,52 @@ function AnalysisContent() {
   useEffect(() => {
     if (!isConnected) return;
 
-    const fetchReport = async () => {
-      console.log('Fetching report for:', activeStatement, 'with time period:', timePeriod);
-      setLoading(prev => ({ ...prev, [activeStatement]: true }));
-      setError(prev => ({ ...prev, [activeStatement]: null }));
+    const fetchAllReports = async () => {
+      setLoading({ profitLoss: true, balanceSheet: true, cashFlow: true });
+      setError({ profitLoss: null, balanceSheet: null, cashFlow: null });
       try {
         const client = new QuickBooksClient();
         const today = new Date();
-        
         // Calculate end date (last day of previous month)
         const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
         const endDateStr = endDate.toISOString().split('T')[0];
-        
         // Calculate start date based on time period
         let months = 3;
         if (timePeriod === '6months') months = 6;
         if (timePeriod === '12months') months = 12;
-        
         const startDate = new Date(endDate);
         startDate.setMonth(endDate.getMonth() - (months - 1));
         startDate.setDate(1);
         const startDateStr = startDate.toISOString().split('T')[0];
-        
         const params: Record<string, string> = {
           start_date: startDateStr,
           end_date: endDateStr,
           summarize_column_by: 'Month',
         };
-        console.log('API parameters:', params);
-        console.log('Date range:', startDateStr, 'to', endDateStr);
-        let fetchedReport: any;
-        if (activeStatement === 'profitLoss') {
-          fetchedReport = await client.getProfitAndLoss(params);
-        } else if (activeStatement === 'balanceSheet') {
-          fetchedReport = await client.getBalanceSheet(params);
-        } else if (activeStatement === 'cashFlow') {
-          fetchedReport = await client.getCashFlow(params);
-        }
-        console.log('Fetched report structure:', fetchedReport);
-        setReports((prev) => ({ ...prev, [activeStatement]: fetchedReport?.QueryResponse?.Report }));
+        // Fetch all three reports in parallel
+        const [profitLoss, balanceSheet, cashFlow] = await Promise.all([
+          client.getProfitAndLoss(params),
+          client.getBalanceSheet(params),
+          client.getCashFlow(params),
+        ]);
+        setReports({
+          profitLoss: profitLoss?.QueryResponse?.Report,
+          balanceSheet: balanceSheet?.QueryResponse?.Report,
+          cashFlow: cashFlow?.QueryResponse?.Report,
+        });
       } catch (e) {
-        console.error('Error fetching report:', e);
-        setError(prev => ({ ...prev, [activeStatement]: e instanceof Error ? e.message : 'An unknown error occurred.' }));
+        setError({
+          profitLoss: e instanceof Error ? e.message : 'An unknown error occurred.',
+          balanceSheet: e instanceof Error ? e.message : 'An unknown error occurred.',
+          cashFlow: e instanceof Error ? e.message : 'An unknown error occurred.',
+        });
       } finally {
-        setLoading(prev => ({ ...prev, [activeStatement]: false }));
+        setLoading({ profitLoss: false, balanceSheet: false, cashFlow: false });
       }
     };
 
-    fetchReport();
-  }, [timePeriod, activeStatement, isConnected]);
+    fetchAllReports();
+  }, [timePeriod, isConnected]);
 
   useEffect(() => {
     console.log('State changed - isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection, 'activeStatement:', activeStatement);
@@ -183,7 +180,14 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel />
+                      <ChatPanel 
+                        currentReports={{
+                          profitLoss: reports['profitLoss'],
+                          balanceSheet: reports['balanceSheet'],
+                          cashFlow: reports['cashFlow']
+                        }}
+                        timePeriod={timePeriod}
+                      />
                     </Suspense>
                   </Card>
                 </Col>
@@ -210,7 +214,14 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel />
+                      <ChatPanel 
+                        currentReports={{
+                          profitLoss: reports['profitLoss'],
+                          balanceSheet: reports['balanceSheet'],
+                          cashFlow: reports['cashFlow']
+                        }}
+                        timePeriod={timePeriod}
+                      />
                     </Suspense>
                   </Card>
                 </Col>
@@ -237,7 +248,14 @@ function AnalysisContent() {
                   <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
                     <Title>AI Financial Analysis</Title>
                     <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel />
+                      <ChatPanel 
+                        currentReports={{
+                          profitLoss: reports['profitLoss'],
+                          balanceSheet: reports['balanceSheet'],
+                          cashFlow: reports['cashFlow']
+                        }}
+                        timePeriod={timePeriod}
+                      />
                     </Suspense>
                   </Card>
                 </Col>

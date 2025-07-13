@@ -169,4 +169,9 @@ export async function testDataExtraction() {
     console.error('Error testing data extraction:', error);
     throw error;
   }
+}
+
+// Run the test if this file is executed directly
+if (require.main === module) {
+  testDataExtraction().catch(console.error);
 } 

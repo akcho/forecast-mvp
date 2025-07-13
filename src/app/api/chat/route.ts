@@ -1,58 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { getCompanyData, getFinancialData } from '@/lib/data';
-import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-
-// Remove the module-level Supabase client initialization
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.SUPABASE_SERVICE_ROLE_KEY!
-// );
 
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-interface PromptResult {
-  type: 'runway' | 'general' | 'auth_required';
-  prompt?: string;
-  message?: string;
-}
-
-// Create a prompt template that includes financial context
-const createFinancialPrompt = async (userQuestion: string, companyData: any, financialData: any): Promise<PromptResult> => {
-  try {
-    // Special handling for runway questions
-    if (userQuestion.toLowerCase().includes('runway')) {
-      const runwayMonths = (companyData.currentCash / companyData.monthlyBurnRate).toFixed(2);
-      return {
-        type: 'runway',
-        prompt: `As a financial advisor for ${companyData.companyName}, I can tell you that your current runway is ${runwayMonths} months. This is calculated by dividing your current cash balance of $${companyData.currentCash.toLocaleString()} by your monthly burn rate of $${companyData.monthlyBurnRate.toLocaleString()}.`
-      };
-    }
-
-    // For other questions, create a general financial context
-    return {
-      type: 'general',
-      prompt: `As a financial advisor for ${companyData.companyName}, here's the current financial context:\n` +
-        `- Current Cash: $${companyData.currentCash.toLocaleString()}\n` +
-        `- Monthly Burn Rate: $${companyData.monthlyBurnRate.toLocaleString()}\n` +
-        `- Monthly Revenue: $${companyData.monthlyRevenue.toLocaleString()}\n` +
-        `- Total Assets: $${companyData.totalAssets.toLocaleString()}\n` +
-        `- Total Liabilities: $${companyData.totalLiabilities.toLocaleString()}\n` +
-        `- Total Equity: $${companyData.totalEquity.toLocaleString()}\n\n` +
-        `User Question: ${userQuestion}`
-    };
-  } catch (error) {
-    console.error('Error creating prompt:', error);
-    return {
-      type: 'auth_required',
-      message: 'Sorry, I encountered an error while processing your request. Please try again.'
-    };
-  }
-};
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +14,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Request body:', body);
     const message = body.message;
+    const currentReports = body.currentReports;
+    const timePeriod = body.timePeriod || '3months';
+    
     console.log('Message:', message);
+    console.log('Time period:', timePeriod);
+    console.log('Current reports available:', Object.keys(currentReports || {}));
 
     if (!message) {
       return NextResponse.json({
@@ -100,68 +58,50 @@ export async function POST(request: NextRequest) {
       console.log('Generated new session ID:', sessionId);
     }
 
-    // Get company data
-    let companyData;
-    try {
-      console.log('Fetching company data...');
-      companyData = await getCompanyData(sessionId);
-      console.log('Company data:', companyData);
-    } catch (error) {
-      console.error('Error getting company data:', error);
+    // Check if we have current reports data
+    if (!currentReports || (!currentReports.profitLoss && !currentReports.balanceSheet && !currentReports.cashFlow)) {
       return NextResponse.json({
         type: 'auth_required',
-        message: "I notice you haven't connected your QuickBooks account yet. To get personalized financial insights, please:\n\n" +
-          '1. Go to the home page (click the logo in the top left)\n' +
-          '2. Click the "Connect QuickBooks" button\n' +
-          '3. Follow the authentication steps\n' +
-          '4. Once connected, come back here and ask me questions about your finances\n\n' +
-          'For now, I can only provide general financial advice. Would you like me to do that instead?'
+        message: "I don't have access to your current financial data. Please make sure you're viewing a financial report in the analysis section, then try asking your question again."
       });
     }
 
-    // Get financial data
-    let financialData;
-    try {
-      console.log('Fetching financial data...');
-      financialData = await getFinancialData(sessionId);
-      console.log('Financial data:', financialData);
-    } catch (error) {
-      console.error('Error getting financial data:', error);
-      return NextResponse.json({
-        type: 'error',
-        message: 'Sorry, I encountered an error while fetching your financial data. Please try again later.'
-      });
-    }
+    // Create a simple prompt with just the user's question and the raw report data
+    const prompt = `You are a financial advisor analyzing QuickBooks financial reports. 
 
-    // Create prompt with the data
-    const promptResult = await createFinancialPrompt(message, companyData, financialData);
-    console.log('Generated prompt:', promptResult);
+The user is asking: "${message}"
 
-    // If we're not authenticated, return the message directly
-    if (promptResult.type === 'auth_required') {
-      return NextResponse.json({ response: promptResult.message });
-    }
+Here are the financial reports for the ${timePeriod} period:
 
-    if (!promptResult.prompt) {
-      throw new Error('No prompt generated');
-    }
+Profit & Loss Statement:
+${JSON.stringify(currentReports.profitLoss, null, 2)}
 
-    // Call OpenAI API with the prompt
+Balance Sheet:
+${JSON.stringify(currentReports.balanceSheet, null, 2)}
+
+Cash Flow Statement:
+${JSON.stringify(currentReports.cashFlow, null, 2)}
+
+Please analyze these reports and answer the user's question. Provide clear, actionable insights based on the actual financial data.`;
+
+    console.log('Generated prompt with raw data');
+
+    // Call OpenAI API with the raw data
     console.log('Calling OpenAI...');
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
-          content: "You are a helpful financial assistant that provides clear, accurate, and actionable insights about company finances."
+          content: "You are a helpful financial assistant that provides clear, accurate, and actionable insights about company finances. Analyze the provided QuickBooks reports and answer questions based on the actual financial data."
         },
         {
           role: "user",
-          content: promptResult.prompt
+          content: prompt
         }
       ],
       temperature: 0.7,
-      max_tokens: 500,
+      max_tokens: 1000,
     });
 
     console.log('OpenAI response:', completion.choices[0]?.message?.content);

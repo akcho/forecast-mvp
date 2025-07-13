@@ -11,9 +11,20 @@ interface Message {
 interface ChatPanelProps {
   initialInput?: string;
   onInputChange?: (value: string) => void;
+  currentReports?: {
+    profitLoss?: any;
+    balanceSheet?: any;
+    cashFlow?: any;
+  };
+  timePeriod?: string;
 }
 
-export default function ChatPanel({ initialInput = '', onInputChange }: ChatPanelProps) {
+export default function ChatPanel({ 
+  initialInput = '', 
+  onInputChange,
+  currentReports,
+  timePeriod = '3months'
+}: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialInput);
   const [loading, setLoading] = useState(false);
@@ -52,6 +63,8 @@ export default function ChatPanel({ initialInput = '', onInputChange }: ChatPane
         },
         body: JSON.stringify({
           message: message,
+          currentReports: currentReports,
+          timePeriod: timePeriod,
         }),
       });
 
