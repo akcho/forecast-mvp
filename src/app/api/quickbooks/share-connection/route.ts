@@ -125,6 +125,15 @@ export async function GET() {
   try {
     console.log('GET /api/quickbooks/share-connection - Checking shared connection...');
     
+    // Add environment variable debugging
+    const envDebug = {
+      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      supabaseUrlLength: process.env.NEXT_PUBLIC_SUPABASE_URL?.length || 0,
+      supabaseKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0
+    };
+    console.log('Environment variables check:', envDebug);
+    
     // Fetch the shared connection from Supabase
     const supabase = getSupabaseClient();
     console.log('Supabase client created, querying shared_connections...');
@@ -141,7 +150,8 @@ export async function GET() {
       console.error('Supabase error:', error);
       return NextResponse.json({ 
         error: 'Failed to check shared connection',
-        details: error.message
+        details: error.message,
+        envDebug
       }, { status: 500 });
     }
     
@@ -149,7 +159,8 @@ export async function GET() {
       hasSharedConnection: !!data,
       message: data ? 'Shared connection available' : 'No shared connection found',
       sharedBy: data?.shared_by,
-      sharedAt: data?.shared_at
+      sharedAt: data?.shared_at,
+      envDebug
     };
     
     console.log('Returning shared connection result:', result);
@@ -158,7 +169,13 @@ export async function GET() {
     console.error('Error checking shared connection:', error);
     return NextResponse.json({ 
       error: 'Failed to check shared connection',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      envDebug: {
+        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        supabaseUrlLength: process.env.NEXT_PUBLIC_SUPABASE_URL?.length || 0,
+        supabaseKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0
+      }
     }, { status: 500 });
   }
 } 
