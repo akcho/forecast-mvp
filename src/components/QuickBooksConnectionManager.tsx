@@ -37,23 +37,42 @@ export function QuickBooksConnectionManager() {
 
   const checkSharedConnection = async () => {
     try {
+      console.log('Checking shared connection...');
       const response = await fetch('/api/quickbooks/share-connection');
+      console.log('Share connection response status:', response.status);
+      
+      if (!response.ok) {
+        console.error('Share connection API failed:', response.status, response.statusText);
+        setSharedConnection({ hasSharedConnection: false, message: 'Failed to check shared connection' });
+        return;
+      }
+      
       const data = await response.json();
+      console.log('Share connection data:', data);
       setSharedConnection(data);
       
       // Test if the shared connection is working
       if (data.hasSharedConnection) {
+        console.log('Shared connection found, testing...');
         try {
           const testResponse = await fetch('/api/quickbooks/company');
+          console.log('Company API test response:', testResponse.status);
           if (!testResponse.ok) {
+            console.error('Company API test failed:', testResponse.status, testResponse.statusText);
             setConnectionError('Shared connection has expired. Admin needs to reconnect.');
+          } else {
+            console.log('Shared connection is working');
           }
         } catch (error) {
+          console.error('Company API test error:', error);
           setConnectionError('Shared connection has expired. Admin needs to reconnect.');
         }
+      } else {
+        console.log('No shared connection found');
       }
     } catch (error) {
       console.error('Error checking shared connection:', error);
+      setSharedConnection({ hasSharedConnection: false, message: 'Error checking shared connection' });
     }
   };
 

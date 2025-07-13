@@ -13,6 +13,13 @@ function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
+  console.log('Supabase config check:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseKey,
+    urlLength: supabaseUrl?.length,
+    keyLength: supabaseKey?.length
+  });
+  
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Supabase configuration is missing. Please check your environment variables.');
   }
@@ -116,24 +123,42 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    console.log('GET /api/quickbooks/share-connection - Checking shared connection...');
+    
     // Fetch the shared connection from Supabase
     const supabase = getSupabaseClient();
+    console.log('Supabase client created, querying shared_connections...');
+    
     const { data, error } = await supabase
       .from('shared_connections')
       .select('*')
       .eq('company_id', COMPANY_ID)
       .single();
     
-    return NextResponse.json({
+    console.log('Supabase query result:', { hasData: !!data, error: error?.message });
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ 
+        error: 'Failed to check shared connection',
+        details: error.message
+      }, { status: 500 });
+    }
+    
+    const result = {
       hasSharedConnection: !!data,
       message: data ? 'Shared connection available' : 'No shared connection found',
       sharedBy: data?.shared_by,
       sharedAt: data?.shared_at
-    });
+    };
+    
+    console.log('Returning shared connection result:', result);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error checking shared connection:', error);
     return NextResponse.json({ 
-      error: 'Failed to check shared connection' 
+      error: 'Failed to check shared connection',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 } 
