@@ -132,6 +132,13 @@ function HomeContent() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [projections, setProjections] = useState<any[]>([]);
 
+  // Redirect to analysis page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/analysis';
+    }
+  }, []);
+
   // Reset selectedMonth if it's out of bounds after filtering
   useEffect(() => {
     if (analysis && selectedMonth >= analysis.projections.filter(proj => proj.cashBalance > 0).length) {

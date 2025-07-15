@@ -17,7 +17,6 @@ export interface QuickBooksConnection {
 
 export interface ConnectionStatus {
   hasDirectConnection: boolean;
-  hasSharedConnections: boolean;
   availableConnections: QuickBooksConnection[];
   activeConnection?: QuickBooksConnection;
   error?: string;
@@ -131,26 +130,7 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
 
     console.log('Direct connections found:', directConnections?.length || 0);
 
-    // Get shared connections from other users
-    const { data: sharedConnections, error: sharedError } = await supabase
-      .from('quickbooks_connections')
-      .select('*')
-      .eq('company_id', companyId)
-      .eq('is_shared', true)
-      .eq('is_active', true)
-      .neq('user_id', userId)
-      .order('last_used_at', { ascending: false });
-
-    if (sharedError) {
-      console.error('Error fetching shared connections:', sharedError);
-    }
-
-    console.log('Shared connections found:', sharedConnections?.length || 0);
-
-    const allConnections = [
-      ...(directConnections || []),
-      ...(sharedConnections || [])
-    ];
+    const allConnections = directConnections || [];
 
     console.log('All available connections:', allConnections.map(c => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
 
@@ -159,7 +139,6 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
 
     return {
       hasDirectConnection: (directConnections?.length || 0) > 0,
-      hasSharedConnections: (sharedConnections?.length || 0) > 0,
       availableConnections: allConnections,
       activeConnection: activeConnection || undefined
     };
@@ -167,7 +146,6 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
     console.error('Error getting available connections:', error);
     return {
       hasDirectConnection: false,
-      hasSharedConnections: false,
       availableConnections: [],
       error: 'Failed to load connections'
     };
@@ -244,6 +222,34 @@ export async function updateConnectionUsage(connectionId: number): Promise<void>
 
   if (error) {
     console.error('Error updating connection usage:', error);
+  }
+}
+
+// Update all connections from a temp user ID to the real user ID
+export async function migrateTempConnectionsToRealUser(tempUserId: string, realUserId: string) {
+  const supabase = getSupabaseClient();
+  const companyId = getCompanyId();
+  if (!tempUserId || !realUserId || tempUserId === realUserId) return;
+  console.log('Migrating connections from temp user ID to real user ID:', { tempUserId, realUserId, companyId });
+  
+  try {
+    // Since the real user already has a connection for this QuickBooks company,
+    // we can simply delete the temp connection to avoid conflicts
+    const { error: deleteError } = await supabase
+      .from('quickbooks_connections')
+      .delete()
+      .eq('user_id', tempUserId)
+      .eq('company_id', companyId);
+    
+    if (deleteError) {
+      console.error('Error deleting temp connections:', deleteError);
+      throw new Error('Failed to delete temp QuickBooks connections');
+    }
+    
+    console.log('Successfully deleted temp connections');
+  } catch (error) {
+    console.error('Error migrating temp connections:', error);
+    throw new Error('Failed to migrate temp QuickBooks connections');
   }
 }
 

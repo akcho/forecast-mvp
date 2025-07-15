@@ -38,6 +38,15 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
   };
 
   const handleConnect = () => {
+    // If we already have connections, redirect to analysis page
+    if (connectionStatus && connectionStatus.availableConnections.length > 0) {
+      console.log('Already connected, redirecting to analysis page');
+      window.location.href = '/analysis';
+      return;
+    }
+    
+    // Otherwise, go through OAuth flow
+    console.log('No existing connections, starting OAuth flow');
     window.location.href = '/api/quickbooks/auth';
   };
 
@@ -290,13 +299,7 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
 
 
 
-      {connectionStatus?.hasSharedConnections && (
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <Text className="text-sm text-blue-700">
-            💡 You have access to shared connections from your team. These connections are managed by other team members.
-          </Text>
-        </div>
-      )}
+
     </Card>
   );
 } 

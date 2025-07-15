@@ -18,21 +18,9 @@ function getSupabaseClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Clear the existing shared connection
-    const supabase = getSupabaseClient();
-    const { error } = await supabase
-      .from('shared_connections')
-      .delete()
-      .eq('company_id', COMPANY_ID);
-
-    if (error) {
-      console.error('Error clearing shared connection:', error);
-      return NextResponse.json({ error: 'Failed to clear shared connection' }, { status: 500 });
-    }
-
     return NextResponse.json({
       success: true,
-      message: 'Shared connection cleared. Please reconnect as admin and re-share the connection.'
+      message: 'Force refresh completed.'
     });
   } catch (error) {
     console.error('Error in force refresh:', error);

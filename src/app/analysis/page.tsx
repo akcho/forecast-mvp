@@ -1,13 +1,15 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
 import { PnlTable } from '.';
 import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
+import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { migrateTempConnectionsToRealUser } from '@/lib/quickbooks/connectionManager';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
@@ -30,50 +32,75 @@ function AnalysisContent() {
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ [key: string]: string | null }>({});
   const [isConnected, setIsConnected] = useState(false);
-  const [hasSharedConnection, setHasSharedConnection] = useState(false);
   const searchParams = useSearchParams();
   const isMobile = useIsMobile();
+  const migrationAttempted = useRef(false);
 
   useEffect(() => {
     // This effect handles the initial connection check and OAuth redirect
     const status = searchParams.get('quickbooks');
+    const connectionId = searchParams.get('connection_id');
     const realmId = searchParams.get('realm_id');
+    const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
+
+    console.log('Analysis page URL params:', { status, connectionId, realmId, hasAccessToken: !!accessToken });
 
     if (quickBooksStore.getAccessToken()) {
       console.log('Already connected to QuickBooks');
       setIsConnected(true);
-    } else if (status === 'connected' && realmId) {
-      console.log('Successfully connected to QuickBooks, fetching data...');
-      quickBooksStore.setRealmId(realmId);
+    } else if (status === 'connected' && connectionId) {
+      console.log('Successfully connected to QuickBooks with connection ID:', connectionId);
+      // Handle new connection system
+      setIsConnected(true);
+      // The connection will be used by the financial data fetching
+    } else if (status === 'connected' && accessToken && refreshToken) {
+      console.log('Successfully connected to QuickBooks with tokens (legacy)...');
+      quickBooksStore.setTokens(accessToken, refreshToken);
+      if (realmId) {
+        quickBooksStore.setRealmId(realmId);
+      }
       setIsConnected(true);
     } else {
-      console.log('Not connected to QuickBooks, checking for shared connection...');
-      checkSharedConnection();
+      console.log('Not connected to QuickBooks');
+      setIsConnected(false);
     }
   }, [searchParams]);
 
-  const checkSharedConnection = async () => {
-    try {
-      console.log('Checking for shared connection...');
-      const response = await fetch('/api/quickbooks/share-connection');
-      const data = await response.json();
-      console.log('Shared connection response:', data);
-      
-      if (data.hasSharedConnection) {
-        console.log('Found shared QuickBooks connection');
-        setHasSharedConnection(true);
-        setIsConnected(true);
-        // Force the analysis view to show
-        console.log('Setting isConnected to true for shared connection');
-      } else {
-        console.log('No shared connection found');
-        setIsConnected(false);
+  useEffect(() => {
+    // Copy qb_temp_user_id from cookie to localStorage if present
+    if (typeof window !== 'undefined') {
+      const cookieMatch = document.cookie.match(/qb_temp_user_id=([^;]+)/);
+      if (cookieMatch && !localStorage.getItem('qb_temp_user_id')) {
+        localStorage.setItem('qb_temp_user_id', cookieMatch[1]);
       }
-    } catch (error) {
-      console.error('Error checking shared connection:', error);
-      setIsConnected(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Migrate temp user connections to real user ID after redirect
+    if (typeof window !== 'undefined' && !migrationAttempted.current) {
+      const tempUserId = localStorage.getItem('qb_temp_user_id');
+      const realUserId = localStorage.getItem('qb_user_id');
+      if (tempUserId && realUserId && tempUserId !== realUserId) {
+        migrationAttempted.current = true;
+        migrateTempConnectionsToRealUser(tempUserId, realUserId)
+          .then(() => {
+            console.log('Migrated temp user connections to real user ID');
+            localStorage.removeItem('qb_temp_user_id');
+            
+            // Remove connection_id from URL to use available connections
+            const url = new URL(window.location.href);
+            url.searchParams.delete('connection_id');
+            window.history.replaceState({}, '', url.toString());
+          })
+          .catch((err) => {
+            console.error('Error migrating temp user connections:', err);
+          });
+      }
+    }
+  }, [searchParams]);
+
 
   useEffect(() => {
     if (!isConnected) return;
@@ -82,7 +109,18 @@ function AnalysisContent() {
       setLoading({ profitLoss: true, balanceSheet: true, cashFlow: true });
       setError({ profitLoss: null, balanceSheet: null, cashFlow: null });
       try {
-        const client = new QuickBooksClient();
+        let client: QuickBooksClient;
+        
+        // Always use database connection instead of old store
+        console.log('Using database connection for financial data');
+        const connection = await getValidConnection(); // No connectionId means use first available
+        client = new QuickBooksClient();
+        quickBooksStore.setTokens(connection.access_token, connection.refresh_token);
+        client.setRealmId(connection.realm_id);
+        // Immediately check authentication and update isConnected
+        const authenticated = await quickBooksStore.isAuthenticatedWithQuickBooks();
+        setIsConnected(authenticated);
+        
         const today = new Date();
         // Calculate end date (last day of previous month)
         const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
@@ -112,6 +150,7 @@ function AnalysisContent() {
           cashFlow: cashFlow?.QueryResponse?.Report,
         });
       } catch (e) {
+        console.error('Error fetching financial data:', e);
         setError({
           profitLoss: e instanceof Error ? e.message : 'An unknown error occurred.',
           balanceSheet: e instanceof Error ? e.message : 'An unknown error occurred.',
@@ -123,14 +162,14 @@ function AnalysisContent() {
     };
 
     fetchAllReports();
-  }, [timePeriod, isConnected]);
+  }, [timePeriod, isConnected, searchParams]);
 
   useEffect(() => {
-    console.log('State changed - isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection, 'activeStatement:', activeStatement);
-  }, [isConnected, hasSharedConnection, activeStatement]);
+    console.log('State changed - isConnected:', isConnected, 'activeStatement:', activeStatement);
+  }, [isConnected, activeStatement]);
 
   if (!isConnected) {
-    console.log('Not connected, showing connection manager. isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection);
+    console.log('Not connected, showing connection manager. isConnected:', isConnected);
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
         <QuickBooksConnectionManager />
@@ -138,7 +177,7 @@ function AnalysisContent() {
     );
   }
 
-  console.log('Connected, showing analysis view. isConnected:', isConnected, 'hasSharedConnection:', hasSharedConnection);
+  console.log('Connected, showing analysis view. isConnected:', isConnected);
 
   // MOBILE: Show only the chat panel, full screen
   if (isMobile) {
@@ -171,7 +210,7 @@ function AnalysisContent() {
         <div>
           <h1 className="text-2xl font-bold">Financial Analysis</h1>
           <Text className="text-gray-600">
-            {hasSharedConnection ? 'Using shared QuickBooks connection' : 'Review your financial statements'}
+            Review your financial statements
           </Text>
         </div>
         <div className="flex gap-4">

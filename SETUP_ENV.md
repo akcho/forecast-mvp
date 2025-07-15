@@ -26,8 +26,7 @@
 Run this SQL in your Supabase SQL editor:
 
 ```sql
--- Drop the old table if it exists
-DROP TABLE IF EXISTS shared_connections;
+
 
 -- Create the new multi-admin connections table
 CREATE TABLE quickbooks_connections (

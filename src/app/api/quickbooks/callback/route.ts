@@ -32,12 +32,14 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('QuickBooks authorization error:', error);
-      return NextResponse.redirect(new URL(`/?quickbooks=error&error=${encodeURIComponent(error)}`, request.url));
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL(`/analysis?quickbooks=error&error=${encodeURIComponent(error)}`, baseUrl));
     }
 
     if (!code) {
       console.error('No authorization code received');
-      return NextResponse.redirect(new URL('/?quickbooks=error&error=No authorization code received', request.url));
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL('/analysis?quickbooks=error&error=No authorization code received', baseUrl));
     }
 
     const client = new QuickBooksClient();
@@ -92,16 +94,24 @@ export async function GET(request: Request) {
       });
       
       // Redirect with connection ID instead of tokens
-      const redirectUrl = new URL('/', request.url);
+      const baseUrl = new URL(request.url).origin;
+      const redirectUrl = new URL('/analysis', baseUrl);
       redirectUrl.searchParams.set('quickbooks', 'connected');
       redirectUrl.searchParams.set('connection_id', connection.id.toString());
       
-      console.log('Redirecting to dashboard with connection ID');
-      return NextResponse.redirect(redirectUrl);
+      console.log('Redirecting to analysis page with connection ID');
+      console.log('Request URL:', request.url);
+      console.log('Base URL:', baseUrl);
+      console.log('Redirect URL:', redirectUrl.toString());
+      // Set a cookie for the temp user ID so the client can migrate it
+      const response = NextResponse.redirect(redirectUrl);
+      response.headers.append('Set-Cookie', `qb_temp_user_id=${tempUserId}; Path=/; Max-Age=600; SameSite=Lax`);
+      return response;
     } catch (saveError) {
       console.error('Error saving connection:', saveError);
       // Fallback to old method if saving fails
-      const redirectUrl = new URL('/', request.url);
+      const baseUrl = new URL(request.url).origin;
+      const redirectUrl = new URL('/analysis', baseUrl);
       redirectUrl.searchParams.set('quickbooks', 'connected');
       redirectUrl.searchParams.set('access_token', tokens.access_token);
       redirectUrl.searchParams.set('refresh_token', tokens.refresh_token);
@@ -109,13 +119,15 @@ export async function GET(request: Request) {
         redirectUrl.searchParams.set('realm_id', realmId);
       }
       
-      console.log('Redirecting to dashboard with tokens (fallback)');
+      console.log('Redirecting to analysis page with tokens (fallback)');
+      console.log('Fallback redirect URL:', redirectUrl.toString());
       return NextResponse.redirect(redirectUrl);
     }
   } catch (error) {
     console.error('QuickBooks callback error:', error);
+    const baseUrl = new URL(request.url).origin;
     return NextResponse.redirect(
-      new URL(`/?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, request.url)
+      new URL(`/analysis?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, baseUrl)
     );
   }
 } 

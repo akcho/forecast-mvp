@@ -64,7 +64,7 @@ const getFriendlyReportTitle = (reportName: string) => {
   }
 };
 
-const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0): JSX.Element | null => {
+const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentKey = ''): JSX.Element[] => {
   const isSectionHeader = row.type === 'Section' && row.Header;
   const isSummary = !!row.Summary;
   const isDataRow = row.type === 'Data';
@@ -77,8 +77,9 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0): JSX.El
   let textStyle: React.CSSProperties = {};
 
   const rowData = isDataRow ? row.ColData : isSummary ? row.Summary?.ColData : row.Header?.ColData;
-  if (!rowData) return null;
+  if (!rowData) return [];
   const label = rowData[0].value;
+  const rowKey = `${parentKey}-${rowData[0].id || label || rowIndex}`;
 
   const isSummaryRow = label?.includes('Total') || row.group === 'GrossProfit' || row.group === 'NetIncome' || row.group === 'NetOperatingIncome';
 
@@ -106,40 +107,43 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0): JSX.El
     }
   }
 
-  return (
-    <>
-      <tr key={rowData[0].id || label} className={rowClassName}>
-        <td style={rowStyle} className="py-2 px-2">
-          <span style={textStyle} className={labelColor}>
-            {label}
-          </span>
-        </td>
-        {columns.slice(1).map((col, index) => {
-          const cellValue = rowData[index + 1]?.value;
-          
-          if (cellValue === undefined) return <td key={index}></td>;
+  const mainRow = (
+    <tr key={rowKey} className={rowClassName}>
+      <td style={rowStyle} className="py-2 px-2">
+        <span style={textStyle} className={labelColor}>
+          {label}
+        </span>
+      </td>
+      {columns.slice(1).map((col, index) => {
+        const cellValue = rowData[index + 1]?.value;
+        
+        if (cellValue === undefined) return <td key={`${rowKey}-cell-${index}`}></td>;
 
-          const isNegative = parseFloat(cellValue) < 0;
-          let valueColor = 'text-gray-900';
-          
-          if (row.group === 'Income') {
-            valueColor = 'text-green-600';
-          } else if (row.group === 'Expenses' || row.group === 'COGS') {
-            valueColor = 'text-red-600';
-          } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
-            valueColor = isNegative ? 'text-red-600' : 'text-green-600';
-          }
-          
-          return (
-            <td key={index} className={`text-right py-2 px-2 font-mono ${valueColor}`}>
-              {formatCurrency(cellValue)}
-            </td>
-          );
-        })}
-      </tr>
-      {row.Rows?.Row?.map((subRow, subIndex) => renderRow(subRow, level + (isSectionHeader ? 1 : 0), columns, subIndex))}
-    </>
+        const isNegative = parseFloat(cellValue) < 0;
+        let valueColor = 'text-gray-900';
+        
+        if (row.group === 'Income') {
+          valueColor = 'text-green-600';
+        } else if (row.group === 'Expenses' || row.group === 'COGS') {
+          valueColor = 'text-red-600';
+        } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
+          valueColor = isNegative ? 'text-red-600' : 'text-green-600';
+        }
+        
+        return (
+          <td key={`${rowKey}-cell-${index}`} className={`text-right py-2 px-2 font-mono ${valueColor}`}>
+            {formatCurrency(cellValue)}
+          </td>
+        );
+      })}
+    </tr>
   );
+
+  const childRows = row.Rows?.Row?.flatMap((subRow, subIndex) => 
+    renderRow(subRow, level + (isSectionHeader ? 1 : 0), columns, subIndex, rowKey)
+  ) || [];
+
+  return [mainRow, ...childRows];
 };
 
 export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
@@ -171,7 +175,7 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
             </tr>
           </thead>
           <tbody>
-            {Rows.Row.map((row, rowIndex) => renderRow(row, 0, Columns.Column, rowIndex))}
+            {Rows.Row.flatMap((row, rowIndex) => renderRow(row, 0, Columns.Column, rowIndex))}
           </tbody>
         </table>
       </div>
