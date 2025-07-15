@@ -21,7 +21,7 @@ import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
-import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
+import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
 
 interface QuickBooksRow {
   Header?: {
@@ -623,7 +623,7 @@ function HomeContent() {
   if (connectionStatus === 'error') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-        <QuickBooksConnectionManager />
+        <MultiAdminConnectionManager />
       </div>
     );
   }
@@ -631,7 +631,7 @@ function HomeContent() {
   if (connectionStatus === 'idle') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-        <QuickBooksConnectionManager />
+        <MultiAdminConnectionManager />
       </div>
     );
   }
@@ -639,7 +639,7 @@ function HomeContent() {
   if (!analysis || !financialData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-        <QuickBooksConnectionManager />
+        <MultiAdminConnectionManager />
       </div>
     );
   }

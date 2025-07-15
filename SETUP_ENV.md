@@ -21,21 +21,34 @@
 2. Create a new project
 3. Get your project URL and service role key from Settings > API
 
-### 2. Create the Database Table
+### 2. Create the Database Tables
 Run this SQL in your Supabase SQL editor:
 
 ```sql
-CREATE TABLE shared_connections (
+-- Drop the old table if it exists
+DROP TABLE IF EXISTS shared_connections;
+
+-- Create the new multi-admin connections table
+CREATE TABLE quickbooks_connections (
   id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
   company_id TEXT NOT NULL,
+  realm_id TEXT NOT NULL,
   access_token TEXT NOT NULL,
   refresh_token TEXT NOT NULL,
-  realm_id TEXT NOT NULL,
-  shared_by TEXT,
-  shared_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  company_name TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  is_shared BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(company_id, realm_id)
+  last_used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, company_id, realm_id)
 );
+
+-- Create index for faster queries
+CREATE INDEX idx_quickbooks_connections_company ON quickbooks_connections(company_id);
+CREATE INDEX idx_quickbooks_connections_active ON quickbooks_connections(is_active);
+CREATE INDEX idx_quickbooks_connections_shared ON quickbooks_connections(is_shared);
 ```
 
 ### 3. Set Environment Variables in Vercel
@@ -56,6 +69,6 @@ After setting the environment variables, redeploy your application.
 
 ## Testing
 1. Deploy with the environment variables set
-2. Connect as admin in one browser
-3. Share the connection
-4. Test in an incognito browser - you should see the shared connection working 
+2. Connect multiple QuickBooks accounts
+3. Test sharing connections between users
+4. Verify connection management features work 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { saveConnection } from '@/lib/quickbooks/connectionManager';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,17 +41,41 @@ export async function GET(request: Request) {
       refreshTokenStart: tokens.refresh_token?.substring(0, 20),
     });
 
-    // Store tokens in localStorage via URL parameters
-    const redirectUrl = new URL('/', request.url);
-    redirectUrl.searchParams.set('quickbooks', 'connected');
-    redirectUrl.searchParams.set('access_token', tokens.access_token);
-    redirectUrl.searchParams.set('refresh_token', tokens.refresh_token);
-    if (realmId) {
-      redirectUrl.searchParams.set('realm_id', realmId);
+    // Save connection to database
+    try {
+      const connection = await saveConnection(
+        tokens.access_token,
+        tokens.refresh_token,
+        realmId || '',
+        undefined // companyName will be fetched later
+      );
+      
+      console.log('Connection saved to database:', {
+        connectionId: connection.id,
+        realmId: connection.realm_id
+      });
+      
+      // Redirect with connection ID instead of tokens
+      const redirectUrl = new URL('/', request.url);
+      redirectUrl.searchParams.set('quickbooks', 'connected');
+      redirectUrl.searchParams.set('connection_id', connection.id.toString());
+      
+      console.log('Redirecting to dashboard with connection ID');
+      return NextResponse.redirect(redirectUrl);
+    } catch (saveError) {
+      console.error('Error saving connection:', saveError);
+      // Fallback to old method if saving fails
+      const redirectUrl = new URL('/', request.url);
+      redirectUrl.searchParams.set('quickbooks', 'connected');
+      redirectUrl.searchParams.set('access_token', tokens.access_token);
+      redirectUrl.searchParams.set('refresh_token', tokens.refresh_token);
+      if (realmId) {
+        redirectUrl.searchParams.set('realm_id', realmId);
+      }
+      
+      console.log('Redirecting to dashboard with tokens (fallback)');
+      return NextResponse.redirect(redirectUrl);
     }
-
-    console.log('Redirecting to dashboard with tokens');
-    return NextResponse.redirect(redirectUrl);
   } catch (error) {
     console.error('QuickBooks callback error:', error);
     return NextResponse.redirect(
