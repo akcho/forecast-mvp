@@ -26,35 +26,6 @@ export function QuickBooksConnectionManager() {
     window.location.href = '/api/quickbooks/auth';
   };
 
-  const handleClearTokens = async () => {
-    setLoading(true);
-    setMessage('');
-    
-    try {
-      const response = await fetch('/api/quickbooks/clear-all-tokens', {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage('All tokens cleared successfully. Please reconnect to QuickBooks.');
-        setIsConnected(false);
-        
-        // Refresh the page to reset all state
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error clearing tokens:', error);
-      setMessage('Failed to clear tokens. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // If connected, show connected state
   if (isConnected) {
     return (
@@ -69,14 +40,6 @@ export function QuickBooksConnectionManager() {
             className="w-full"
           >
             View Financial Analysis
-          </Button>
-          <Button 
-            onClick={handleClearTokens} 
-            loading={loading}
-            variant="secondary"
-            className="w-full"
-          >
-            Disconnect QuickBooks
           </Button>
           {message && (
             <Text className="mt-2 text-green-600">{message}</Text>
@@ -99,14 +62,6 @@ export function QuickBooksConnectionManager() {
           className="w-full"
         >
           Connect QuickBooks
-        </Button>
-        <Button 
-          onClick={handleClearTokens} 
-          loading={loading}
-          variant="secondary"
-          className="w-full"
-        >
-          Clear All Tokens
         </Button>
         {message && (
           <Text className="mt-2 text-green-600">{message}</Text>
