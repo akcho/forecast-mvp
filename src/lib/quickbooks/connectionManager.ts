@@ -132,7 +132,7 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
 
     const allConnections = directConnections || [];
 
-    console.log('All available connections:', allConnections.map(c => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
+    console.log('All available connections:', allConnections.map((c: QuickBooksConnection) => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
 
     // Get the most recently used connection as active
     const activeConnection = allConnections.length > 0 ? allConnections[0] : undefined;
