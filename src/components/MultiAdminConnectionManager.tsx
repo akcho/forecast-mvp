@@ -167,20 +167,11 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
 
   return (
     <Card className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <Title>QuickBooks Connections</Title>
-          <Text className="mt-1">
-            Manage your QuickBooks connections and share them with your team
-          </Text>
-        </div>
-        <Button 
-          onClick={handleConnect}
-          loading={loading}
-          className="ml-4"
-        >
-          Connect New Account
-        </Button>
+      <div className="mb-6">
+        <Title>QuickBooks Connections</Title>
+        <Text className="mt-1">
+          Connect your QuickBooks account to access financial data and share with your team
+        </Text>
       </div>
 
       {message && (
@@ -198,12 +189,26 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
       )}
 
       {connectionStatus?.availableConnections.length === 0 ? (
-        <div className="text-center py-8">
-          <Text className="text-gray-500 mb-4">
-            No QuickBooks connections found. Connect your first account to get started.
-          </Text>
-          <Button onClick={handleConnect}>
-            Connect QuickBooks Account
+        <div className="text-center py-12">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <Text className="text-lg font-medium text-gray-900 mb-2">
+              No QuickBooks connections yet
+            </Text>
+            <Text className="text-gray-500 mb-6">
+              Connect your QuickBooks account to start analyzing your financial data
+            </Text>
+          </div>
+          <Button 
+            onClick={handleConnect}
+            size="lg"
+            className="px-8"
+          >
+            Connect QuickBooks
           </Button>
         </div>
       ) : (
@@ -282,6 +287,8 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
           ))}
         </div>
       )}
+
+
 
       {connectionStatus?.hasSharedConnections && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">

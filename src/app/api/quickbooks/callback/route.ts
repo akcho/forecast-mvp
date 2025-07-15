@@ -1,8 +1,19 @@
 import { NextResponse } from 'next/server';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { saveConnection } from '@/lib/quickbooks/connectionManager';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 export async function GET(request: Request) {
   try {
@@ -41,18 +52,43 @@ export async function GET(request: Request) {
       refreshTokenStart: tokens.refresh_token?.substring(0, 20),
     });
 
-    // Save connection to database
+    // Save connection to database using server-side approach
     try {
-      const connection = await saveConnection(
-        tokens.access_token,
-        tokens.refresh_token,
-        realmId || '',
-        undefined // companyName will be fetched later
-      );
+      const supabase = getSupabaseClient();
+      
+      // For now, use a generic user ID that will be replaced by the client
+      // The client will update this when it processes the connection
+      const tempUserId = 'temp_user_' + Date.now();
+      const companyId = 'default_company';
+      
+      console.log('Saving connection with temp user ID:', { tempUserId, companyId, realmId });
+      
+      const { data: connection, error: saveError } = await supabase
+        .from('quickbooks_connections')
+        .insert({
+          user_id: tempUserId,
+          company_id: companyId,
+          realm_id: realmId || '',
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          company_name: undefined, // Will be fetched later
+          is_active: true,
+          is_shared: false,
+          updated_at: new Date().toISOString(),
+          last_used_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (saveError) {
+        console.error('Error saving connection:', saveError);
+        throw saveError;
+      }
       
       console.log('Connection saved to database:', {
         connectionId: connection.id,
-        realmId: connection.realm_id
+        realmId: connection.realm_id,
+        tempUserId: connection.user_id
       });
       
       // Redirect with connection ID instead of tokens

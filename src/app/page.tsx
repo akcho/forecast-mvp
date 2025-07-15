@@ -22,6 +22,7 @@ import { useSearchParams } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
 import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
+import { getAvailableConnections, getValidConnection } from '@/lib/quickbooks/connectionManager';
 
 interface QuickBooksRow {
   Header?: {
@@ -141,15 +142,24 @@ function HomeContent() {
   useEffect(() => {
     console.log('Home component mounted');
     const status = searchParams.get('quickbooks');
+    const connectionId = searchParams.get('connection_id');
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const realmId = searchParams.get('realm_id');
 
-    console.log('URL parameters:', { status, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
+    console.log('URL parameters:', { status, connectionId, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
 
-    // Check URL parameters first (new tokens from OAuth flow)
+    // Check for new connection from OAuth callback
+    if (status === 'connected' && connectionId) {
+      console.log('New connection established, fetching data...');
+      setConnectionStatus('connected');
+      fetchFinancialDataWithConnection(parseInt(connectionId));
+      return;
+    }
+
+    // Fallback to old token-based system for backward compatibility
     if (status === 'connected' && accessToken && refreshToken) {
-      console.log('Setting up QuickBooks connection from URL parameters...');
+      console.log('Setting up QuickBooks connection from URL parameters (legacy)...');
       const client = new QuickBooksClient();
       quickBooksStore.setTokens(accessToken, refreshToken);
       if (realmId) {
@@ -160,26 +170,80 @@ function HomeContent() {
       return;
     }
 
-    // If no URL parameters, check for stored tokens
-    const storedAccessToken = quickBooksStore.getAccessToken();
-    const storedRefreshToken = quickBooksStore.getRefreshToken();
-    const storedRealmId = quickBooksStore.getRealmId();
-
-    if (storedAccessToken && storedRefreshToken && storedRealmId) {
-      console.log('Found stored tokens, fetching data...');
-      setConnectionStatus('connected');
-      fetchFinancialData();
-      return;
-    }
+    // Check for existing connections in the database
+    checkForExistingConnections();
 
     if (status === 'error') {
       console.log('QuickBooks connection error');
       setConnectionStatus('error');
-    } else {
-      console.log('No QuickBooks connection');
-      setConnectionStatus('idle');
     }
   }, [searchParams]);
+
+  const checkForExistingConnections = async () => {
+    try {
+      const connections = await getAvailableConnections();
+      if (connections.availableConnections.length > 0) {
+        console.log('Found existing connections, using the most recent one');
+        setConnectionStatus('connected');
+        fetchFinancialDataWithConnection(connections.availableConnections[0].id);
+      } else {
+        console.log('No existing connections found');
+        setConnectionStatus('idle');
+      }
+    } catch (error) {
+      console.error('Error checking for existing connections:', error);
+      setConnectionStatus('idle');
+    }
+  };
+
+  const fetchFinancialDataWithConnection = async (connectionId: number) => {
+    try {
+      // First, try to update the connection with the correct user ID if it's a temp user
+      await updateConnectionUserId(connectionId);
+      
+      const connection = await getValidConnection(connectionId);
+      console.log('Using connection:', connection.id);
+      
+      // Create a client with the connection data
+      const client = new QuickBooksClient();
+      quickBooksStore.setTokens(connection.access_token, connection.refresh_token);
+      client.setRealmId(connection.realm_id);
+      
+      fetchFinancialData();
+    } catch (error) {
+      console.error('Error using connection:', error);
+      setConnectionStatus('error');
+    }
+  };
+
+  const updateConnectionUserId = async (connectionId: number) => {
+    try {
+      // Get the current user ID from localStorage
+      let userId = localStorage.getItem('qb_user_id');
+      if (!userId) {
+        userId = `user_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+        localStorage.setItem('qb_user_id', userId);
+      }
+      
+      const response = await fetch('/api/quickbooks/connections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'update_user_id',
+          connectionId,
+          userId
+        }),
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to update connection user ID, but continuing...');
+      }
+    } catch (error) {
+      console.warn('Error updating connection user ID:', error);
+    }
+  };
 
   const extractCashBalance = (balanceSheet: QuickBooksReport): number => {
     try {

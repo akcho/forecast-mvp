@@ -23,15 +23,30 @@ export interface ConnectionStatus {
   error?: string;
 }
 
+// Create a singleton Supabase client to avoid multiple instances
+let supabaseClient: any = null;
+
 function getSupabaseClient() {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  if (!supabaseUrl) {
+    throw new Error('Supabase URL is missing. Please check your environment variables.');
   }
   
-  return createClient(supabaseUrl, supabaseKey);
+  // For client-side, we need to use the anon key, not the service role key
+  // The service role key should only be used server-side
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseKey) {
+    throw new Error('Supabase anon key is missing. Please check your environment variables.');
+  }
+  
+  supabaseClient = createClient(supabaseUrl, supabaseKey);
+  return supabaseClient;
 }
 
 // Generate a unique user ID for this browser session
@@ -61,6 +76,8 @@ export async function saveConnection(
   const supabase = getSupabaseClient();
   const userId = getUserId();
   const companyId = getCompanyId();
+
+  console.log('Saving connection with:', { userId, companyId, realmId });
 
   const { data, error } = await supabase
     .from('quickbooks_connections')
@@ -96,6 +113,8 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
   const userId = getUserId();
   const companyId = getCompanyId();
 
+  console.log('Getting available connections for:', { userId, companyId });
+
   try {
     // Get user's direct connections
     const { data: directConnections, error: directError } = await supabase
@@ -109,6 +128,8 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
     if (directError) {
       console.error('Error fetching direct connections:', directError);
     }
+
+    console.log('Direct connections found:', directConnections?.length || 0);
 
     // Get shared connections from other users
     const { data: sharedConnections, error: sharedError } = await supabase
@@ -124,20 +145,24 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
       console.error('Error fetching shared connections:', sharedError);
     }
 
+    console.log('Shared connections found:', sharedConnections?.length || 0);
+
     const allConnections = [
       ...(directConnections || []),
       ...(sharedConnections || [])
     ];
 
-      // Get the most recently used connection as active
-  const activeConnection = allConnections.length > 0 ? allConnections[0] : undefined;
+    console.log('All available connections:', allConnections.map(c => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
 
-  return {
-    hasDirectConnection: (directConnections?.length || 0) > 0,
-    hasSharedConnections: (sharedConnections?.length || 0) > 0,
-    availableConnections: allConnections,
-    activeConnection: activeConnection || undefined
-  };
+    // Get the most recently used connection as active
+    const activeConnection = allConnections.length > 0 ? allConnections[0] : undefined;
+
+    return {
+      hasDirectConnection: (directConnections?.length || 0) > 0,
+      hasSharedConnections: (sharedConnections?.length || 0) > 0,
+      availableConnections: allConnections,
+      activeConnection: activeConnection || undefined
+    };
   } catch (error) {
     console.error('Error getting available connections:', error);
     return {
@@ -226,11 +251,16 @@ export async function updateConnectionUsage(connectionId: number): Promise<void>
 export async function getValidConnection(connectionId?: number): Promise<QuickBooksConnection> {
   const { availableConnections } = await getAvailableConnections();
   
+  console.log('Looking for connection ID:', connectionId);
+  console.log('Available connection IDs:', availableConnections.map(c => c.id));
+  
   let connection: QuickBooksConnection;
   
   if (connectionId) {
     const foundConnection = availableConnections.find(c => c.id === connectionId);
     if (!foundConnection) {
+      console.error('Connection not found. Looking for ID:', connectionId);
+      console.error('Available connections:', availableConnections);
       throw new Error('Connection not found');
     }
     connection = foundConnection;
@@ -245,58 +275,65 @@ export async function getValidConnection(connectionId?: number): Promise<QuickBo
     connection = firstConnection; // Use most recently used
   }
 
-  // Test the connection
-  const testResponse = await fetch(
-    `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}`,
-    {
-      headers: {
-        'Authorization': `Bearer ${connection.access_token}`,
-        'Accept': 'application/json',
-      },
-    }
-  );
+  // Test the connection via server-side endpoint to avoid CORS
+  const testResponse = await fetch('/api/quickbooks/test-connection', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      realmId: connection.realm_id,
+      accessToken: connection.access_token
+    }),
+  });
 
-  if (testResponse.status === 401 || testResponse.status === 403) {
-    // Token expired, try to refresh it
-    try {
-      const refreshed = await refreshQuickBooksToken(connection.refresh_token);
-      
-      // Update the connection with new tokens
-      const supabase = getSupabaseClient();
-      const { error: updateError } = await supabase
-        .from('quickbooks_connections')
-        .update({
+  if (!testResponse.ok) {
+    const errorData = await testResponse.json();
+    if (testResponse.status === 401 || testResponse.status === 403) {
+      // Token expired, try to refresh it
+      try {
+        const refreshed = await refreshQuickBooksToken(connection.refresh_token);
+        
+        // Update the connection with new tokens
+        const supabase = getSupabaseClient();
+        const { error: updateError } = await supabase
+          .from('quickbooks_connections')
+          .update({
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', connection.id);
+          
+        if (updateError) {
+          throw new Error('Failed to update refreshed tokens');
+        }
+        
+        // Update connection usage
+        await updateConnectionUsage(connection.id);
+        
+        // Return the updated connection
+        return {
+          ...connection,
           access_token: refreshed.access_token,
           refresh_token: refreshed.refresh_token,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', connection.id);
-        
-      if (updateError) {
-        throw new Error('Failed to update refreshed tokens');
+        };
+      } catch (refreshError) {
+        // Refresh token has also expired, mark connection as inactive
+        const supabase = getSupabaseClient();
+        await supabase
+          .from('quickbooks_connections')
+          .update({ 
+            is_active: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', connection.id);
+          
+        throw new Error('TOKEN_EXPIRED_REFRESH_FAILED');
       }
-      
-      // Update connection usage
-      await updateConnectionUsage(connection.id);
-      
-      // Return the updated connection
-      return {
-        ...connection,
-        access_token: refreshed.access_token,
-        refresh_token: refreshed.refresh_token,
-      };
-    } catch (refreshError) {
-      // Refresh token has also expired, mark connection as inactive
-      const supabase = getSupabaseClient();
-      await supabase
-        .from('quickbooks_connections')
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', connection.id);
-        
-      throw new Error('TOKEN_EXPIRED_REFRESH_FAILED');
+    } else {
+      // Other error, throw it
+      throw new Error(`Connection test failed: ${errorData.error || 'Unknown error'}`);
     }
   }
 

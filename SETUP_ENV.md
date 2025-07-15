@@ -4,7 +4,8 @@
 
 ### Supabase (Required for shared connections)
 1. `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-2. `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+2. `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key (for client-side)
+3. `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (for server-side)
 
 ### QuickBooks (Required for OAuth)
 3. `QB_CLIENT_ID` - Your QuickBooks app client ID
@@ -49,6 +50,10 @@ CREATE TABLE quickbooks_connections (
 CREATE INDEX idx_quickbooks_connections_company ON quickbooks_connections(company_id);
 CREATE INDEX idx_quickbooks_connections_active ON quickbooks_connections(is_active);
 CREATE INDEX idx_quickbooks_connections_shared ON quickbooks_connections(is_shared);
+
+-- Note: RLS is intentionally disabled for MVP
+-- The app uses anonymous user IDs from localStorage, not authenticated Supabase users
+-- RLS will be enabled when proper user authentication is implemented
 ```
 
 ### 3. Set Environment Variables in Vercel
@@ -59,6 +64,7 @@ CREATE INDEX idx_quickbooks_connections_shared ON quickbooks_connections(is_shar
 | Variable Name | Value |
 |---------------|-------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key |
 | `QB_CLIENT_ID` | Your QuickBooks app client ID |
 | `QB_CLIENT_SECRET` | Your QuickBooks app client secret |
