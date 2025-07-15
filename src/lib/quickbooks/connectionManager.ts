@@ -231,24 +231,43 @@ export async function migrateTempConnectionsToRealUser(tempUserId: string, realU
   const companyId = getCompanyId();
   if (!tempUserId || !realUserId || tempUserId === realUserId) return;
   console.log('Migrating connections from temp user ID to real user ID:', { tempUserId, realUserId, companyId });
-  
   try {
-    // Since the real user already has a connection for this QuickBooks company,
-    // we can simply delete the temp connection to avoid conflicts
-    const { error: deleteError } = await supabase
+    // Find all temp connections for this temp user
+    const { data: tempConnections, error: fetchError } = await supabase
       .from('quickbooks_connections')
-      .delete()
+      .select('*')
       .eq('user_id', tempUserId)
       .eq('company_id', companyId);
-    
-    if (deleteError) {
-      console.error('Error deleting temp connections:', deleteError);
-      throw new Error('Failed to delete temp QuickBooks connections');
+    if (fetchError) throw fetchError;
+    if (!tempConnections || tempConnections.length === 0) return;
+
+    for (const tempConn of tempConnections) {
+      // Try to claim the connection for the real user
+      const { error: updateError } = await supabase
+        .from('quickbooks_connections')
+        .update({ user_id: realUserId })
+        .eq('id', tempConn.id);
+      if (updateError) {
+        // If duplicate key, delete the temp connection
+        if (updateError.code === '23505' || (updateError.message && updateError.message.includes('duplicate key'))) {
+          console.warn('Duplicate key when claiming connection, deleting temp connection:', tempConn.id);
+          const { error: deleteError } = await supabase
+            .from('quickbooks_connections')
+            .delete()
+            .eq('id', tempConn.id);
+          if (deleteError) {
+            console.error('Error deleting temp connection after conflict:', deleteError);
+            throw new Error('Failed to clean up temp QuickBooks connection');
+          }
+        } else {
+          console.error('Error claiming connection:', updateError);
+          throw new Error('Failed to claim QuickBooks connection');
+        }
+      }
     }
-    
-    console.log('Successfully deleted temp connections');
-  } catch (error) {
-    console.error('Error migrating temp connections:', error);
+    console.log('Temp QuickBooks connections migrated or cleaned up');
+  } catch (err) {
+    console.error('Error migrating temp connections:', err);
     throw new Error('Failed to migrate temp QuickBooks connections');
   }
 }
