@@ -16,9 +16,11 @@ export async function POST(request: NextRequest) {
     const message = body.message;
     const currentReports = body.currentReports;
     const timePeriod = body.timePeriod || '3months';
+    const stream = body.stream || false; // New parameter to enable streaming
     
     console.log('Message:', message);
     console.log('Time period:', timePeriod);
+    console.log('Streaming enabled:', stream);
     console.log('Current reports available:', Object.keys(currentReports || {}));
 
     if (!message) {
@@ -86,8 +88,63 @@ Please analyze these reports and answer the user's question. Provide clear, acti
 
     console.log('Generated prompt with raw data');
 
-    // Call OpenAI API with the raw data
-    console.log('Calling OpenAI...');
+    // If streaming is requested, return a streaming response
+    if (stream) {
+      console.log('Starting streaming response...');
+      
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            const completion = await openai.chat.completions.create({
+              model: "gpt-4-turbo-preview",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a helpful financial assistant that provides clear, accurate, and actionable insights about company finances. Analyze the provided QuickBooks reports and answer questions based on the actual financial data."
+                },
+                {
+                  role: "user",
+                  content: prompt
+                }
+              ],
+              temperature: 0.7,
+              max_tokens: 1000,
+              stream: true,
+            });
+
+            // Send session ID first
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ sessionId, type: 'session' })}\n\n`));
+
+            for await (const chunk of completion) {
+              const content = chunk.choices[0]?.delta?.content;
+              if (content) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content, type: 'chunk' })}\n\n`));
+              }
+            }
+
+            // Send end signal
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'end' })}\n\n`));
+            controller.close();
+          } catch (error) {
+            console.error('Error in streaming:', error);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Streaming error occurred', type: 'error' })}\n\n`));
+            controller.close();
+          }
+        }
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // Non-streaming response (fallback)
+    console.log('Calling OpenAI (non-streaming)...');
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [

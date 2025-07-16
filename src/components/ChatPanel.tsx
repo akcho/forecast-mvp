@@ -6,6 +6,7 @@ import { Title, Text, Button } from '@tremor/react';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  isStreaming?: boolean;
 }
 
 interface ChatPanelProps {
@@ -47,9 +48,28 @@ export default function ChatPanel({
       content: message,
     };
 
+    // Add user message first
     setMessages((prev) => [...prev, newMessage]);
     setInputValue('');
     onInputChange?.('');
+
+    // Add AI placeholder message and get its index
+    setMessages((prev) => {
+      const aiMessageIndex = prev.length;
+      // Store the index for later use
+      setTimeout(() => {
+        handleAIResponse(aiMessageIndex);
+      }, 0);
+      return [...prev, {
+        role: 'assistant',
+        content: '',
+        isStreaming: true
+      }];
+    });
+    
+    return; // Exit early, API call will be handled in setTimeout
+    
+    async function handleAIResponse(aiMessageIndex: number) {
 
     try {
       const response = await fetch('/api/chat', {
@@ -65,45 +85,142 @@ export default function ChatPanel({
           message: message,
           currentReports: currentReports,
           timePeriod: timePeriod,
+          stream: true, // Enable streaming
         }),
       });
 
-      const data = await response.json();
-
-      if (data.sessionId) {
-        setSessionId(data.sessionId);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      if (data.type === 'auth_required') {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            content: data.message,
-          },
-        ]);
-        setLoading(false);
-        return;
+      // Check if response is streaming
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('text/plain')) {
+        // Handle streaming response
+        await handleStreamingResponse(response, aiMessageIndex);
+      } else {
+        // Handle regular JSON response (fallback)
+        const data = await response.json();
+        handleRegularResponse(data, aiMessageIndex);
       }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.response,
-        },
-      ]);
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
-        },
-      ]);
+      console.error('Error sending message:', error);
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages[aiMessageIndex]) {
+          newMessages[aiMessageIndex] = {
+            role: 'assistant',
+            content: 'Sorry, I encountered an error. Please try again.',
+            isStreaming: false
+          };
+        }
+        return newMessages;
+      });
     } finally {
       setLoading(false);
     }
+    }
+  };
+
+  const handleStreamingResponse = async (response: Response, messageIndex: number) => {
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let sessionId: string | null = null;
+
+    if (!reader) {
+      throw new Error('No response body reader available');
+    }
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              switch (data.type) {
+                case 'session':
+                  sessionId = data.sessionId;
+                  if (sessionId) {
+                    setSessionId(sessionId);
+                  }
+                  break;
+                case 'chunk':
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    if (newMessages[messageIndex]) {
+                      newMessages[messageIndex] = {
+                        ...newMessages[messageIndex],
+                        content: newMessages[messageIndex].content + data.content,
+                        isStreaming: true
+                      };
+                    }
+                    return newMessages;
+                  });
+                  break;
+                case 'end':
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    if (newMessages[messageIndex]) {
+                      newMessages[messageIndex] = {
+                        ...newMessages[messageIndex],
+                        isStreaming: false
+                      };
+                    }
+                    return newMessages;
+                  });
+                  return;
+                case 'error':
+                  throw new Error(data.error || 'Streaming error');
+              }
+            } catch (parseError) {
+              console.error('Error parsing streaming data:', parseError);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  };
+
+  const handleRegularResponse = (data: any, messageIndex: number) => {
+    if (data.sessionId) {
+      setSessionId(data.sessionId);
+    }
+
+    if (data.type === 'auth_required') {
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages[messageIndex]) {
+          newMessages[messageIndex] = {
+            role: 'assistant',
+            content: data.message,
+            isStreaming: false
+          };
+        }
+        return newMessages;
+      });
+      return;
+    }
+
+    setMessages((prev) => {
+      const newMessages = [...prev];
+      if (newMessages[messageIndex]) {
+        newMessages[messageIndex] = {
+          role: 'assistant',
+          content: data.response,
+          isStreaming: false
+        };
+      }
+      return newMessages;
+    });
   };
 
   return (
@@ -120,11 +237,14 @@ export default function ChatPanel({
             <div
               className={`max-w-[80%] rounded-lg px-4 py-3 text-base font-normal whitespace-pre-wrap ${
                 message.role === 'user'
-                  ? 'bg-green-50 text-green-800 border border-green-100'
+                  ? 'bg-blue-50 text-blue-800 border border-blue-100'
                   : 'bg-gray-100 text-gray-800 border border-gray-200'
               }`}
             >
               {message.content}
+              {message.isStreaming && (
+                <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+              )}
             </div>
           </div>
         ))}
@@ -145,7 +265,7 @@ export default function ChatPanel({
             onInputChange?.(e.target.value);
           }}
           placeholder="Ask about your finances..."
-          className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 px-3 py-2 rounded focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 font-normal"
+          className="flex-1 bg-blue-50 border border-blue-200 text-gray-800 placeholder-blue-400 px-3 py-2 rounded focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 font-normal"
           disabled={loading}
         />
         <Button
