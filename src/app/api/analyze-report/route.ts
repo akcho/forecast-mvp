@@ -72,7 +72,7 @@ export async function POST(request: Request) {
           },
           { role: "user", content: prompt }
         ],
-        model: "gpt-4-turbo-preview",
+        model: "gpt-4o-mini",
         temperature: 0.1,
         max_tokens: 1000,
         response_format: { type: "json_object" }
@@ -110,7 +110,7 @@ Rules:
           },
           { role: "user", content: prompt }
         ],
-        model: "gpt-4-turbo-preview",
+        model: "gpt-4o-mini",
         temperature: 0.7,
         max_tokens: 500
       });

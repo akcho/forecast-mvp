@@ -56,7 +56,7 @@ export default function ChatPanel({
     // Add AI placeholder message and get its index
     setMessages((prev) => {
       const aiMessageIndex = prev.length;
-      // Store the index for later use
+      // Use setTimeout to ensure state update completes before API call
       setTimeout(() => {
         handleAIResponse(aiMessageIndex);
       }, 0);
@@ -119,7 +119,7 @@ export default function ChatPanel({
     } finally {
       setLoading(false);
     }
-    }
+  }
   };
 
   const handleStreamingResponse = async (response: Response, messageIndex: number) => {
@@ -224,8 +224,8 @@ export default function ChatPanel({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full min-h-0 max-h-full overflow-hidden">
+      <div className="h-full flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.length === 0 && (
           <Text className="text-gray-500 text-center">Ask a question about your financial data...</Text>
         )}
@@ -235,7 +235,7 @@ export default function ChatPanel({
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-3 text-base font-normal whitespace-pre-wrap ${
+              className={`max-w-[80%] rounded-lg px-4 py-3 text-base font-normal whitespace-pre-wrap break-words ${
                 message.role === 'user'
                   ? 'bg-blue-50 text-blue-800 border border-blue-100'
                   : 'bg-gray-100 text-gray-800 border border-gray-200'
@@ -255,7 +255,7 @@ export default function ChatPanel({
           e.preventDefault();
           sendMessage(inputValue);
         }}
-        className="flex border-t border-gray-200 p-4 bg-white"
+        className="flex-shrink-0 border-t border-gray-200 p-4 bg-white"
       >
         <input
           type="text"
@@ -278,4 +278,4 @@ export default function ChatPanel({
       </form>
     </div>
   );
-} 
+}

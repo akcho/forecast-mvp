@@ -205,136 +205,140 @@ function AnalysisContent() {
 
   // DESKTOP: Show full analysis view
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Financial Analysis</h1>
-          <Text className="text-gray-600">
-            Review your financial statements
-          </Text>
+    <div className="full-viewport flex flex-col">
+      <div className="p-8 flex-1 flex flex-col min-h-0">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">Financial Analysis</h1>
+            <Text className="text-gray-600">
+              Review your financial statements
+            </Text>
+          </div>
+          <div className="flex gap-4">
+            <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">
+              <SelectItem value="3months">Last 3 Months</SelectItem>
+              <SelectItem value="6months">Last 6 Months</SelectItem>
+              <SelectItem value="12months">Last 12 Months</SelectItem>
+            </Select>
+            <Button onClick={() => setAiPanelMinimized(!aiPanelMinimized)}>
+              {aiPanelMinimized ? 'Show AI' : 'Hide AI'}
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-4">
-          <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">
-            <SelectItem value="3months">Last 3 Months</SelectItem>
-            <SelectItem value="6months">Last 6 Months</SelectItem>
-            <SelectItem value="12months">Last 12 Months</SelectItem>
-          </Select>
-          <Button onClick={() => setAiPanelMinimized(!aiPanelMinimized)}>
-            {aiPanelMinimized ? 'Show AI' : 'Hide AI'}
-          </Button>
+        <div className="h-full flex flex-col min-h-0">
+          <TabGroup className="flex-1 flex flex-col min-h-0">
+            <TabList className="border-b-0 flex-shrink-0">
+              <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
+              <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
+              <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
+            </TabList>
+            <TabPanels className="flex-1 min-h-0">
+              <TabPanel className="h-full min-h-0">
+                <div className="grid grid-cols-3 gap-6 h-full min-h-0">
+                  <div className="col-span-2 h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                    {loading['profitLoss'] ? (
+                      <Text>Loading...</Text>
+                    ) : error['profitLoss'] ? (
+                      <Text color="red">{error['profitLoss']}</Text>
+                    ) : reports['profitLoss'] ? (
+                      <div className="h-full min-h-0 overflow-y-auto">
+                        <PnlTable report={reports['profitLoss']} />
+                      </div>
+                    ) : (
+                      <Text>No report data found.</Text>
+                    )}
+                  </div>
+                  {!aiPanelMinimized && (
+                    <div className="col-span-1 h-full flex flex-col min-h-0 border border-gray-200 rounded-lg shadow bg-white">
+                      <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
+                      <div className="flex-1 min-h-0 overflow-y-auto">
+                        <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                          <ChatPanel 
+                            currentReports={{
+                              profitLoss: reports['profitLoss'],
+                              balanceSheet: reports['balanceSheet'],
+                              cashFlow: reports['cashFlow']
+                            }}
+                            timePeriod={timePeriod}
+                          />
+                        </Suspense>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabPanel>
+              <TabPanel className="h-full min-h-0">
+                <div className="grid grid-cols-3 gap-6 h-full min-h-0">
+                  <div className="col-span-2 h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                    {loading['balanceSheet'] ? (
+                      <Text>Loading...</Text>
+                    ) : error['balanceSheet'] ? (
+                      <Text color="red">{error['balanceSheet']}</Text>
+                    ) : reports['balanceSheet'] ? (
+                      <div className="h-full min-h-0 overflow-y-auto">
+                        <PnlTable report={reports['balanceSheet']} />
+                      </div>
+                    ) : (
+                      <Text>No report data found.</Text>
+                    )}
+                  </div>
+                  {!aiPanelMinimized && (
+                    <div className="col-span-1 h-full flex flex-col min-h-0 border border-gray-200 rounded-lg shadow bg-white">
+                      <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
+                      <div className="flex-1 min-h-0 overflow-y-auto">
+                        <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                          <ChatPanel 
+                            currentReports={{
+                              profitLoss: reports['profitLoss'],
+                              balanceSheet: reports['balanceSheet'],
+                              cashFlow: reports['cashFlow']
+                            }}
+                            timePeriod={timePeriod}
+                          />
+                        </Suspense>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabPanel>
+              <TabPanel className="h-full min-h-0">
+                <div className="grid grid-cols-3 gap-6 h-full min-h-0">
+                  <div className="col-span-2 h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                    {loading['cashFlow'] ? (
+                      <Text>Loading...</Text>
+                    ) : error['cashFlow'] ? (
+                      <Text color="red">{error['cashFlow']}</Text>
+                    ) : reports['cashFlow'] ? (
+                      <div className="h-full min-h-0 overflow-y-auto">
+                        <PnlTable report={reports['cashFlow']} />
+                      </div>
+                    ) : (
+                      <Text>No report data found.</Text>
+                    )}
+                  </div>
+                  {!aiPanelMinimized && (
+                    <div className="col-span-1 h-full flex flex-col min-h-0 border border-gray-200 rounded-lg shadow bg-white">
+                      <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
+                      <div className="flex-1 min-h-0 overflow-y-auto">
+                        <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                          <ChatPanel 
+                            currentReports={{
+                              profitLoss: reports['profitLoss'],
+                              balanceSheet: reports['balanceSheet'],
+                              cashFlow: reports['cashFlow']
+                            }}
+                            timePeriod={timePeriod}
+                          />
+                        </Suspense>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
         </div>
       </div>
-      <TabGroup>
-        <TabList className="border-b-0">
-          <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
-          <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
-          <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
-                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
-                  {loading['profitLoss'] ? (
-                    <Text>Loading...</Text>
-                  ) : error['profitLoss'] ? (
-                    <Text color="red">{error['profitLoss']}</Text>
-                  ) : reports['profitLoss'] ? (
-                    <PnlTable report={reports['profitLoss']} />
-                  ) : (
-                    <Text>No report data found.</Text>
-                  )}
-                </div>
-              </Col>
-              {!aiPanelMinimized && (
-                <Col className="flex flex-col">
-                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
-                    <Title>AI Financial Analysis</Title>
-                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel 
-                        currentReports={{
-                          profitLoss: reports['profitLoss'],
-                          balanceSheet: reports['balanceSheet'],
-                          cashFlow: reports['cashFlow']
-                        }}
-                        timePeriod={timePeriod}
-                      />
-                    </Suspense>
-                  </Card>
-                </Col>
-              )}
-            </Grid>
-          </TabPanel>
-          <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
-                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
-                  {loading['balanceSheet'] ? (
-                    <Text>Loading...</Text>
-                  ) : error['balanceSheet'] ? (
-                    <Text color="red">{error['balanceSheet']}</Text>
-                  ) : reports['balanceSheet'] ? (
-                    <PnlTable report={reports['balanceSheet']} />
-                  ) : (
-                    <Text>No report data found.</Text>
-                  )}
-                </div>
-              </Col>
-              {!aiPanelMinimized && (
-                <Col className="flex flex-col">
-                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
-                    <Title>AI Financial Analysis</Title>
-                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel 
-                        currentReports={{
-                          profitLoss: reports['profitLoss'],
-                          balanceSheet: reports['balanceSheet'],
-                          cashFlow: reports['cashFlow']
-                        }}
-                        timePeriod={timePeriod}
-                      />
-                    </Suspense>
-                  </Card>
-                </Col>
-              )}
-            </Grid>
-          </TabPanel>
-          <TabPanel>
-            <Grid numItems={aiPanelMinimized ? 1 : 3} className="gap-6 items-stretch pb-4 border-none">
-              <Col numColSpan={aiPanelMinimized ? 1 : 2} className="flex flex-col">
-                <div className="flex-1 flex flex-col border border-gray-200 rounded-lg shadow bg-white">
-                  {loading['cashFlow'] ? (
-                    <Text>Loading...</Text>
-                  ) : error['cashFlow'] ? (
-                    <Text color="red">{error['cashFlow']}</Text>
-                  ) : reports['cashFlow'] ? (
-                    <PnlTable report={reports['cashFlow']} />
-                  ) : (
-                    <Text>No report data found.</Text>
-                  )}
-                </div>
-              </Col>
-              {!aiPanelMinimized && (
-                <Col className="flex flex-col">
-                  <Card className="h-full flex flex-col justify-start border border-gray-200 rounded-lg shadow bg-white">
-                    <Title>AI Financial Analysis</Title>
-                    <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                      <ChatPanel 
-                        currentReports={{
-                          profitLoss: reports['profitLoss'],
-                          balanceSheet: reports['balanceSheet'],
-                          cashFlow: reports['cashFlow']
-                        }}
-                        timePeriod={timePeriod}
-                      />
-                    </Suspense>
-                  </Card>
-                </Col>
-              )}
-            </Grid>
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
     </div>
   );
 }

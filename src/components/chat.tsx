@@ -205,8 +205,8 @@ export default function Chat({ initialInput = '', onInputChange }: ChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full max-h-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -215,7 +215,7 @@ export default function Chat({ initialInput = '', onInputChange }: ChatProps) {
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
+              className={`max-w-[80%] rounded-lg p-3 break-words ${
                 message.role === 'user'
                   ? 'bg-blue-500/10 text-blue-400'
                   : 'bg-black text-blue-400'
@@ -230,7 +230,7 @@ export default function Chat({ initialInput = '', onInputChange }: ChatProps) {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t border-green-500/20 p-4">
+      <div className="flex-shrink-0 border-t border-blue-500/20 p-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
