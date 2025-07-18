@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { getSessionId, setSessionId } from '@/lib/session';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { Title, Text, Button } from '@tremor/react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -290,13 +292,36 @@ export default function ChatPanel({
             }}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-3 text-base font-normal whitespace-pre-wrap break-words ${
+              className={`rounded-lg px-4 py-3 text-base font-normal ${
                 message.role === 'user'
-                  ? 'bg-blue-50 text-blue-800 border border-blue-100'
-                  : 'bg-gray-100 text-gray-800 border border-gray-200'
+                  ? 'max-w-[80%] bg-blue-50 text-blue-800 border border-blue-100'
+                  : 'w-full bg-white text-gray-800 border border-gray-200 shadow-sm'
               }`}
             >
-              <span className="message-text">{message.content}</span>
+              {message.role === 'user' ? (
+                <span className="whitespace-pre-wrap break-words">{message.content}</span>
+              ) : (
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 mb-3">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 mb-2">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-base font-bold text-gray-900 mb-2">{children}</h3>,
+                      p: ({children}) => <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>,
+                      ul: ({children}) => <ul className="list-disc list-outside mb-3 space-y-1 pl-5">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal list-outside mb-3 space-y-1 pl-5">{children}</ol>,
+                      li: ({children}) => <li className="text-gray-700 leading-relaxed mb-1">{children}</li>,
+                      strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                      em: ({children}) => <em className="italic text-gray-700">{children}</em>,
+                      code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                      blockquote: ({children}) => <blockquote className="border-l-4 border-blue-200 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              )}
               {message.isStreaming && (
                 <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
               )}
