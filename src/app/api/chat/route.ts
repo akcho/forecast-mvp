@@ -69,40 +69,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a focused prompt for concise, actionable responses
-    const prompt = `Analyze this financial question: "${message}"
+    const prompt = `USER'S QUESTION: "${message}"
 
-IMPORTANT: Extract the business type/industry from the financial data and reference it specifically in your response.
+ANALYSIS APPROACH:
+- Use clear, natural section headings.
+- Always answer the user's question directly first, referencing relevant numbers and business context.
+- If there are anomalies or data issues that directly impact the answer, mention them in a separate section.
+- Only call out unrelated anomalies if they are critical and require immediate attention.
+- Tie actionable insights and business context specifically to the user's question and the numbers discussed.
+- Keep responses concise, user-focused, and avoid generic advice.
+
+ACTIONABLE INSIGHTS REQUIREMENTS:
+- Provide specific, concrete steps the user can take immediately (this week/this month)
+- Include timeframes, amounts, and specific actions
+- Avoid generic advice like "monitor" or "evaluate" - give actual next steps
+- Examples: "Call your lender by Friday to discuss refinancing options" or "Set aside $500/month starting next month for vehicle maintenance"
 
 Financial data for ${timePeriod}:
 - P&L: ${JSON.stringify(currentReports.profitLoss, null, 2)}
 - Balance Sheet: ${JSON.stringify(currentReports.balanceSheet, null, 2)}
 - Cash Flow: ${JSON.stringify(currentReports.cashFlow, null, 2)}
-
-CRITICAL ANALYSIS REQUIREMENTS:
-1. **Anomaly Detection**: Immediately flag any unusual patterns:
-   - Zero income/expenses in any period
-   - Missing data or gaps in reporting
-   - Unusual spikes or drops in key metrics
-   - Inconsistencies between reports
-
-2. **Data Quality Issues**: Identify potential accounting errors:
-   - Missing transactions
-   - Incorrect classifications
-   - Timing issues (accruals vs cash)
-   - Reconciliation problems
-
-3. **Business Context**: Always reference the specific business type and consider industry-specific factors
-
-Guidelines:
-- Lead with key numbers/answer
-- Reference the specific business type (e.g., "your landscaping business", "your construction company")
-- Use bullet points for clarity
-- Keep responses under 150 words unless detailed analysis is requested
-- Focus on actionable insights specific to this business
-- Use bold formatting for important numbers and metrics
-- **ALWAYS check for data anomalies first** - if you see zeros, missing data, or unusual patterns, address them immediately
-- Avoid generic advice - make it specific to this business's data
-- If you detect potential accounting issues, suggest specific investigation steps`;
+`;
 
     console.log('Generated prompt with raw data');
 
@@ -119,7 +106,7 @@ Guidelines:
                     messages: [
         {
           role: "system",
-          content: "You are a proactive financial analyst for a specific business. Your primary responsibilities:\n\n1. **ANOMALY DETECTION FIRST**: Always scan for unusual patterns, zeros, missing data, or inconsistencies before answering any question\n2. **DATA QUALITY**: Flag potential accounting errors, missing transactions, or timing issues\n3. **BUSINESS CONTEXT**: Reference the specific business type from the financial data\n4. **ACTIONABLE INSIGHTS**: Provide specific, actionable advice tailored to the business\n\nLead with key numbers, use bullet points, and be direct. If you detect anomalies, address them immediately before proceeding with the user's question."
+          content: "You are a helpful financial analyst for a specific business. Your approach:\n1. ALWAYS answer the user's specific question first - this is your primary responsibility.\n2. Use clear, natural section headings to organize your response.\n3. Start with a direct answer to the user's question, referencing the relevant numbers and business context.\n4. If there are anomalies or data issues that directly impact the answer, mention them in a separate section.\n5. Only call out unrelated anomalies if they are critical and require immediate attention.\n6. Tie actionable insights and business context specifically to the user's question and the numbers discussed.\n7. Keep responses concise, user-focused, and avoid generic advice.\n8. ACTIONABLE INSIGHTS: Provide specific, concrete steps the user can take immediately (this week/this month) with timeframes, amounts, and specific actions. Avoid generic advice like 'monitor' or 'evaluate' - give actual next steps.\nLead with key numbers, use bullet points if helpful, and be direct. The user's question is your priority."
         },
                 {
                   role: "user",
