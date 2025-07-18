@@ -68,23 +68,24 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create a simple prompt with just the user's question and the raw report data
-    const prompt = `You are a financial advisor analyzing QuickBooks financial reports. 
+    // Create a focused prompt for concise, actionable responses
+    const prompt = `Answer this financial question directly and concisely: "${message}"
 
-The user is asking: "${message}"
+IMPORTANT: Extract the business type/industry from the financial data and reference it specifically in your response.
 
-Here are the financial reports for the ${timePeriod} period:
+Financial data for ${timePeriod}:
+- P&L: ${JSON.stringify(currentReports.profitLoss, null, 2)}
+- Balance Sheet: ${JSON.stringify(currentReports.balanceSheet, null, 2)}
+- Cash Flow: ${JSON.stringify(currentReports.cashFlow, null, 2)}
 
-Profit & Loss Statement:
-${JSON.stringify(currentReports.profitLoss, null, 2)}
-
-Balance Sheet:
-${JSON.stringify(currentReports.balanceSheet, null, 2)}
-
-Cash Flow Statement:
-${JSON.stringify(currentReports.cashFlow, null, 2)}
-
-Please analyze these reports and answer the user's question. Provide clear, actionable insights based on the actual financial data.`;
+Guidelines:
+- Lead with the key numbers/answer
+- Reference the specific business type (e.g., "your landscaping business", "your construction company")
+- Use bullet points for clarity
+- Keep responses under 150 words unless detailed analysis is requested
+- Focus on actionable insights specific to this business
+- Use bold formatting for important numbers and metrics
+- Avoid generic advice - make it specific to this business's data`;
 
     console.log('Generated prompt with raw data');
 
@@ -101,7 +102,7 @@ Please analyze these reports and answer the user's question. Provide clear, acti
               messages: [
                 {
                   role: "system",
-                  content: "You are a helpful financial assistant that provides clear, accurate, and actionable insights about company finances. Analyze the provided QuickBooks reports and answer questions based on the actual financial data."
+                  content: "You are a direct, no-nonsense financial advisor for a specific business. Always reference the business type from the financial data (e.g., 'your landscaping business', 'your construction company'). Give concise, actionable answers specific to that business. Lead with numbers, use bullet points, and avoid generic advice."
                 },
                 {
                   role: "user",
@@ -150,7 +151,7 @@ Please analyze these reports and answer the user's question. Provide clear, acti
       messages: [
         {
           role: "system",
-          content: "You are a helpful financial assistant that provides clear, accurate, and actionable insights about company finances. Analyze the provided QuickBooks reports and answer questions based on the actual financial data."
+          content: "You are a direct, no-nonsense financial advisor for a specific business. Always reference the business type from the financial data (e.g., 'your landscaping business', 'your construction company'). Give concise, actionable answers specific to that business. Lead with numbers, use bullet points, and avoid generic advice."
         },
         {
           role: "user",

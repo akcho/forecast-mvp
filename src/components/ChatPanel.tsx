@@ -335,7 +335,7 @@ export default function ChatPanel({
           e.preventDefault();
           sendMessage(inputValue);
         }}
-        className="flex-shrink-0 border-t border-gray-200 p-4 bg-white"
+        className="flex-shrink-0 border-t border-gray-200 p-4 bg-white flex gap-2"
       >
         <input
           type="text"
@@ -345,12 +345,12 @@ export default function ChatPanel({
             onInputChange?.(e.target.value);
           }}
           placeholder="Ask about your finances..."
-          className="flex-1 bg-blue-50 border border-blue-200 text-gray-800 placeholder-blue-400 px-3 py-2 rounded focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 font-normal"
+          className="flex-1 bg-white border border-gray-300 text-gray-800 placeholder-gray-500 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 font-normal"
           disabled={loading}
         />
         <Button
           type="submit"
-          className="ml-2"
+          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
           disabled={loading || !inputValue.trim()}
         >
           {loading ? 'Sending...' : 'Send'}
