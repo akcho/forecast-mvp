@@ -4,7 +4,7 @@ import { quickBooksStore } from '@/lib/quickbooks/store';
 import { Title, Text, Button } from '@tremor/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -21,15 +21,13 @@ interface ChatPanelProps {
     cashFlow?: any;
   };
   timePeriod?: string;
-  loadingStates?: { [key: string]: boolean };
 }
 
 export default function ChatPanel({ 
   initialInput = '', 
   onInputChange,
   currentReports,
-  timePeriod = '3months',
-  loadingStates
+  timePeriod = '3months'
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialInput);
@@ -285,15 +283,11 @@ export default function ChatPanel({
       {/* Check if financial data is available */}
       {(!currentReports || !currentReports.profitLoss || !currentReports.balanceSheet || !currentReports.cashFlow) ? (
         <div className="flex-1 flex items-center justify-center">
-          {loadingStates ? (
-            <FinancialDataLoading loadingStates={loadingStates} className="p-4" />
-          ) : (
-            <LoadingState 
-              type="ai" 
-              message="Waiting for financial data to load..." 
-              className="p-4"
-            />
-          )}
+          <LoadingState 
+            type="ai" 
+            message="Waiting for financial data..." 
+            className="p-4"
+          />
         </div>
       ) : (
         <>
