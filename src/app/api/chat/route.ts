@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a focused prompt for concise, actionable responses
-    const prompt = `Answer this financial question directly and concisely: "${message}"
+    const prompt = `Analyze this financial question: "${message}"
 
 IMPORTANT: Extract the business type/industry from the financial data and reference it specifically in your response.
 
@@ -78,14 +78,31 @@ Financial data for ${timePeriod}:
 - Balance Sheet: ${JSON.stringify(currentReports.balanceSheet, null, 2)}
 - Cash Flow: ${JSON.stringify(currentReports.cashFlow, null, 2)}
 
+CRITICAL ANALYSIS REQUIREMENTS:
+1. **Anomaly Detection**: Immediately flag any unusual patterns:
+   - Zero income/expenses in any period
+   - Missing data or gaps in reporting
+   - Unusual spikes or drops in key metrics
+   - Inconsistencies between reports
+
+2. **Data Quality Issues**: Identify potential accounting errors:
+   - Missing transactions
+   - Incorrect classifications
+   - Timing issues (accruals vs cash)
+   - Reconciliation problems
+
+3. **Business Context**: Always reference the specific business type and consider industry-specific factors
+
 Guidelines:
-- Lead with the key numbers/answer
+- Lead with key numbers/answer
 - Reference the specific business type (e.g., "your landscaping business", "your construction company")
 - Use bullet points for clarity
 - Keep responses under 150 words unless detailed analysis is requested
 - Focus on actionable insights specific to this business
 - Use bold formatting for important numbers and metrics
-- Avoid generic advice - make it specific to this business's data`;
+- **ALWAYS check for data anomalies first** - if you see zeros, missing data, or unusual patterns, address them immediately
+- Avoid generic advice - make it specific to this business's data
+- If you detect potential accounting issues, suggest specific investigation steps`;
 
     console.log('Generated prompt with raw data');
 
@@ -99,11 +116,11 @@ Guidelines:
           try {
             const completion = await openai.chat.completions.create({
               model: "gpt-4o-mini",
-              messages: [
-                {
-                  role: "system",
-                  content: "You are a direct, no-nonsense financial advisor for a specific business. Always reference the business type from the financial data (e.g., 'your landscaping business', 'your construction company'). Give concise, actionable answers specific to that business. Lead with numbers, use bullet points, and avoid generic advice."
-                },
+                    messages: [
+        {
+          role: "system",
+          content: "You are a proactive financial analyst for a specific business. Your primary responsibilities:\n\n1. **ANOMALY DETECTION FIRST**: Always scan for unusual patterns, zeros, missing data, or inconsistencies before answering any question\n2. **DATA QUALITY**: Flag potential accounting errors, missing transactions, or timing issues\n3. **BUSINESS CONTEXT**: Reference the specific business type from the financial data\n4. **ACTIONABLE INSIGHTS**: Provide specific, actionable advice tailored to the business\n\nLead with key numbers, use bullet points, and be direct. If you detect anomalies, address them immediately before proceeding with the user's question."
+        },
                 {
                   role: "user",
                   content: prompt
@@ -151,7 +168,7 @@ Guidelines:
       messages: [
         {
           role: "system",
-          content: "You are a direct, no-nonsense financial advisor for a specific business. Always reference the business type from the financial data (e.g., 'your landscaping business', 'your construction company'). Give concise, actionable answers specific to that business. Lead with numbers, use bullet points, and avoid generic advice."
+          content: "You are a proactive financial analyst for a specific business. Your primary responsibilities:\n\n1. **ANOMALY DETECTION FIRST**: Always scan for unusual patterns, zeros, missing data, or inconsistencies before answering any question\n2. **DATA QUALITY**: Flag potential accounting errors, missing transactions, or timing issues\n3. **BUSINESS CONTEXT**: Reference the specific business type from the financial data\n4. **ACTIONABLE INSIGHTS**: Provide specific, actionable advice tailored to the business\n\nLead with key numbers, use bullet points, and be direct. If you detect anomalies, address them immediately before proceeding with the user's question."
         },
         {
           role: "user",
