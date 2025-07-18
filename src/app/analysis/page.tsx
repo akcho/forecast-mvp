@@ -32,13 +32,14 @@ function AnalysisContent() {
   const [reports, setReports] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ [key: string]: string | null }>({});
-  const [isConnected, setIsConnected] = useState(false);
   const searchParams = useSearchParams();
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionChecked, setConnectionChecked] = useState(false);
   const isMobile = useIsMobile();
   const migrationAttempted = useRef(false);
 
   useEffect(() => {
-    // This effect handles the initial connection check and OAuth redirect
+    // Check connection status on client side only
     const status = searchParams.get('quickbooks');
     const connectionId = searchParams.get('connection_id');
     const realmId = searchParams.get('realm_id');
@@ -47,14 +48,13 @@ function AnalysisContent() {
 
     console.log('Analysis page URL params:', { status, connectionId, realmId, hasAccessToken: !!accessToken });
 
+    // Check if already connected via stored tokens
     if (quickBooksStore.getAccessToken()) {
       console.log('Already connected to QuickBooks');
       setIsConnected(true);
     } else if (status === 'connected' && connectionId) {
       console.log('Successfully connected to QuickBooks with connection ID:', connectionId);
-      // Handle new connection system
       setIsConnected(true);
-      // The connection will be used by the financial data fetching
     } else if (status === 'connected' && accessToken && refreshToken) {
       console.log('Successfully connected to QuickBooks with tokens (legacy)...');
       quickBooksStore.setTokens(accessToken, refreshToken);
@@ -62,10 +62,9 @@ function AnalysisContent() {
         quickBooksStore.setRealmId(realmId);
       }
       setIsConnected(true);
-    } else {
-      console.log('Not connected to QuickBooks');
-      setIsConnected(false);
     }
+    
+    setConnectionChecked(true);
   }, [searchParams]);
 
   useEffect(() => {
@@ -168,6 +167,15 @@ function AnalysisContent() {
   useEffect(() => {
     console.log('State changed - isConnected:', isConnected, 'activeStatement:', activeStatement);
   }, [isConnected, activeStatement]);
+
+  // Show loading state while checking connection
+  if (!connectionChecked) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+        <LoadingState type="general" />
+      </div>
+    );
+  }
 
   if (!isConnected) {
     console.log('Not connected, showing connection manager. isConnected:', isConnected);
