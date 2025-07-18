@@ -4,6 +4,7 @@ import { quickBooksStore } from '@/lib/quickbooks/store';
 import { Title, Text, Button } from '@tremor/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -20,13 +21,15 @@ interface ChatPanelProps {
     cashFlow?: any;
   };
   timePeriod?: string;
+  loadingStates?: { [key: string]: boolean };
 }
 
 export default function ChatPanel({ 
   initialInput = '', 
   onInputChange,
   currentReports,
-  timePeriod = '3months'
+  timePeriod = '3months',
+  loadingStates
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialInput);
@@ -279,83 +282,96 @@ export default function ChatPanel({
 
   return (
     <div className="flex flex-col h-full min-h-0 max-h-full overflow-hidden">
-      <div className="h-full flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-        {messages.length === 0 && (
-          <Text className="text-gray-500 text-center">Ask a question about your financial data...</Text>
-        )}
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            ref={(el) => {
-              messageRefs.current[index] = el;
-            }}
-          >
-            <div
-              className={`rounded-lg px-4 py-3 text-base font-normal ${
-                message.role === 'user'
-                  ? 'max-w-[80%] bg-blue-50 text-blue-800 border border-blue-100'
-                  : 'w-full bg-white text-gray-800 border border-gray-200 shadow-sm'
-              }`}
-            >
-              {message.role === 'user' ? (
-                <span className="whitespace-pre-wrap break-words">{message.content}</span>
-              ) : (
-                <div className="prose prose-sm max-w-none">
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 mb-3">{children}</h1>,
-                      h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 mb-2">{children}</h2>,
-                      h3: ({children}) => <h3 className="text-base font-bold text-gray-900 mb-2">{children}</h3>,
-                      p: ({children}) => <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>,
-                      ul: ({children}) => <ul className="list-disc list-outside mb-3 space-y-1 pl-5">{children}</ul>,
-                      ol: ({children}) => <ol className="list-decimal list-outside mb-3 space-y-1 pl-5">{children}</ol>,
-                      li: ({children}) => <li className="text-gray-700 leading-relaxed mb-1">{children}</li>,
-                      strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                      em: ({children}) => <em className="italic text-gray-700">{children}</em>,
-                      code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
-                      blockquote: ({children}) => <blockquote className="border-l-4 border-blue-200 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+      {/* Check if financial data is available */}
+      {(!currentReports || !currentReports.profitLoss || !currentReports.balanceSheet || !currentReports.cashFlow) ? (
+        <div className="flex-1 flex items-center justify-center">
+          <LoadingState 
+            type="ai" 
+            message="Waiting for financial data to load..." 
+            className="p-4"
+          />
+        </div>
+      ) : (
+        <>
+          <div className="h-full flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+            {messages.length === 0 && (
+              <Text className="text-gray-500 text-center">Ask a question about your financial data...</Text>
+            )}
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                ref={(el) => {
+                  messageRefs.current[index] = el;
+                }}
+              >
+                <div
+                  className={`rounded-lg px-4 py-3 text-base font-normal ${
+                    message.role === 'user'
+                      ? 'max-w-[80%] bg-blue-50 text-blue-800 border border-blue-100'
+                      : 'w-full bg-white text-gray-800 border border-gray-200 shadow-sm'
+                  }`}
+                >
+                  {message.role === 'user' ? (
+                    <span className="whitespace-pre-wrap break-words">{message.content}</span>
+                  ) : (
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 mb-3">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 mb-2">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-bold text-gray-900 mb-2">{children}</h3>,
+                          p: ({children}) => <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>,
+                          ul: ({children}) => <ul className="list-disc list-outside mb-3 space-y-1 pl-5">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal list-outside mb-3 space-y-1 pl-5">{children}</ol>,
+                          li: ({children}) => <li className="text-gray-700 leading-relaxed mb-1">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                          em: ({children}) => <em className="italic text-gray-700">{children}</em>,
+                          code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-blue-200 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                  {message.isStreaming && (
+                    <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                  )}
                 </div>
-              )}
-              {message.isStreaming && (
-                <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
-              )}
-            </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage(inputValue);
-        }}
-        className="flex-shrink-0 border-t border-gray-200 p-4 bg-white flex gap-2"
-      >
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            onInputChange?.(e.target.value);
-          }}
-          placeholder="Ask about your finances..."
-          className="flex-1 bg-white border border-gray-300 text-gray-800 placeholder-gray-500 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 font-normal"
-          disabled={loading}
-        />
-        <Button
-          type="submit"
-          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
-          disabled={loading || !inputValue.trim()}
-        >
-          {loading ? 'Sending...' : 'Send'}
-        </Button>
-      </form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage(inputValue);
+            }}
+            className="flex-shrink-0 border-t border-gray-200 p-4 bg-white flex gap-2"
+          >
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+                onInputChange?.(e.target.value);
+              }}
+              placeholder="Ask about your finances..."
+              className="flex-1 bg-white border border-gray-300 text-gray-800 placeholder-gray-500 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 font-normal"
+              disabled={loading}
+            />
+            <Button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+              disabled={loading || !inputValue.trim()}
+            >
+              {loading ? 'Sending...' : 'Send'}
+            </Button>
+          </form>
+        </>
+      )}
     </div>
   );
 }
