@@ -226,80 +226,84 @@ function AnalysisContent() {
           </div>
         </div>
         <div className="h-full flex flex-col min-h-0">
-          <div className="grid grid-cols-3 gap-6 h-full min-h-0">
-            <div className="col-span-2 h-full min-h-0">
-              <TabGroup className="h-full flex flex-col min-h-0">
-                <TabList className="border-b-0 flex-shrink-0">
-                  <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
-                  <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
-                  <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
-                </TabList>
-                <TabPanels className="flex-1 min-h-0">
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
-                      {loading['profitLoss'] ? (
-                        <Text>Loading...</Text>
-                      ) : error['profitLoss'] ? (
-                        <Text color="red">{error['profitLoss']}</Text>
-                      ) : reports['profitLoss'] ? (
-                        <div className="h-full min-h-0 overflow-y-auto">
-                          <PnlTable report={reports['profitLoss']} />
-                        </div>
-                      ) : (
-                        <Text>No report data found.</Text>
-                      )}
-                    </div>
-                  </TabPanel>
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
-                      {loading['balanceSheet'] ? (
-                        <Text>Loading...</Text>
-                      ) : error['balanceSheet'] ? (
-                        <Text color="red">{error['balanceSheet']}</Text>
-                      ) : reports['balanceSheet'] ? (
-                        <div className="h-full min-h-0 overflow-y-auto">
-                          <PnlTable report={reports['balanceSheet']} />
-                        </div>
-                      ) : (
-                        <Text>No report data found.</Text>
-                      )}
-                    </div>
-                  </TabPanel>
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
-                      {loading['cashFlow'] ? (
-                        <Text>Loading...</Text>
-                      ) : error['cashFlow'] ? (
-                        <Text color="red">{error['cashFlow']}</Text>
-                      ) : reports['cashFlow'] ? (
-                        <div className="h-full min-h-0 overflow-y-auto">
-                          <PnlTable report={reports['cashFlow']} />
-                        </div>
-                      ) : (
-                        <Text>No report data found.</Text>
-                      )}
-                    </div>
-                  </TabPanel>
-                </TabPanels>
-              </TabGroup>
-            </div>
-            {!aiPanelMinimized && (
-              <div className="col-span-1 h-full flex flex-col min-h-0 border border-gray-200 rounded-lg shadow bg-white">
-                <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                  <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
-                    <ChatPanel 
-                      currentReports={{
-                        profitLoss: reports['profitLoss'],
-                        balanceSheet: reports['balanceSheet'],
-                        cashFlow: reports['cashFlow']
-                      }}
-                      timePeriod={timePeriod}
-                    />
-                  </Suspense>
+          <div className="h-full flex flex-col min-h-0">
+            <TabGroup className="flex-1 flex flex-col min-h-0">
+              <TabList className="border-b-0 flex-shrink-0 mb-4">
+                <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
+                <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
+                <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
+              </TabList>
+              <div className="grid grid-cols-3 gap-6 flex-1 min-h-0">
+                <div className="col-span-2 h-full min-h-0">
+                  <TabPanels className="h-full min-h-0 [&_.tremor-TabPanel-root]:mt-0">
+                    <TabPanel className="h-full min-h-0">
+                      <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                        {loading['profitLoss'] ? (
+                          <Text>Loading...</Text>
+                        ) : error['profitLoss'] ? (
+                          <Text color="red">{error['profitLoss']}</Text>
+                        ) : reports['profitLoss'] ? (
+                          <div className="h-full min-h-0 overflow-y-auto">
+                            <PnlTable report={reports['profitLoss']} />
+                          </div>
+                        ) : (
+                          <Text>No report data found.</Text>
+                        )}
+                      </div>
+                    </TabPanel>
+                    <TabPanel className="h-full min-h-0">
+                      <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                        {loading['balanceSheet'] ? (
+                          <Text>Loading...</Text>
+                        ) : error['balanceSheet'] ? (
+                          <Text color="red">{error['balanceSheet']}</Text>
+                        ) : reports['balanceSheet'] ? (
+                          <div className="h-full min-h-0 overflow-y-auto">
+                            <PnlTable report={reports['balanceSheet']} />
+                          </div>
+                        ) : (
+                          <Text>No report data found.</Text>
+                        )}
+                      </div>
+                    </TabPanel>
+                    <TabPanel className="h-full min-h-0">
+                      <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                        {loading['cashFlow'] ? (
+                          <Text>Loading...</Text>
+                        ) : error['cashFlow'] ? (
+                          <Text color="red">{error['cashFlow']}</Text>
+                        ) : reports['cashFlow'] ? (
+                          <div className="h-full min-h-0 overflow-y-auto">
+                            <PnlTable report={reports['cashFlow']} />
+                          </div>
+                        ) : (
+                          <Text>No report data found.</Text>
+                        )}
+                      </div>
+                    </TabPanel>
+                  </TabPanels>
                 </div>
+                {!aiPanelMinimized && (
+                  <div className="col-span-1 h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
+                    <div className="h-full min-h-0 flex flex-col">
+                      <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
+                      <div className="flex-1 min-h-0 overflow-y-auto">
+                        <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                          <ChatPanel 
+                            currentReports={{
+                              profitLoss: reports['profitLoss'],
+                              balanceSheet: reports['balanceSheet'],
+                              cashFlow: reports['cashFlow']
+                            }}
+                            timePeriod={timePeriod}
+                          />
+                        </Suspense>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </TabGroup>
           </div>
         </div>
       </div>
