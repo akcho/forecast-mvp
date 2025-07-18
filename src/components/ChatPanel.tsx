@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { getSessionId, setSessionId } from '@/lib/session';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { Title, Text, Button } from '@tremor/react';
@@ -30,6 +30,55 @@ export default function ChatPanel({
   const [inputValue, setInputValue] = useState(initialInput);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const streamingContentRef = useRef<string>(''); // Track streaming content
+  const messageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const updateTimeoutRef = useRef<number | null>(null);
+  const isProcessingRef = useRef<boolean>(false); // Prevent multiple API calls
+  
+  // Debounced streaming update to prevent stuttering
+  const updateStreamingContent = useCallback((messageIndex: number, content: string) => {
+    // Update the ref immediately
+    streamingContentRef.current = content;
+    
+    // Use requestAnimationFrame to batch updates and prevent stuttering
+    if (!updateTimeoutRef.current) {
+      updateTimeoutRef.current = requestAnimationFrame(() => {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (newMessages[messageIndex]) {
+            newMessages[messageIndex] = {
+              ...newMessages[messageIndex],
+              content: streamingContentRef.current,
+              isStreaming: true
+            };
+          }
+          return newMessages;
+        });
+        updateTimeoutRef.current = null;
+      });
+    }
+  }, []);
+  
+  // Final update when streaming ends
+  const finalizeMessage = useCallback((messageIndex: number, content: string) => {
+    // Cancel any pending animation frame
+    if (updateTimeoutRef.current) {
+      cancelAnimationFrame(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+    
+    setMessages((prev) => {
+      const newMessages = [...prev];
+      if (newMessages[messageIndex]) {
+        newMessages[messageIndex] = {
+          ...newMessages[messageIndex],
+          content,
+          isStreaming: false
+        };
+      }
+      return newMessages;
+    });
+  }, []);
 
   useEffect(() => {
     setInputValue(initialInput);
@@ -40,7 +89,11 @@ export default function ChatPanel({
   }, [messages]);
 
   const sendMessage = async (message: string) => {
-    if (!message.trim()) return;
+    if (!message.trim() || isProcessingRef.current) {
+      return;
+    }
+    
+    isProcessingRef.current = true;
     setLoading(true);
 
     const newMessage: Message = {
@@ -54,78 +107,79 @@ export default function ChatPanel({
     onInputChange?.('');
 
     // Add AI placeholder message and get its index
+    let aiMessageIndex: number;
     setMessages((prev) => {
-      const aiMessageIndex = prev.length;
-      // Use setTimeout to ensure state update completes before API call
-      setTimeout(() => {
-        handleAIResponse(aiMessageIndex);
-      }, 0);
+      aiMessageIndex = prev.length;
       return [...prev, {
         role: 'assistant',
         content: '',
         isStreaming: true
       }];
     });
-    
-    return; // Exit early, API call will be handled in setTimeout
-    
-    async function handleAIResponse(aiMessageIndex: number) {
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-ID': getSessionId() || '',
-          'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
-          'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
-          'X-QB-Refresh-Token': quickBooksStore.getRefreshToken() || '',
-        },
-        body: JSON.stringify({
-          message: message,
-          currentReports: currentReports,
-          timePeriod: timePeriod,
-          stream: true, // Enable streaming
-        }),
-      });
+    // Make API call after state update using requestAnimationFrame to ensure state is committed
+    requestAnimationFrame(async () => {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-ID': getSessionId() || '',
+            'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
+            'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
+            'X-QB-Refresh-Token': quickBooksStore.getRefreshToken() || '',
+          },
+          body: JSON.stringify({
+            message: message,
+            currentReports: currentReports,
+            timePeriod: timePeriod,
+            stream: true, // Re-enable streaming
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      // Check if response is streaming
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('text/plain')) {
-        // Handle streaming response
-        await handleStreamingResponse(response, aiMessageIndex);
-      } else {
-        // Handle regular JSON response (fallback)
-        const data = await response.json();
-        handleRegularResponse(data, aiMessageIndex);
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        if (newMessages[aiMessageIndex]) {
-          newMessages[aiMessageIndex] = {
-            role: 'assistant',
-            content: 'Sorry, I encountered an error. Please try again.',
-            isStreaming: false
-          };
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return newMessages;
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
+
+        // Check if response is streaming
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/plain')) {
+          // Handle streaming response
+          await handleStreamingResponse(response, aiMessageIndex);
+        } else {
+          // Handle regular JSON response (fallback)
+          const data = await response.json();
+          handleRegularResponse(data, aiMessageIndex);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (newMessages[aiMessageIndex]) {
+            newMessages[aiMessageIndex] = {
+              role: 'assistant',
+              content: 'Sorry, I encountered an error. Please try again.',
+              isStreaming: false
+            };
+          }
+          return newMessages;
+        });
+      } finally {
+        setLoading(false);
+        isProcessingRef.current = false;
+      }
+    });
   };
 
   const handleStreamingResponse = async (response: Response, messageIndex: number) => {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let sessionId: string | null = null;
+    let buffer = '';
+    let accumulatedContent = '';
+    
+    // Reset the streaming content ref for this new response
+    streamingContentRef.current = '';
 
     if (!reader) {
       throw new Error('No response body reader available');
@@ -134,15 +188,27 @@ export default function ChatPanel({
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          break;
+        }
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+        
+        // Process complete lines - proper SSE parsing
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
         for (const line of lines) {
+          if (line.trim() === '') continue;
+          
+          // Proper SSE parsing - strip data: prefix
           if (line.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.slice(6));
+              const message = line.replace(/^data: /, "");
+              if (message.trim() === '') continue;
+              
+              const data = JSON.parse(message);
               
               switch (data.type) {
                 case 'session':
@@ -152,35 +218,21 @@ export default function ChatPanel({
                   }
                   break;
                 case 'chunk':
-                  setMessages((prev) => {
-                    const newMessages = [...prev];
-                    if (newMessages[messageIndex]) {
-                      newMessages[messageIndex] = {
-                        ...newMessages[messageIndex],
-                        content: newMessages[messageIndex].content + data.content,
-                        isStreaming: true
-                      };
-                    }
-                    return newMessages;
-                  });
+                  // Direct accumulation - no queue needed since we're processing in order
+                  accumulatedContent += data.content;
+                  streamingContentRef.current = accumulatedContent;
+                  
+                  // Use efficient streaming update to prevent flashing
+                  updateStreamingContent(messageIndex, accumulatedContent);
                   break;
                 case 'end':
-                  setMessages((prev) => {
-                    const newMessages = [...prev];
-                    if (newMessages[messageIndex]) {
-                      newMessages[messageIndex] = {
-                        ...newMessages[messageIndex],
-                        isStreaming: false
-                      };
-                    }
-                    return newMessages;
-                  });
+                  finalizeMessage(messageIndex, accumulatedContent);
                   return;
                 case 'error':
                   throw new Error(data.error || 'Streaming error');
               }
             } catch (parseError) {
-              console.error('Error parsing streaming data:', parseError);
+              console.error('Error parsing streaming data:', parseError, 'Line:', line);
             }
           }
         }
@@ -233,6 +285,9 @@ export default function ChatPanel({
           <div
             key={index}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            ref={(el) => {
+              messageRefs.current[index] = el;
+            }}
           >
             <div
               className={`max-w-[80%] rounded-lg px-4 py-3 text-base font-normal whitespace-pre-wrap break-words ${
@@ -241,7 +296,7 @@ export default function ChatPanel({
                   : 'bg-gray-100 text-gray-800 border border-gray-200'
               }`}
             >
-              {message.content}
+              <span className="message-text">{message.content}</span>
               {message.isStreaming && (
                 <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
               )}
