@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { Text } from '@tremor/react';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
@@ -178,7 +179,7 @@ export default function Dashboard() {
     <Suspense fallback={
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
         <div className="flex justify-center items-center h-64">
-          <Text>Loading...</Text>
+          <LoadingState type="general" />
         </div>
       </main>
     }>

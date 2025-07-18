@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Title, Text, Select, SelectItem, Grid, Col, Metric, Badge, TextInput, Button, List, ListItem } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 interface PnLRow {
   type: string;
@@ -466,7 +467,7 @@ export default function ReportView() {
     return (
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
         <div className="flex justify-center items-center h-64">
-          <Text>Loading financial report...</Text>
+          <LoadingState type="general" message="Loading financial report..." />
         </div>
       </main>
     );

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Title, Text } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 export default function DataView() {
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function DataView() {
     return (
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
         <div className="flex justify-center items-center h-64">
-          <Text>Loading QuickBooks data...</Text>
+          <LoadingState type="general" message="Loading QuickBooks data..." />
         </div>
       </main>
     );

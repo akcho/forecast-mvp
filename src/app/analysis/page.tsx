@@ -10,12 +10,13 @@ import { PnlTable } from '.';
 import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { migrateTempConnectionsToRealUser } from '@/lib/quickbooks/connectionManager';
+import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
-  loading: () => <div className="p-4">Loading AI assistant...</div>,
+  loading: () => <LoadingState type="ai" className="p-4" />,
 });
 
 // Add a utility to detect mobile
@@ -187,7 +188,7 @@ function AnalysisContent() {
         <div className="flex-shrink-0 p-4 border-b text-lg font-bold">AI Assistant</div>
         <div className="flex-1 overflow-y-auto">
           {!reportsLoaded ? (
-            <div className="flex items-center justify-center h-full text-gray-500 text-lg">Loading financial data...</div>
+            <FinancialDataLoading loadingStates={loading} />
           ) : (
             <ChatPanel 
               currentReports={{
@@ -239,7 +240,7 @@ function AnalysisContent() {
                     <TabPanel className="h-full min-h-0">
                       <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
                         {loading['profitLoss'] ? (
-                          <Text>Loading...</Text>
+                          <LoadingState type="profitLoss" />
                         ) : error['profitLoss'] ? (
                           <Text color="red">{error['profitLoss']}</Text>
                         ) : reports['profitLoss'] ? (
@@ -254,7 +255,7 @@ function AnalysisContent() {
                     <TabPanel className="h-full min-h-0">
                       <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
                         {loading['balanceSheet'] ? (
-                          <Text>Loading...</Text>
+                          <LoadingState type="balanceSheet" />
                         ) : error['balanceSheet'] ? (
                           <Text color="red">{error['balanceSheet']}</Text>
                         ) : reports['balanceSheet'] ? (
@@ -269,7 +270,7 @@ function AnalysisContent() {
                     <TabPanel className="h-full min-h-0">
                       <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-y-auto">
                         {loading['cashFlow'] ? (
-                          <Text>Loading...</Text>
+                          <LoadingState type="cashFlow" />
                         ) : error['cashFlow'] ? (
                           <Text color="red">{error['cashFlow']}</Text>
                         ) : reports['cashFlow'] ? (
@@ -288,7 +289,7 @@ function AnalysisContent() {
                     <div className="h-full min-h-0 flex flex-col">
                       <Title className="flex-shrink-0 p-4">AI Financial Analysis</Title>
                       <div className="flex-1 min-h-0 overflow-y-auto">
-                        <Suspense fallback={<div className="p-4">Loading AI assistant...</div>}>
+                        <Suspense fallback={<LoadingState type="ai" className="p-4" />}>
                           <ChatPanel 
                             currentReports={{
                               profitLoss: reports['profitLoss'],
@@ -313,7 +314,7 @@ function AnalysisContent() {
 
 export default function AnalysisPage() {
   return (
-    <Suspense fallback={<div className="p-8">Loading...</div>}>
+    <Suspense fallback={<LoadingState type="general" className="p-8" />}>
       <AnalysisContent />
     </Suspense>
   );

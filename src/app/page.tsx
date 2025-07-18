@@ -23,6 +23,7 @@ import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
 import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
 import { getAvailableConnections, getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { LoadingState } from '@/components/LoadingSpinner';
 
 interface QuickBooksRow {
   Header?: {
@@ -685,9 +686,7 @@ function HomeContent() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Text>Loading financial data...</Text>
-      </div>
+      <LoadingState type="general" message="Loading financial data..." />
     );
   }
 
@@ -855,7 +854,7 @@ export default function Home() {
     <Suspense fallback={
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
         <div className="flex justify-center items-center h-64">
-          <Text>Loading...</Text>
+          <LoadingState type="general" />
         </div>
       </main>
     }>

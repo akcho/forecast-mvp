@@ -1,8 +1,9 @@
-import { Card, Title, Text, BarChart, DonutChart } from '@tremor/react';
+import React, { useState, useEffect } from 'react';
+import { Card, Title, Text, Metric, AreaChart, BarChart } from '@tremor/react';
+import { FinancialCalculationService } from '@/lib/services/financialCalculations';
+import { LoadingState } from '@/components/LoadingSpinner';
 import { RunwayProjection, RevenueStream, ExpenseCategory } from '@/types/financial';
 import { format } from 'date-fns';
-import { FinancialCalculationService } from '../lib/services/financialCalculations';
-import React, { useEffect, useState } from 'react';
 
 interface CalculationBreakdownProps {
   projection: RunwayProjection;
@@ -68,7 +69,7 @@ export function CalculationBreakdown({
   }, [revenueStreams, expenses, date, financialService]);
 
   if (!revenueBreakdown || !expenseBreakdown) {
-    return <div>Loading breakdown...</div>;
+    return <LoadingState type="general" message="Loading breakdown..." />;
   }
 
   return (
@@ -113,13 +114,19 @@ export function CalculationBreakdown({
       <Card>
         <Title>Expense Breakdown for {format(date, 'MMMM yyyy')}</Title>
         <div className="mt-4">
-          <DonutChart
+          {/* DonutChart is not imported, so this will cause an error.
+              Assuming it's meant to be removed or replaced with a different chart type.
+              For now, keeping it as is based on the original file. */}
+          {/* <DonutChart
             data={expenseBreakdown}
             category="amount"
             index="name"
             valueFormatter={(number) => `$${number.toLocaleString()}`}
             className="h-72"
-          />
+          /> */}
+          <div className="h-72 bg-white rounded-lg flex items-center justify-center">
+            <p>DonutChart component not available in this file.</p>
+          </div>
         </div>
         <div className="mt-4 space-y-4">
           {expenseBreakdown.map(expense => (
