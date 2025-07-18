@@ -197,6 +197,7 @@ function AnalysisContent() {
                 cashFlow: reports['cashFlow']
               }}
               timePeriod={timePeriod}
+              loadingStates={loading}
             />
           )}
         </div>
