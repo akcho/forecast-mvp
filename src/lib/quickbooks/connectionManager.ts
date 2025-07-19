@@ -10,6 +10,8 @@ export interface QuickBooksConnection {
   company_name?: string;
   is_active: boolean;
   is_shared: boolean;
+  is_service_account?: boolean;
+  display_name?: string;
   created_at: string;
   updated_at: string;
   last_used_at: string;
@@ -130,7 +132,44 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
 
     console.log('Direct connections found:', directConnections?.length || 0);
 
-    const allConnections = directConnections || [];
+    // Get service account connections (highest priority)
+    const { data: serviceConnections, error: serviceError } = await supabase
+      .from('quickbooks_connections')
+      .select('*')
+      .eq('company_id', companyId)
+      .eq('is_service_account', true)
+      .eq('is_active', true)
+      .order('last_used_at', { ascending: false });
+
+    if (serviceError) {
+      console.error('Error fetching service connections:', serviceError);
+    }
+
+    console.log('Service connections found:', serviceConnections?.length || 0);
+
+    // Get shared connections from other users in the same company (excluding service accounts)
+    const { data: sharedConnections, error: sharedError } = await supabase
+      .from('quickbooks_connections')
+      .select('*')
+      .eq('company_id', companyId)
+      .eq('is_shared', true)
+      .eq('is_active', true)
+      .eq('is_service_account', false) // Exclude service accounts (already fetched above)
+      .neq('user_id', userId) // Exclude user's own connections
+      .order('last_used_at', { ascending: false });
+
+    if (sharedError) {
+      console.error('Error fetching shared connections:', sharedError);
+    }
+
+    console.log('Shared connections found:', sharedConnections?.length || 0);
+
+    // Priority order: Service accounts first, then direct connections, then shared
+    const allConnections = [
+      ...(serviceConnections || []),
+      ...(directConnections || []), 
+      ...(sharedConnections || [])
+    ];
 
     console.log('All available connections:', allConnections.map((c: QuickBooksConnection) => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
 
@@ -369,7 +408,7 @@ export async function getValidConnection(connectionId?: number): Promise<QuickBo
 
 // Helper to refresh the QuickBooks token
 async function refreshQuickBooksToken(refreshToken: string) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/quickbooks/refresh`, {
+  const response = await fetch('/api/quickbooks/refresh', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -378,8 +417,53 @@ async function refreshQuickBooksToken(refreshToken: string) {
   });
   
   if (!response.ok) {
-    throw new Error('Failed to refresh QuickBooks token');
+    const errorText = await response.text();
+    console.error('Token refresh failed:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+    });
+    throw new Error(`Failed to refresh QuickBooks token: ${response.status} ${response.statusText}`);
   }
   
   return response.json();
+}
+
+// Check if a service account exists for a given realm
+export async function getServiceAccountForRealm(realmId: string): Promise<QuickBooksConnection | null> {
+  const supabase = getSupabaseClient();
+  
+  const { data, error } = await supabase
+    .from('quickbooks_connections')
+    .select('*')
+    .eq('realm_id', realmId)
+    .eq('is_service_account', true)
+    .eq('is_active', true)
+    .single();
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    console.error('Error checking for service account:', error);
+    return null;
+  }
+
+  return data || null;
+}
+
+// Check if connecting to this realm should use an existing service account
+export async function shouldUseServiceAccount(realmId: string): Promise<{ 
+  shouldUse: boolean; 
+  serviceAccount?: QuickBooksConnection;
+  message?: string;
+}> {
+  const serviceAccount = await getServiceAccountForRealm(realmId);
+  
+  if (serviceAccount) {
+    return {
+      shouldUse: true,
+      serviceAccount,
+      message: `This QuickBooks company already has a service account set up${serviceAccount.display_name ? ` (${serviceAccount.display_name})` : ''}. You'll automatically use the shared connection instead of creating a new one.`
+    };
+  }
+  
+  return { shouldUse: false };
 } 
