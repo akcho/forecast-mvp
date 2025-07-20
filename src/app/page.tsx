@@ -133,10 +133,10 @@ function HomeContent() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [projections, setProjections] = useState<any[]>([]);
 
-  // Redirect to analysis page
+  // Redirect to overview page
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/analysis';
+      window.location.href = '/overview';
     }
   }, []);
 

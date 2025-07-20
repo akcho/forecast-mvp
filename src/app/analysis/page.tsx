@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect, Suspense, useRef } from 'react';
-import { Card, Title, Text, Select, SelectItem, Grid, Col, Badge, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
+import { Title, Text, Select, SelectItem, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
@@ -11,6 +11,7 @@ import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionMa
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { migrateTempConnectionsToRealUser } from '@/lib/quickbooks/connectionManager';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
+import { AppLayout } from '@/components/AppLayout';
 
 // ... (interfaces for PnLRow, etc. if needed)
 
@@ -188,7 +189,7 @@ function AnalysisContent() {
 
   console.log('Connected, showing analysis view. isConnected:', isConnected);
 
-  // MOBILE: Show only the chat panel, full screen
+  // MOBILE: Show only the chat panel, full screen (without sidebar)
   if (isMobile) {
     const reportsLoaded = reports['profitLoss'] && reports['balanceSheet'] && reports['cashFlow'];
     return (
@@ -212,30 +213,31 @@ function AnalysisContent() {
     );
   }
 
-  // DESKTOP: Show full analysis view
+  // DESKTOP: Show full analysis view with sidebar
   return (
-    <div className="full-viewport flex flex-col">
-      <div className="p-8 flex-1 flex flex-col min-h-0">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">Financial Analysis</h1>
-            <Text className="text-gray-600">
-              Review your financial statements
-            </Text>
+    <AppLayout>
+      <div className="full-viewport flex flex-col">
+        <div className="p-8 flex-1 flex flex-col min-h-0">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-2xl font-bold">Financial Analysis</h1>
+              <Text className="text-gray-600">
+                Review your financial statements
+              </Text>
+            </div>
+            <div className="flex gap-4">
+              <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">
+                <SelectItem value="3months">Last 3 Months</SelectItem>
+                <SelectItem value="6months">Last 6 Months</SelectItem>
+                <SelectItem value="12months">Last 12 Months</SelectItem>
+              </Select>
+              <Button onClick={() => setAiPanelMinimized(!aiPanelMinimized)}>
+                {aiPanelMinimized ? 'Show AI' : 'Hide AI'}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-4">
-            <Select value={timePeriod} onValueChange={setTimePeriod} className="w-48">
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="12months">Last 12 Months</SelectItem>
-            </Select>
-            <Button onClick={() => setAiPanelMinimized(!aiPanelMinimized)}>
-              {aiPanelMinimized ? 'Show AI' : 'Hide AI'}
-            </Button>
-          </div>
-        </div>
-        <div className="h-full flex flex-col min-h-0">
           <div className="h-full flex flex-col min-h-0">
+            <div className="h-full flex flex-col min-h-0">
             <TabGroup className="flex-1 flex flex-col min-h-0">
               <TabList className="border-b-0 flex-shrink-0 mb-4">
                 <Tab onClick={() => setActiveStatement('profitLoss')}>P&L Statement</Tab>
@@ -317,6 +319,7 @@ function AnalysisContent() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 }
 
