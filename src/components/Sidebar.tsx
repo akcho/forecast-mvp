@@ -1,21 +1,28 @@
 'use client';
 
-import { ChartBarIcon, DocumentChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { ChartBarIcon as ChartBarIconSolid, DocumentChartBarIcon as DocumentChartBarIconSolid } from '@heroicons/react/24/solid';
+import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon as ChartBarIconSolid, HomeIcon as HomeIconSolid, ChartPieIcon as ChartPieIconSolid } from '@heroicons/react/24/solid';
 
 interface SidebarProps {
-  currentPage: 'analysis' | 'overview';
-  onPageChange: (page: 'analysis' | 'overview') => void;
+  currentPage: 'analysis' | 'overview' | 'forecast';
+  onPageChange: (page: 'analysis' | 'overview' | 'forecast') => void;
 }
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
   const navigationItems = [
     {
       id: 'overview' as const,
-      name: 'Overview',
-      icon: DocumentChartBarIcon,
-      iconSolid: DocumentChartBarIconSolid,
-      description: 'Dashboard overview'
+      name: 'Home',
+      icon: HomeIcon,
+      iconSolid: HomeIconSolid,
+      description: 'Dashboard home'
+    },
+    {
+      id: 'forecast' as const,
+      name: 'Forecast',
+      icon: ChartPieIcon,
+      iconSolid: ChartPieIconSolid,
+      description: 'Financial forecasting'
     },
     {
       id: 'analysis' as const,
