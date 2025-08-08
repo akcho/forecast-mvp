@@ -1,99 +1,131 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this financial forecasting web application built with Next.js 14, QuickBooks integration, and AI analysis.
 
-## Project Overview
-
-This is a financial forecasting web application built with Next.js 14 that integrates with QuickBooks for real-time financial data and uses AI for intelligent analysis. The app helps businesses analyze their cash runway and make informed financial decisions.
-
-## Key Commands
+## Commands
 
 ```bash
-# Development
-npm run dev         # Start development server at http://localhost:3000
-
-# Code Quality
-npm run lint        # Run ESLint checks
-npm run test        # Run test suite (custom test runner at src/lib/test/runTests.ts)
-
-# Production Build
-npm run build       # Build for production
-npm run start       # Start production server
+npm run dev     # Development server (localhost:3000)
+npm run lint    # ESLint checks
+npm run test    # Custom test runner (src/lib/test/runTests.ts)
+npm run build   # Production build
 ```
 
-## Architecture Overview
+## Tech Stack
 
-### Technology Stack
-- **Framework**: Next.js 14.1.0 with App Router
-- **Language**: TypeScript (strict mode)
-- **UI**: Tremor React components, Tailwind CSS, Heroicons
-- **Database**: Supabase for authentication and shared connections
-- **External APIs**: QuickBooks (OAuth2), OpenAI API
+- **Framework**: Next.js 14.1.0 (App Router), TypeScript (strict)
+- **UI**: Tremor React, Tailwind CSS, Heroicons
+- **Database**: Supabase (auth, shared connections)
+- **APIs**: QuickBooks OAuth2, OpenAI
 
-### Core Architecture Patterns
+## Architecture
 
-1. **Service Singleton Pattern**: Business logic is encapsulated in service classes:
-   - `DatabaseService` - Supabase interactions
-   - `FinancialCalculationService` - Financial computations
-   - Located in `/src/lib/services/`
+**Patterns**: Service singletons (`DatabaseService`, `FinancialCalculationService` in `/src/lib/services/`), client-server separation, QuickBooks API → API Routes → Services → UI
 
-2. **Client-Server Separation**:
-   - API routes in `/src/app/api/` handle external API calls and protect credentials
-   - Client components handle UI state
-   - QuickBooks has both client (`/src/lib/quickbooks/client.ts`) and server (`/src/lib/quickbooks/server.ts`) implementations
+**Key Directories**:
 
-3. **Data Flow**:
-   - QuickBooks API → API Routes → Service Layer → UI Components
-   - Financial data is fetched, processed, and cached for analysis
+- `/src/app/` - Pages: `/overview/` (dashboard), `/forecast/` (scenarios), `/analysis/` (AI chat), `/admin/` (debug)
+- `/src/components/` - `AppLayout.tsx`, `Sidebar.tsx`, `ForecastContent.tsx`, `MultiAdminConnectionManager.tsx`, `QuickBooksLogin.tsx`
+- `/src/lib/` - Core logic: `/quickbooks/`, `/services/`, `/test/`
 
-### Key Directories
+## Implementation Details
 
-- `/src/app/` - Next.js pages and API routes
-  - `/analysis/` - Main financial analysis page
-  - `/api/quickbooks/` - QuickBooks integration endpoints
-  - `/api/chat/` - AI chat functionality
-- `/src/components/` - Reusable React components
-- `/src/lib/` - Core business logic
-  - `/quickbooks/` - QB integration logic
-  - `/services/` - Service layer
-  - `/test/` - Test files
-- `/src/types/` - TypeScript type definitions
-
-## Important Implementation Details
-
-### QuickBooks Integration
-- OAuth2 flow implemented with state parameter for security
-- Tokens stored in Supabase for multi-user support
-- Both individual and shared connections supported
-- Client refreshes tokens automatically
-
-### AI Chat Feature
-- Uses OpenAI API for financial analysis
-- Context-aware based on current financial data
-- Responsive design: sidebar on desktop, full-screen on mobile
-- Prompts engineered in `/src/lib/prompt.ts`
-
-### Financial Calculations
-- Runway calculator in `/src/lib/runwayCalculator.ts`
-- Handles burn rate, cash projections, and recommendations
-- Service layer processes QuickBooks data into usable format
-
-### Testing
-- Custom test runner using tsx
-- Test files in `/src/lib/test/`
-- Run with `npm run test`
+- **QuickBooks**: OAuth2 with state security, Supabase token storage, auto-refresh, multi-user shared connections
+- **AI Chat**: OpenAI API, context-aware financial analysis, responsive design, prompts in `/src/lib/prompt.ts`
+- **Financial**: Runway calculator (`/src/lib/runwayCalculator.ts`), burn rate projections
+- **Testing**: Custom tsx runner, files in `/src/lib/test/`
 
 ## Environment Variables
 
-Required variables (see SETUP_ENV.md for details):
-- QuickBooks OAuth: `QB_CLIENT_ID`, `QB_CLIENT_SECRET`, `QB_REDIRECT_URI`
-- Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- Optional: `OPENAI_API_KEY` for AI features
+- **QuickBooks**: `QB_CLIENT_ID`, `QB_CLIENT_SECRET`, `QB_REDIRECT_URI`
+- **Supabase**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- **Google OAuth**: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- **NextAuth**: `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
+- **Optional**: `OPENAI_API_KEY`
 
 ## Development Notes
 
-- ESM modules enabled (`"type": "module"` in package.json)
-- TypeScript path alias: `@/*` maps to `src/*`
-- Mobile-first responsive design considerations
-- Loading states implemented throughout for better UX
-- Error boundaries for graceful error handling
+ESM enabled, `@/*` → `src/*`, mobile-first responsive, loading states, error boundaries
+
+## Current Status (January 2025)
+
+### ✅ COMPLETED FEATURES
+
+- **Forecast Page**: Scenario-based forecasting (Baseline/Growth/Downturn) with real QB data and real-time chart updates (`/src/app/forecast/page.tsx`, `/src/components/ForecastContent.tsx`)
+- **Multi-user QB Integration**: Shared connection system - admin OAuth connects, non-admin users access via shared connections
+- **Professional Login UX**: Replaced technical interface with clean SaaS-style login
+
+### ✅ LOGIN UX TRANSFORMATION (January 2025)
+
+**Complete**: Successfully replaced confusing technical login with professional interface
+
+**Key Components**:
+
+- **QuickBooksLogin** (`/src/components/QuickBooksLogin.tsx`): Clean "Connect QuickBooks" button with branding
+- **Enhanced OAuth**: OpenID Connect scope, user profile capture in callback (`/src/app/api/quickbooks/callback/route.ts`)
+- **Admin Interface**: Improved `MultiAdminConnectionManager.tsx` with structured user display
+- **Database**: Added `user_email`/`user_name` fields, migration tools (`/src/app/api/migrate-user-info/route.ts`)
+
+### 🚨 KNOWN LIMITATION: QuickBooks OpenID Connect
+
+**Issue**: QuickBooks UserInfo API returns no user profile data despite correct OAuth implementation
+
+- ✅ OAuth includes `openid` scope correctly
+- ✅ Admin permissions and fresh tokens work
+- ❌ QuickBooks API limitation prevents user identification
+
+**Result**: Users show as "Unknown user" in admin interface due to QB API, not implementation issue
+
+**Potential Solutions**: Investigate QB app config for OpenID, sandbox vs production differences, or alternative user identification methods
+
+### 🎯 STATUS SUMMARY
+
+- **Login UX**: ✅ Complete - Professional interface working
+- **OAuth Flow**: ✅ Complete - Technical implementation correct
+- **QB Data Access**: ✅ Complete - Shared connection system functional
+- **User Display**: ❌ QB API limitation - requires alternative approach
+
+## 🚧 MULTI-COMPANY ARCHITECTURE (In Progress - July 2025)
+
+### Overview
+
+Transforming from single-user to secure multi-company platform with proper authentication and data isolation.
+
+### Database Schema (MVP)
+
+```sql
+-- Companies derived from QuickBooks
+companies: id, quickbooks_realm_id, name, created_at
+
+-- Users from Google SSO
+users: id, email, google_id, name, created_at
+
+-- Many-to-many relationships with roles
+user_company_roles: user_id, company_id, role ('admin'|'viewer'), created_at
+
+-- Updated QB connections
+quickbooks_connections: ... + company_id
+```
+
+### Architecture Decisions
+
+- **Many-to-Many Users ↔ Companies**: One user can access multiple companies (real-world requirement)
+- **QB Admin = App Admin**: Successfully completing QB OAuth grants admin role
+- **Company Data from QB**: Companies auto-created from QuickBooks CompanyInfo API
+- **Server-Side QB Access**: All QuickBooks API calls happen server-side with company validation
+- **Session-Based Active Company**: User's current company stored in session/JWT
+
+### Implementation Status
+
+- ✅ Database schema designed
+- ✅ Migration scripts created  
+- ✅ Schema migration (completed)
+- ✅ Google SSO integration
+- ✅ QB OAuth updates
+- ✅ Company switching UI
+- ✅ API security layer
+
+### Migration Files
+
+- `/database/manual_migration.sql` - Run in Supabase SQL Editor
+- `/src/app/api/migrate-data/route.ts` - Migrate existing QB connections to companies

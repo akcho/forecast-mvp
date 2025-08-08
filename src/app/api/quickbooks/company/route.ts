@@ -1,36 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { withCompanyValidation, getValidatedQBConnection } from '@/lib/auth/middleware';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export const GET = withCompanyValidation(async (request: NextRequest, context) => {
   try {
-    let accessToken = request.headers.get('X-QB-Access-Token');
-    let realmId = request.headers.get('X-QB-Realm-ID');
-    const connectionId = request.headers.get('X-QB-Connection-ID');
-
-    // If no access token is provided, use the connection manager
-    if (!accessToken || !realmId) {
-      try {
-        const connection = await getValidConnection(connectionId ? parseInt(connectionId) : undefined);
-        accessToken = connection.access_token;
-        realmId = connection.realm_id;
-      } catch (error) {
-        return NextResponse.json({ 
-          error: error instanceof Error ? error.message : 'Failed to get QuickBooks connection',
-          code: 'CONNECTION_ERROR'
-        }, { status: 401 });
-      }
+    // Get validated QuickBooks connection for this company
+    const connectionResult = await getValidatedQBConnection(context.companyId, context.userId);
+    
+    if (!connectionResult.success) {
+      return NextResponse.json({ 
+        error: connectionResult.error,
+        code: 'CONNECTION_ERROR'
+      }, { status: 401 });
     }
 
-    if (!accessToken || !realmId) {
-      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
-    }
-
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+    const { connection } = connectionResult;
+    
+    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}?minorversion=65`;
     const response = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${connection.access_token}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
@@ -49,4 +39,4 @@ export async function GET(request: NextRequest) {
     console.error('Error in company API route:', error);
     return NextResponse.json({ error: 'Failed to fetch company info' }, { status: 500 });
   }
-} 
+}); 

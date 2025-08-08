@@ -1,7 +1,9 @@
 'use client';
 
-import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 import { ChartBarIcon as ChartBarIconSolid, HomeIcon as HomeIconSolid, ChartPieIcon as ChartPieIconSolid } from '@heroicons/react/24/solid';
+import { signOut } from 'next-auth/react';
+import { CompanySwitcher } from './CompanySwitcher';
 
 interface SidebarProps {
   currentPage: 'analysis' | 'overview' | 'forecast';
@@ -9,6 +11,25 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
+  const handleLogout = async () => {
+    try {
+      // Clear local storage
+      localStorage.removeItem('qb_user_id');
+      localStorage.removeItem('qb_access_token');
+      localStorage.removeItem('qb_refresh_token');
+      localStorage.removeItem('qb_realm_id');
+      localStorage.removeItem('selected_company_id');
+      localStorage.setItem('qb_logged_out', 'true');
+      
+      // Sign out from NextAuth
+      await signOut({ callbackUrl: '/auth/signin' });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback to simple redirect
+      window.location.href = '/auth/signin';
+    }
+  };
+
   const navigationItems = [
     {
       id: 'overview' as const,
@@ -39,6 +60,11 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center flex-shrink-0 px-4">
           <h1 className="text-xl font-bold text-gray-900">Netflo</h1>
+        </div>
+
+        {/* Company Switcher */}
+        <div className="mt-4 px-4 pb-4 border-b border-gray-200">
+          <CompanySwitcher />
         </div>
 
         {/* Navigation */}
@@ -76,11 +102,18 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             })}
           </nav>
 
-          {/* Settings */}
-          <div className="flex-shrink-0 px-2 pb-4">
+          {/* Settings & Logout */}
+          <div className="flex-shrink-0 px-2 pb-4 space-y-1">
             <button className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900">
               <Cog6ToothIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
               Settings
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+            >
+              <ArrowLeftOnRectangleIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+              Logout
             </button>
           </div>
         </div>

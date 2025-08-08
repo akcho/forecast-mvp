@@ -7,8 +7,8 @@ import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSearchParams } from 'next/navigation';
 import { PnlTable } from '.';
-import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
-import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { QuickBooksLogin } from '@/components/QuickBooksLogin';
+import { getValidConnection, getAvailableConnections } from '@/lib/quickbooks/connectionManager';
 import { migrateTempConnectionsToRealUser } from '@/lib/quickbooks/connectionManager';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
 import { AppLayout } from '@/components/AppLayout';
@@ -49,23 +49,45 @@ function AnalysisContent() {
 
     console.log('Analysis page URL params:', { status, connectionId, realmId, hasAccessToken: !!accessToken });
 
-    // Check if already connected via stored tokens
-    if (quickBooksStore.getAccessToken()) {
-      console.log('Already connected to QuickBooks');
-      setIsConnected(true);
-    } else if (status === 'connected' && connectionId) {
-      console.log('Successfully connected to QuickBooks with connection ID:', connectionId);
-      setIsConnected(true);
-    } else if (status === 'connected' && accessToken && refreshToken) {
-      console.log('Successfully connected to QuickBooks with tokens (legacy)...');
-      quickBooksStore.setTokens(accessToken, refreshToken);
-      if (realmId) {
-        quickBooksStore.setRealmId(realmId);
+    const checkConnection = async () => {
+      // Check if user explicitly logged out
+      const isLoggedOut = localStorage.getItem('qb_logged_out') === 'true';
+      if (isLoggedOut) {
+        console.log('User is logged out');
+        setConnectionChecked(true);
+        return;
       }
-      setIsConnected(true);
-    }
-    
-    setConnectionChecked(true);
+
+      // Check if already connected via stored tokens
+      if (quickBooksStore.getAccessToken()) {
+        console.log('Already connected to QuickBooks');
+        setIsConnected(true);
+      } else if (status === 'connected' && connectionId) {
+        console.log('Successfully connected to QuickBooks with connection ID:', connectionId);
+        setIsConnected(true);
+      } else if (status === 'connected' && accessToken && refreshToken) {
+        console.log('Successfully connected to QuickBooks with tokens (legacy)...');
+        quickBooksStore.setTokens(accessToken, refreshToken);
+        if (realmId) {
+          quickBooksStore.setRealmId(realmId);
+        }
+        setIsConnected(true);
+      } else {
+        // Check for database connections (including shared connections)
+        try {
+          const connections = await getAvailableConnections();
+          if (connections.availableConnections.length > 0) {
+            console.log('Found existing connections');
+            setIsConnected(true);
+          }
+        } catch (error) {
+          console.error('Error checking connections:', error);
+        }
+      }
+      setConnectionChecked(true);
+    };
+
+    checkConnection();
   }, [searchParams]);
 
   useEffect(() => {
@@ -179,12 +201,8 @@ function AnalysisContent() {
   }
 
   if (!isConnected) {
-    console.log('Not connected, showing connection manager. isConnected:', isConnected);
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-        <QuickBooksConnectionManager />
-      </div>
-    );
+    console.log('Not connected, showing login screen. isConnected:', isConnected);
+    return <QuickBooksLogin onConnectionChange={() => setIsConnected(true)} />;
   }
 
   console.log('Connected, showing analysis view. isConnected:', isConnected);

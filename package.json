@@ -11,6 +11,7 @@
     "test": "tsx src/lib/test/runTests.ts"
   },
   "dependencies": {
+    "@auth/supabase-adapter": "^1.10.0",
     "@heroicons/react": "^2.1.1",
     "@supabase/supabase-js": "^2.49.10",
     "@tremor/react": "^3.14.0",
@@ -19,6 +20,7 @@
     "date-fns": "^3.3.1",
     "js-cookie": "^3.0.5",
     "next": "14.1.0",
+    "next-auth": "^4.24.11",
     "node-quickbooks": "^2.0.46",
     "openai": "^5.1.0",
     "react": "^18",

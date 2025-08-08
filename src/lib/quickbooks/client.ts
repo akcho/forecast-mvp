@@ -5,6 +5,23 @@ interface QuickBooksTokens {
   refresh_token: string;
 }
 
+interface QuickBooksUserInfo {
+  sub: string; // QuickBooks user GUID
+  email: string;
+  emailVerified: boolean;
+  givenName?: string;
+  familyName?: string;
+  phoneNumber?: string;
+  phoneNumberVerified?: boolean;
+  address?: {
+    streetAddress?: string;
+    locality?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  };
+}
+
 interface QuickBooksCompanyInfo {
   QueryResponse: {
     CompanyInfo: Array<{
@@ -97,8 +114,8 @@ export class QuickBooksClient {
       throw new Error('QuickBooks Client ID is not configured');
     }
     
-    // Use correct QuickBooks Online scope
-    const scope = 'com.intuit.quickbooks.accounting';
+    // Use QuickBooks Online scope with OpenID Connect to get user profile info
+    const scope = 'com.intuit.quickbooks.accounting openid';
     
     const state = Math.random().toString(36).substring(2);
     
@@ -114,8 +131,8 @@ export class QuickBooksClient {
       throw new Error('QuickBooks Client ID is not configured');
     }
     
-    // Use correct QuickBooks Online scope
-    const scope = 'com.intuit.quickbooks.accounting';
+    // Use QuickBooks Online scope with OpenID Connect to get user profile info
+    const scope = 'com.intuit.quickbooks.accounting openid';
     
     const state = Math.random().toString(36).substring(2);
     
@@ -160,6 +177,28 @@ export class QuickBooksClient {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
     };
+  }
+
+  async getUserInfo(accessToken: string): Promise<QuickBooksUserInfo> {
+    const response = await fetch('https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('User info fetch error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error('Failed to fetch user profile information');
+    }
+
+    const userInfo = await response.json();
+    return userInfo as QuickBooksUserInfo;
   }
 
   private async refreshAccessToken(): Promise<QuickBooksTokens> {

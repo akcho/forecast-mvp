@@ -8,6 +8,8 @@ export interface QuickBooksConnection {
   access_token: string;
   refresh_token: string;
   company_name?: string;
+  user_email?: string;
+  user_name?: string;
   is_active: boolean;
   is_shared: boolean;
   is_service_account?: boolean;
@@ -80,32 +82,68 @@ export async function saveConnection(
 
   console.log('Saving connection with:', { userId, companyId, realmId });
 
-  const { data, error } = await supabase
+  // Check if a connection already exists for this realm_id
+  const { data: existingConnection } = await supabase
     .from('quickbooks_connections')
-    .upsert({
-      user_id: userId,
-      company_id: companyId,
-      realm_id: realmId,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      company_name: companyName,
-      is_active: true,
-      is_shared: false,
-      updated_at: new Date().toISOString(),
-      last_used_at: new Date().toISOString()
-    }, { 
-      onConflict: 'user_id,company_id,realm_id',
-      ignoreDuplicates: false 
-    })
-    .select()
+    .select('*')
+    .eq('company_id', companyId)
+    .eq('realm_id', realmId)
+    .eq('is_active', true)
     .single();
 
-  if (error) {
-    console.error('Error saving connection:', error);
-    throw new Error('Failed to save QuickBooks connection');
-  }
+  if (existingConnection) {
+    // Update existing connection instead of creating new one
+    console.log('Found existing connection, updating tokens');
+    
+    const { data, error } = await supabase
+      .from('quickbooks_connections')
+      .update({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        company_name: companyName || existingConnection.company_name,
+        is_shared: true, // Mark as shared since multiple users are accessing it
+        updated_at: new Date().toISOString(),
+        last_used_at: new Date().toISOString()
+      })
+      .eq('id', existingConnection.id)
+      .select()
+      .single();
 
-  return data;
+    if (error) {
+      console.error('Error updating connection:', error);
+      throw new Error('Failed to update QuickBooks connection');
+    }
+
+    return data;
+  } else {
+    // Create new service account connection
+    console.log('No existing connection found, creating new service account');
+    
+    const { data, error } = await supabase
+      .from('quickbooks_connections')
+      .insert({
+        user_id: userId,
+        company_id: companyId,
+        realm_id: realmId,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        company_name: companyName,
+        is_active: true,
+        is_shared: true, // New connections are shared by default
+        is_service_account: true, // Mark as service account
+        updated_at: new Date().toISOString(),
+        last_used_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving connection:', error);
+      throw new Error('Failed to save QuickBooks connection');
+    }
+
+    return data;
+  }
 }
 
 // Get all available connections for the current user/company
@@ -165,20 +203,34 @@ export async function getAvailableConnections(): Promise<ConnectionStatus> {
     console.log('Shared connections found:', sharedConnections?.length || 0);
 
     // Priority order: Service accounts first, then direct connections, then shared
+    // Remove duplicates by realm_id (keep the first occurrence)
     const allConnections = [
       ...(serviceConnections || []),
       ...(directConnections || []), 
       ...(sharedConnections || [])
     ];
 
-    console.log('All available connections:', allConnections.map((c: QuickBooksConnection) => ({ id: c.id, user_id: c.user_id, company_id: c.company_id })));
+    // Remove duplicates by realm_id
+    const uniqueConnections = [];
+    const seenRealmIds = new Set();
+    
+    for (const connection of allConnections) {
+      if (!seenRealmIds.has(connection.realm_id)) {
+        seenRealmIds.add(connection.realm_id);
+        uniqueConnections.push(connection);
+      }
+    }
+    
+    console.log(`Filtered ${allConnections.length} connections to ${uniqueConnections.length} unique connections`);
+
+    console.log('All unique connections:', uniqueConnections.map((c: QuickBooksConnection) => ({ id: c.id, user_id: c.user_id, company_id: c.company_id, realm_id: c.realm_id })));
 
     // Get the most recently used connection as active
-    const activeConnection = allConnections.length > 0 ? allConnections[0] : undefined;
+    const activeConnection = uniqueConnections.length > 0 ? uniqueConnections[0] : undefined;
 
     return {
       hasDirectConnection: (directConnections?.length || 0) > 0,
-      availableConnections: allConnections,
+      availableConnections: uniqueConnections,
       activeConnection: activeConnection || undefined
     };
   } catch (error) {

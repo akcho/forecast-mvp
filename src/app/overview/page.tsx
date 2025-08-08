@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Title, Text } from '@tremor/react';
 import { AppLayout } from '@/components/AppLayout';
-import { QuickBooksConnectionManager } from '@/components/QuickBooksConnectionManager';
+import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { getAvailableConnections } from '@/lib/quickbooks/connectionManager';
 import { LoadingState } from '@/components/LoadingSpinner';
@@ -15,6 +15,14 @@ export default function OverviewPage() {
   useEffect(() => {
     // Check connection status on client side
     const checkConnection = async () => {
+      // Check if user explicitly logged out
+      const isLoggedOut = localStorage.getItem('qb_logged_out') === 'true';
+      if (isLoggedOut) {
+        console.log('User is logged out');
+        setConnectionChecked(true);
+        return;
+      }
+
       // Check if already connected via stored tokens
       if (quickBooksStore.getAccessToken()) {
         console.log('Already connected to QuickBooks');
@@ -46,14 +54,10 @@ export default function OverviewPage() {
     );
   }
 
-  // Show connection manager if not connected
+  // Show login screen if not connected
   if (!isConnected) {
-    console.log('Not connected, showing connection manager');
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-        <QuickBooksConnectionManager />
-      </div>
-    );
+    console.log('Not connected, showing login screen');
+    return <QuickBooksLogin onConnectionChange={() => setIsConnected(true)} />;
   }
 
   // Show overview page content when connected

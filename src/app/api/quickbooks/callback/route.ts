@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { createClient } from '@supabase/supabase-js';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+import { createCompany } from '@/lib/auth/companies';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,13 +36,21 @@ export async function GET(request: Request) {
     if (error) {
       console.error('QuickBooks authorization error:', error);
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL(`/analysis?quickbooks=error&error=${encodeURIComponent(error)}`, baseUrl));
+      return NextResponse.redirect(new URL(`/overview?quickbooks=error&error=${encodeURIComponent(error)}`, baseUrl));
     }
 
-    if (!code) {
-      console.error('No authorization code received');
+    if (!code || !realmId) {
+      console.error('Missing required parameters');
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL('/analysis?quickbooks=error&error=No authorization code received', baseUrl));
+      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Missing required parameters', baseUrl));
+    }
+
+    // Check if user is authenticated
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.dbId) {
+      console.error('User not authenticated');
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL('/auth/signin', baseUrl));
     }
 
     const client = new QuickBooksClient();
@@ -48,86 +59,118 @@ export async function GET(request: Request) {
     console.log('Tokens received from QuickBooks:', {
       hasAccessToken: !!tokens.access_token,
       hasRefreshToken: !!tokens.refresh_token,
-      accessTokenLength: tokens.access_token?.length,
-      refreshTokenLength: tokens.refresh_token?.length,
-      accessTokenStart: tokens.access_token?.substring(0, 20),
-      refreshTokenStart: tokens.refresh_token?.substring(0, 20),
+      userId: session.user.dbId
     });
 
-    // Save connection to database using server-side approach
+    // Fetch company information from QuickBooks
+    let companyName = `Company ${realmId}`;
+    try {
+      // Temporarily set tokens to fetch company info
+      const { quickBooksStore } = await import('@/lib/quickbooks/store');
+      quickBooksStore.setTokens(tokens.access_token, tokens.refresh_token);
+      quickBooksStore.setRealmId(realmId);
+      
+      const companyInfo = await client.getCompanyInfo();
+      if (companyInfo?.QueryResponse?.CompanyInfo?.[0]?.CompanyName) {
+        companyName = companyInfo.QueryResponse.CompanyInfo[0].CompanyName;
+      }
+      console.log('Fetched company name:', companyName);
+    } catch (companyError) {
+      console.warn('Could not fetch company name, using default:', companyError);
+    }
+
+    // Create or get company and grant admin access to user
+    const company = await createCompany(realmId, companyName, session.user.dbId);
+    if (!company) {
+      console.error('Failed to create/get company');
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Failed to create company', baseUrl));
+    }
+
+    // Save or update QuickBooks connection
     try {
       const supabase = getSupabaseClient();
       
-      // For now, use a generic user ID that will be replaced by the client
-      // The client will update this when it processes the connection
-      const tempUserId = 'temp_user_' + Date.now();
-      const companyId = 'default_company';
-      
-      console.log('Saving connection with temp user ID:', { tempUserId, companyId, realmId });
-      
-      const { data: connection, error: saveError } = await supabase
+      // Check if a connection already exists for this company
+      const { data: existingConnection, error: checkError } = await supabase
         .from('quickbooks_connections')
-        .insert({
-          user_id: tempUserId,
-          company_id: companyId,
-          realm_id: realmId || '',
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token,
-          company_name: undefined, // Will be fetched later
-          is_active: true,
-          is_shared: false,
-          updated_at: new Date().toISOString(),
-          last_used_at: new Date().toISOString()
-        })
-        .select()
+        .select('*')
+        .eq('company_id', company.id)
+        .eq('realm_id', realmId)
+        .eq('is_active', true)
         .single();
-
-      if (saveError) {
-        console.error('Error saving connection:', saveError);
-        throw saveError;
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error checking for existing connection:', checkError);
       }
       
-      console.log('Connection saved to database:', {
-        connectionId: connection.id,
-        realmId: connection.realm_id,
-        tempUserId: connection.user_id
-      });
-      
-      // Redirect with connection ID instead of tokens
-      const baseUrl = new URL(request.url).origin;
-      const redirectUrl = new URL('/analysis', baseUrl);
-      redirectUrl.searchParams.set('quickbooks', 'connected');
-      redirectUrl.searchParams.set('connection_id', connection.id.toString());
-      
-      console.log('Redirecting to analysis page with connection ID');
-      console.log('Request URL:', request.url);
-      console.log('Base URL:', baseUrl);
-      console.log('Redirect URL:', redirectUrl.toString());
-      // Set a cookie for the temp user ID so the client can migrate it
-      const response = NextResponse.redirect(redirectUrl);
-      response.headers.append('Set-Cookie', `qb_temp_user_id=${tempUserId}; Path=/; Max-Age=600; SameSite=Lax`);
-      return response;
-    } catch (saveError) {
-      console.error('Error saving connection:', saveError);
-      // Fallback to old method if saving fails
-      const baseUrl = new URL(request.url).origin;
-      const redirectUrl = new URL('/analysis', baseUrl);
-      redirectUrl.searchParams.set('quickbooks', 'connected');
-      redirectUrl.searchParams.set('access_token', tokens.access_token);
-      redirectUrl.searchParams.set('refresh_token', tokens.refresh_token);
-      if (realmId) {
-        redirectUrl.searchParams.set('realm_id', realmId);
+      if (existingConnection) {
+        // Update existing connection with fresh tokens
+        console.log('Updating existing QB connection for company:', company.id);
+        
+        const { error: updateError } = await supabase
+          .from('quickbooks_connections')
+          .update({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            company_name: companyName,
+            updated_at: new Date().toISOString(),
+            last_used_at: new Date().toISOString()
+          })
+          .eq('id', existingConnection.id);
+        
+        if (updateError) {
+          console.error('Error updating QB connection:', updateError);
+          throw updateError;
+        }
+        
+        console.log('Updated existing QB connection successfully');
+        
+      } else {
+        // Create new QuickBooks connection
+        console.log('Creating new QB connection for company:', company.id);
+        
+        const { error: insertError } = await supabase
+          .from('quickbooks_connections')
+          .insert({
+            user_id: session.user.dbId, // Connect to the actual authenticated user
+            company_id: company.id,
+            realm_id: realmId,
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            company_name: companyName,
+            is_active: true,
+            updated_at: new Date().toISOString(),
+            last_used_at: new Date().toISOString()
+          });
+        
+        if (insertError) {
+          console.error('Error creating QB connection:', insertError);
+          throw insertError;
+        }
+        
+        console.log('Created new QB connection successfully');
       }
       
-      console.log('Redirecting to analysis page with tokens (fallback)');
-      console.log('Fallback redirect URL:', redirectUrl.toString());
+      // Redirect to overview with success
+      const baseUrl = new URL(request.url).origin;
+      const redirectUrl = new URL('/overview', baseUrl);
+      redirectUrl.searchParams.set('quickbooks', 'connected');
+      redirectUrl.searchParams.set('company_id', company.id);
+      
+      console.log('Redirecting to overview page:', redirectUrl.toString());
       return NextResponse.redirect(redirectUrl);
+      
+    } catch (saveError) {
+      console.error('Error saving QB connection:', saveError);
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Failed to save connection', baseUrl));
     }
   } catch (error) {
     console.error('QuickBooks callback error:', error);
     const baseUrl = new URL(request.url).origin;
     return NextResponse.redirect(
-      new URL(`/analysis?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, baseUrl)
+      new URL(`/overview?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, baseUrl)
     );
   }
 } 

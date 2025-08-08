@@ -38,6 +38,9 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
   };
 
   const handleConnect = () => {
+    // Clear logout flag when user wants to connect
+    localStorage.removeItem('qb_logged_out');
+    
     // If we already have connections, redirect to analysis page
     if (connectionStatus && connectionStatus.availableConnections.length > 0) {
       console.log('Already connected, redirecting to analysis page');
@@ -151,6 +154,8 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
   };
 
   const handleSelectConnection = (connection: QuickBooksConnection) => {
+    // Clear logout flag when user selects a connection
+    localStorage.removeItem('qb_logged_out');
     setSelectedConnectionId(connection.id);
     onConnectionChange?.(connection);
   };
@@ -246,9 +251,22 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
-                    <div>Realm ID: {connection.realm_id}</div>
-                    <div>Connected: {formatDate(connection.created_at)}</div>
-                    <div>Last used: {formatDate(connection.last_used_at)}</div>
+                    {connection.is_service_account && (
+                      <div><span className="font-medium">Type:</span> <span className="text-blue-600">Service Account</span></div>
+                    )}
+                    {connection.user_name ? (
+                      <div><span className="font-medium">Admin:</span> {connection.user_name}</div>
+                    ) : (
+                      <div><span className="font-medium">Admin:</span> <span className="text-gray-400">Unknown user</span></div>
+                    )}
+                    {connection.user_email ? (
+                      <div><span className="font-medium">Email:</span> {connection.user_email}</div>
+                    ) : (
+                      <div><span className="font-medium">Email:</span> <span className="text-gray-400">Not available</span></div>
+                    )}
+                    <div><span className="font-medium">Connected:</span> {formatDate(connection.created_at)}</div>
+                    <div><span className="font-medium">Last used:</span> {formatDate(connection.last_used_at)}</div>
+                    <div className="text-xs text-gray-500">Realm ID: {connection.realm_id}</div>
                   </div>
                 </div>
 
@@ -261,7 +279,16 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
                     {selectedConnectionId === connection.id ? 'Active' : 'Use'}
                   </Button>
                   
-                  {!connection.is_shared ? (
+                  {connection.is_service_account ? (
+                    <Button
+                      size="xs"
+                      variant="secondary"
+                      disabled
+                      title="Service accounts are automatically shared"
+                    >
+                      Shared
+                    </Button>
+                  ) : !connection.is_shared ? (
                     <Button
                       size="xs"
                       variant="secondary"
