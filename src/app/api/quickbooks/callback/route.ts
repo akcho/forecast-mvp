@@ -48,10 +48,28 @@ export async function GET(request: Request) {
     // Check if user is authenticated
     const session = await getServerSession(authOptions);
     if (!session?.user?.dbId) {
-      console.error('User not authenticated');
+      console.error('No authenticated user found');
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL('/auth/signin', baseUrl));
+      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Not authenticated', baseUrl));
     }
+
+    // Check if connection already exists for this user + realm
+    const supabase = getSupabaseClient();
+    const { data: existingConnection } = await supabase
+      .from('quickbooks_connections')
+      .select('*')
+      .eq('user_id', session.user.dbId)
+      .eq('realm_id', realmId)
+      .eq('is_active', true)
+      .single();
+
+    if (existingConnection) {
+      console.log('Connection already exists, redirecting to success');
+      const baseUrl = new URL(request.url).origin;
+      return NextResponse.redirect(new URL('/overview?quickbooks=connected', baseUrl));
+    }
+
+    console.log('Processing new QuickBooks connection for user:', session.user.dbId);
 
     const client = new QuickBooksClient();
     const tokens = await client.exchangeCodeForTokens(code);

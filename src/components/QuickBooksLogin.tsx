@@ -14,11 +14,11 @@ export function QuickBooksLogin({}: QuickBooksLoginProps) {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Auto-redirect to QB OAuth once user is signed in via Google
-    if (session?.user && !connecting) {
-      console.log('User is signed in via Google, redirecting to QB OAuth');
-      handleQuickBooksConnect();
-    }
+    // DISABLED: Auto-redirect causes infinite loops with existing connections
+    // if (session?.user && !connecting) {
+    //   console.log('User is signed in via Google, redirecting to QB OAuth');
+    //   handleQuickBooksConnect();
+    // }
   }, [session, connecting]);
 
   const handleConnect = async () => {

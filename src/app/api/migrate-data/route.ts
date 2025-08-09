@@ -15,14 +15,50 @@ function getSupabaseClient() {
 export async function POST(request: NextRequest) {
   try {
     const supabase = getSupabaseClient();
+    const body = await request.json().catch(() => ({}));
+    
+    // Handle direct user-company linking
+    if (body.action === 'link_user_to_company') {
+      const { user_id, company_id, role = 'admin' } = body;
+      
+      console.log('🔗 Linking user to company:', { user_id, company_id, role });
+      
+      // Link user to company
+      const { data: relationship, error } = await supabase
+        .from('user_company_roles')
+        .upsert({
+          user_id,
+          company_id,
+          role
+        }, {
+          onConflict: 'user_id,company_id'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error linking user to company:', error);
+        return NextResponse.json({
+          success: false,
+          error: 'Failed to link user to company'
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'User successfully linked to company',
+        relationship
+      });
+    }
     
     console.log('🔄 Starting data migration for existing QB connections...');
     
-    // Get all existing QuickBooks connections that don't have company_id set
+    // Get all existing QuickBooks connections that need migration
+    // This includes both null company_id and "default_company" string values
     const { data: connections, error: fetchError } = await supabase
       .from('quickbooks_connections')
       .select('*')
-      .is('company_id', null)
+      .or('company_id.is.null,company_id.eq.default_company')
       .eq('is_active', true);
     
     if (fetchError) {

@@ -140,9 +140,8 @@ function AnalysisContent() {
         client = new QuickBooksClient();
         quickBooksStore.setTokens(connection.access_token, connection.refresh_token);
         client.setRealmId(connection.realm_id);
-        // Immediately check authentication and update isConnected
-        const authenticated = await quickBooksStore.isAuthenticatedWithQuickBooks();
-        setIsConnected(authenticated);
+        // Connection is already validated by getValidConnection(), no need to check again
+        console.log('Using validated connection:', connection.id);
         
         const today = new Date();
         // Calculate end date (last day of previous month)
