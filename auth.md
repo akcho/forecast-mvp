@@ -35,7 +35,55 @@ To ensure the login flow is as familiar and seamless as QuickBooks Online’s ow
 • Intuit OAuth Login UI: As noted, the OAuth 2.0 authorization will direct the user (admin) to Intuit’s hosted login page. This is the same interface they use to log into QBO, so it meets your requirement of matching the main QuickBooks website login. The user enters the same credentials they would on qbo.intuit.com, and if already logged in, Intuit may skip straight to the consent prompt. Using this OAuth flow means you don’t have to handle passwords or mimic the login UI yourself – Intuit provides the trusted login page for you ￼.
 • Intuit Single Sign-On (OpenID Connect): If you want all users (not just the admin) to authenticate via Intuit (for example, to log into your application using their Intuit account), Intuit supports OpenID Connect as an identity layer. This allows your app to accept an Intuit login for user authentication, similar to “Sign in with Intuit”. Intuit’s developer guides suggest setting up OpenID Connect for a simplified user sign-in experience and an added layer of security ￼. With this approach, any user (admin or non-admin) can log into your app using their Intuit credentials, and you can retrieve basic profile info (name, email, etc.) to identify them ￼. This login is separate from the data access authorization – it’s purely for verifying identity in a familiar way. You can combine this with the single stored company token: e.g. a non-admin user logs in via Intuit SSO (so they feel like they “logged into QuickBooks” through your app), and your back-end then uses the pre-authorized token to fetch the P&L data. This setup makes the experience for all users almost identical to using QuickBooks Online directly, with the convenience of not having to ask an admin each time.
 
-By following these practices, all users will have a smooth experience: the initial connection uses the official QuickBooks Online login and consent flow, and thereafter everyone can access the Profit & Loss report through your app as if they were logged into QuickBooks itself. The admin only has to approve the connection once, and your application maintains the authenticated link to QuickBooks Online. Non-admin users won’t be repeatedly prompted for admin approval – they’ll see the data they need, on-demand, just like on the official QBO dashboard, while your integration handles the authentication behind the scenes.
+By following these practices, all users will have a smooth experience: the initial connection uses the official QuickBooks Online login and consent flow, and thereafter everyone can access the Profit & Loss report through your app as if they were logged into QuickBooks itself. The admin only has to approve the connection once, and your application maintains the authenticated link to QuickBooks Online. Non-admin users won't be repeatedly prompted for admin approval – they'll see the data they need, on-demand, just like on the official QBO dashboard, while your integration handles the authentication behind the scenes.
+
+Data Flow for Non-Admin Users
+
+Understanding how non-admin users access QuickBooks data without QuickBooks accounts:
+
+1. User Authentication (Google OAuth): User signs in with Google, creating a user record in your application. No QuickBooks interaction required.
+
+2. Company Association: Admin manually adds user's email to the company's team members, creating a user_company_roles record linking the user to the company.
+
+3. API Request Flow: When the non-admin user requests financial data:
+   - App checks user_company_roles to verify user has access to the company
+   - App retrieves the company's QuickBooks connection (quickbooks_connections table)
+   - App uses the COMPANY's access_token (not user-specific) to call QuickBooks API
+   - QuickBooks validates only that the token is valid for that realm_id
+   - Data is returned and displayed to the user
+
+4. Key Technical Detail: QuickBooks API requires only:
+   - Valid access_token (from the company's stored connection)
+   - Correct realm_id (the QuickBooks company identifier)
+   - No user context or user-specific authentication is needed or checked
+
+Example API call that works for ANY user in the company:
+```
+GET https://sandbox-quickbooks.api.intuit.com/v3/company/{realm_id}/reports/ProfitAndLoss
+Authorization: Bearer {company_access_token}
+```
+
+This is why one admin authorization enables access for all team members - the QuickBooks API operates at the company level, not the user level. The access token IS the authentication, representing the company's permission grant, not any individual user's credentials.
+
+Visual Flow Diagram:
+```
+Non-Admin User                Your App                    QuickBooks
+     |                            |                           |
+     |--Sign in with Google------>|                           |
+     |                            |                           |
+     |<--"You're in Company X"----|                           |
+     |                            |                           |
+     |--"Show me P&L"------------>|                           |
+     |                            |                           |
+     |                            |--Use Company X's token--->|
+     |                            |  (from admin's setup)     |
+     |                            |                           |
+     |                            |<--P&L Data----------------|
+     |                            |                           |
+     |<--P&L Report---------------|                           |
+```
+
+The key insight: QuickBooks thinks it's the company/admin making the request, not the individual user. The non-admin user never directly interacts with QuickBooks.
 
 References and Sources
 • Intuit Developer documentation on OAuth 2.0 for QuickBooks Online (token durations and refresh policies) ￼ ￼
