@@ -89,9 +89,7 @@ function AnalysisContent() {
         let months = 3;
         if (timePeriod === '6months') months = 6;
         if (timePeriod === '12months') months = 12;
-        const startDate = new Date(endDate);
-        startDate.setMonth(endDate.getMonth() - (months - 1));
-        startDate.setDate(1);
+        const startDate = new Date(endDate.getFullYear(), endDate.getMonth() - months + 1, 1);
         const startDateStr = startDate.toISOString().split('T')[0];
 
         console.log('Fetching financial reports:', { startDateStr, endDateStr });
