@@ -207,7 +207,7 @@ function AnalysisContent() {
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: 0, width: 0, flexGrow: 1 }}>
             {/* Controls */}
             <div className="flex-shrink-0 p-6 bg-white border-b">
               <div className="flex items-center justify-between mb-4">
@@ -220,17 +220,19 @@ function AnalysisContent() {
                   </Select>
                 </div>
               </div>
+            </div>
 
-              {/* Statement Tabs */}
-              <TabGroup>
-                <TabList>
+            {/* Statement Tabs */}
+            <div className="flex-1 min-h-0 p-6 pt-0">
+              <TabGroup className="flex flex-col h-full min-h-0">
+                <TabList className="flex-shrink-0">
                   <Tab onClick={() => setActiveStatement('profitLoss')}>Profit & Loss</Tab>
                   <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
                   <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
                 </TabList>
-                <TabPanels className="mt-4 h-full min-h-0">
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                <TabPanels className="mt-4 flex-1 min-h-0 overflow-hidden">
+                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['profitLoss'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['profitLoss'] ? (
@@ -238,7 +240,7 @@ function AnalysisContent() {
                           <Text className="text-red-600">{error['profitLoss']}</Text>
                         </div>
                       ) : reports['profitLoss'] ? (
-                        <div className="h-full min-h-0 overflow-auto">
+                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
                           <PnlTable report={reports['profitLoss']} />
                         </div>
                       ) : (
@@ -248,8 +250,8 @@ function AnalysisContent() {
                       )}
                     </div>
                   </TabPanel>
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['balanceSheet'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['balanceSheet'] ? (
@@ -257,7 +259,7 @@ function AnalysisContent() {
                           <Text className="text-red-600">{error['balanceSheet']}</Text>
                         </div>
                       ) : reports['balanceSheet'] ? (
-                        <div className="h-full min-h-0 overflow-auto">
+                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
                           <PnlTable report={reports['balanceSheet']} />
                         </div>
                       ) : (
@@ -267,8 +269,8 @@ function AnalysisContent() {
                       )}
                     </div>
                   </TabPanel>
-                  <TabPanel className="h-full min-h-0">
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['cashFlow'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['cashFlow'] ? (
@@ -276,7 +278,7 @@ function AnalysisContent() {
                           <Text className="text-red-600">{error['cashFlow']}</Text>
                         </div>
                       ) : reports['cashFlow'] ? (
-                        <div className="h-full min-h-0 overflow-auto">
+                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
                           <PnlTable report={reports['cashFlow']} />
                         </div>
                       ) : (
@@ -290,10 +292,6 @@ function AnalysisContent() {
               </TabGroup>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 overflow-y-auto">
-              {/* Content will be displayed above in TabPanels */}
-            </div>
           </div>
 
           {/* AI Chat Panel */}

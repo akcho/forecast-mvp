@@ -168,10 +168,24 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
   const { Header, Columns, Rows } = report;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">{getFriendlyReportTitle(Header.ReportName)}</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white" style={{ minWidth: `${Math.max(800, Columns.Column.length * 120)}px` }}>
+    <div className="p-4 h-full flex flex-col">
+      <h2 className="text-xl font-bold mb-4 flex-shrink-0">{getFriendlyReportTitle(Header.ReportName)}</h2>
+      <div 
+        className="overflow-auto border border-gray-200 rounded flex-1 min-h-0"
+        style={{ 
+          overflowX: 'scroll',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        <table 
+          className="border-collapse bg-white" 
+          style={{ 
+            minWidth: `${Math.max(1200, Columns.Column.length * 150)}px`,
+            tableLayout: 'fixed',
+            width: `${Math.max(1200, Columns.Column.length * 150)}px`
+          }}
+        >
           <thead>
             <tr>
               {Columns.Column.map((col, index) => (
