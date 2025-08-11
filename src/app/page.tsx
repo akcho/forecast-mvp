@@ -22,7 +22,8 @@ import { useSearchParams } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
 import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
-import { getAvailableConnections, getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 
 interface QuickBooksRow {
@@ -120,6 +121,7 @@ const DebugView = ({ data }: { data: any }) => {
 };
 
 function HomeContent() {
+  const { data: session } = useSession();
   const [analysis, setAnalysis] = useState<RunwayAnalysis | null>(null);
   const [selectedOption, setSelectedOption] = useState<RunwayOption | null>(null);
   const [simulatedAnalysis, setSimulatedAnalysis] = useState<RunwayAnalysis | null>(null);
@@ -157,11 +159,12 @@ function HomeContent() {
 
     console.log('URL parameters:', { status, connectionId, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
 
-    // Check for new connection from OAuth callback
+    // Check for new connection from OAuth callback - redirect to check fresh status
     if (status === 'connected' && connectionId) {
-      console.log('New connection established, fetching data...');
-      setConnectionStatus('connected');
-      fetchFinancialDataWithConnection(parseInt(connectionId));
+      console.log('New connection established, checking fresh status...');
+      if (session?.user?.dbId) {
+        checkForExistingConnections();
+      }
       return;
     }
 
@@ -179,21 +182,32 @@ function HomeContent() {
     }
 
     // Check for existing connections in the database
-    checkForExistingConnections();
+    if (session?.user?.dbId) {
+      checkForExistingConnections();
+    } else {
+      setConnectionStatus('idle');
+    }
 
     if (status === 'error') {
       console.log('QuickBooks connection error');
       setConnectionStatus('error');
     }
-  }, [searchParams]);
+  }, [searchParams, session]);
 
   const checkForExistingConnections = async () => {
     try {
-      const connections = await getAvailableConnections();
-      if (connections.availableConnections.length > 0) {
-        console.log('Found existing connections, using the most recent one');
+      if (!session?.user?.dbId) {
+        setConnectionStatus('idle');
+        return;
+      }
+      
+      const response = await fetch('/api/quickbooks/status');
+      const connectionStatus = await response.json();
+      if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
+        console.log('Found existing connection, using company connection');
         setConnectionStatus('connected');
-        fetchFinancialDataWithConnection(connections.availableConnections[0].id);
+        // Use company connection directly without legacy connection ID
+        fetchFinancialDataFromConnection(connectionStatus.companyConnection);
       } else {
         console.log('No existing connections found');
         setConnectionStatus('idle');
@@ -204,54 +218,50 @@ function HomeContent() {
     }
   };
 
-  const fetchFinancialDataWithConnection = async (connectionId: number) => {
+  const fetchFinancialDataFromConnection = async (connection: any) => {
     try {
-      // First, try to update the connection with the correct user ID if it's a temp user
-      await updateConnectionUserId(connectionId);
-      
-      const connection = await getValidConnection(connectionId);
       console.log('Using connection:', connection.id);
+      setLoading(true);
       
-      // Create a client with the connection data
-      const client = new QuickBooksClient();
-      quickBooksStore.setTokens(connection.access_token, connection.refresh_token);
-      client.setRealmId(connection.realm_id);
+      // Use server-side APIs instead of direct client
+      const [balanceSheetResponse, profitLossResponse] = await Promise.all([
+        fetch('/api/quickbooks/balance-sheet'),
+        fetch('/api/quickbooks/profit-loss')
+      ]);
+
+      if (!balanceSheetResponse.ok || !profitLossResponse.ok) {
+        throw new Error('Failed to fetch financial reports');
+      }
+
+      const [balanceSheetData, profitLossData] = await Promise.all([
+        balanceSheetResponse.json(),
+        profitLossResponse.json()
+      ]);
+
+      // Extract financial data from the reports
+      const { financialData, debugData } = await extractFinancialDataFromReports({
+        balanceSheet: balanceSheetData,
+        profitLoss: profitLossData
+      });
+
+      console.log('Created financial data from server APIs');
+
+      setFinancialData(financialData);
+      setDebugData(debugData);
+
+      const calculator = new RunwayCalculator(financialData);
+      const initialAnalysis = await calculator.analyzeRunway();
+      console.log('Generated initial analysis');
       
-      fetchFinancialData();
+      setAnalysis(initialAnalysis);
+      setLoading(false);
     } catch (error) {
       console.error('Error using connection:', error);
       setConnectionStatus('error');
+      setLoading(false);
     }
   };
 
-  const updateConnectionUserId = async (connectionId: number) => {
-    try {
-      // Get the current user ID from localStorage
-      let userId = localStorage.getItem('qb_user_id');
-      if (!userId) {
-        userId = `user_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-        localStorage.setItem('qb_user_id', userId);
-      }
-      
-      const response = await fetch('/api/quickbooks/connections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'update_user_id',
-          connectionId,
-          userId
-        }),
-      });
-
-      if (!response.ok) {
-        console.warn('Failed to update connection user ID, but continuing...');
-      }
-    } catch (error) {
-      console.warn('Error updating connection user ID:', error);
-    }
-  };
 
   const extractCashBalance = (balanceSheet: QuickBooksReport): number => {
     try {
@@ -548,6 +558,103 @@ function HomeContent() {
           revenue: monthlyRevenue,
           expenses: monthlyExpenses,
           netCashFlow: monthlyRevenue - monthlyExpenses,
+          periodMonths: monthsInPeriod
+        }
+      }
+    };
+
+    return { financialData, debugData };
+  };
+
+  const extractFinancialDataFromReports = async (reports: { balanceSheet: any; profitLoss: any }): Promise<{ financialData: CompanyFinancials; debugData: any }> => {
+    const { balanceSheet, profitLoss } = reports;
+    
+    // Extract cash balance from balance sheet
+    const cashBalance = extractCashBalance(balanceSheet);
+    console.log('Current cash balance:', cashBalance);
+
+    // Process profit and loss report
+    console.log('Profit & Loss report dates:', {
+      startPeriod: profitLoss.QueryResponse.Report.Header.StartPeriod,
+      endPeriod: profitLoss.QueryResponse.Report.Header.EndPeriod,
+      reportBasis: profitLoss.QueryResponse.Report.Header.ReportBasis,
+      startDate: new Date(profitLoss.QueryResponse.Report.Header.StartPeriod).toISOString(),
+      endDate: new Date(profitLoss.QueryResponse.Report.Header.EndPeriod).toISOString()
+    });
+
+    // Parse the date range from the report
+    const startDate = new Date(profitLoss.QueryResponse.Report.Header.StartPeriod + 'T12:00:00.000Z');
+    const endDate = new Date(profitLoss.QueryResponse.Report.Header.EndPeriod + 'T12:00:00.000Z');
+    
+    // Calculate the number of months in the report period
+    const monthsInPeriod = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+      (endDate.getMonth() - startDate.getMonth()) + 1;
+    console.log('Months in period:', monthsInPeriod);
+
+    // Extract revenue data from the Income section
+    const revenueSection = profitLoss.QueryResponse.Report.Rows.Row.find(
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Income'
+    );
+    
+    const revenueItems = revenueSection?.Rows?.Row || [];
+    const revenueAmounts = extractAmountsFromRows(revenueItems);
+    console.log('Revenue items:', revenueAmounts);
+
+    // Extract expense data from the Expenses section
+    const expenseSection = profitLoss.QueryResponse.Report.Rows.Row.find(
+      (row: QuickBooksRow) => row.Header?.ColData?.[0]?.value === 'Expenses'
+    );
+    
+    const expenseItems = expenseSection?.Rows?.Row || [];
+    const expenseAmounts = extractAmountsFromRows(expenseItems);
+    console.log('Expense items:', expenseAmounts);
+
+    // Calculate monthly averages using only the direct items
+    const monthlyRevenue = Math.round((revenueAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod) * 100) / 100;
+    const monthlyExpenses = Math.round((expenseAmounts.reduce((sum, item) => sum + item.amount, 0) / monthsInPeriod) * 100) / 100;
+    console.log('Monthly averages:', {
+      revenue: monthlyRevenue,
+      expenses: monthlyExpenses,
+      netCashFlow: monthlyRevenue - monthlyExpenses,
+    });
+
+    const financialData: CompanyFinancials = {
+      currentCash: cashBalance,
+      monthlyRevenue: monthlyRevenue,
+      monthlyExpenses: monthlyExpenses,
+      revenueStreams: revenueAmounts.map(item => ({
+        id: `revenue_${item.name.toLowerCase().replace(/\s+/g, '_')}`,
+        name: item.name,
+        amount: item.amount / monthsInPeriod,
+        frequency: 'monthly' as const,
+        category: 'revenue' as const,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd')
+      })),
+      expenseCategories: expenseAmounts.map(item => ({
+        id: `expense_${item.name.toLowerCase().replace(/\s+/g, '_')}`,
+        name: item.name,
+        amount: item.amount / monthsInPeriod,
+        frequency: 'monthly' as const,
+        category: 'expense' as const,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd')
+      })),
+      historicalData: {
+        timeline: 'last_quarter' as const,
+        entries: []
+      }
+    };
+
+    const debugData = {
+      balanceSheet: {
+        cashBalance: cashBalance,
+        extractedValue: `$${cashBalance.toLocaleString()}`
+      },
+      profitLoss: {
+        period: {
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
           periodMonths: monthsInPeriod
         }
       }

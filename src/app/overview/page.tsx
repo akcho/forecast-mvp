@@ -5,45 +5,47 @@ import { Card, Title, Text } from '@tremor/react';
 import { AppLayout } from '@/components/AppLayout';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { quickBooksStore } from '@/lib/quickbooks/store';
-import { getAvailableConnections } from '@/lib/quickbooks/connectionManager';
+import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 
 export default function OverviewPage() {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     // Check connection status on client side
     const checkConnection = async () => {
-      // Check if user explicitly logged out
-      const isLoggedOut = localStorage.getItem('qb_logged_out') === 'true';
-      if (isLoggedOut) {
-        console.log('User is logged out');
+      if (!session?.user?.dbId) {
         setConnectionChecked(true);
         return;
       }
 
-      // Check if already connected via stored tokens
-      if (quickBooksStore.getAccessToken()) {
-        console.log('Already connected to QuickBooks');
-        setIsConnected(true);
-      } else {
-        // Check for database connections
-        try {
-          const connections = await getAvailableConnections();
-          if (connections.availableConnections.length > 0) {
-            console.log('Found existing connections');
-            setIsConnected(true);
-          }
-        } catch (error) {
-          console.error('Error checking connections:', error);
+      try {
+        const response = await fetch('/api/quickbooks/status');
+        const connectionStatus = await response.json();
+        if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
+          console.log('Found company connection');
+          setIsConnected(true);
+        } else {
+          console.log('No company connection found');
+          setIsConnected(false);
         }
+      } catch (error) {
+        console.error('Error checking connections:', error);
+        setIsConnected(false);
       }
+      
       setConnectionChecked(true);
     };
 
-    checkConnection();
-  }, []);
+    if (session?.user?.dbId) {
+      checkConnection();
+    } else if (session === null) {
+      // Session loaded but user not authenticated
+      setConnectionChecked(true);
+    }
+  }, [session]);
 
   // Show loading state while checking connection
   if (!connectionChecked) {
@@ -54,8 +56,8 @@ export default function OverviewPage() {
     );
   }
 
-  // Show login screen if not connected
-  if (!isConnected) {
+  // Show login screen if not authenticated or not connected
+  if (!session?.user || !isConnected) {
     console.log('Not connected, showing login screen');
     return <QuickBooksLogin onConnectionChange={() => setIsConnected(true)} />;
   }

@@ -42,6 +42,8 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               google_id: user.id,
               name: user.name,
+              avatar_url: user.image,
+              updated_at: new Date().toISOString()
             }, {
               onConflict: 'email'
             })

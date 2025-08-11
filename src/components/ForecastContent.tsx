@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Card, Title, Text, LineChart, Badge } from '@tremor/react';
-import { getValidConnection, getAvailableConnections } from '@/lib/quickbooks/connectionManager';
+import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { useSession } from 'next-auth/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 
@@ -32,6 +33,7 @@ interface FinancialMetrics {
 }
 
 export function ForecastContent() {
+  const { data: session } = useSession();
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(
     new Set(['Baseline', 'Growth', 'Downturn'])
   );
@@ -133,8 +135,10 @@ export function ForecastContent() {
   const scenarios = getScenarios(financialMetrics);
 
   useEffect(() => {
-    fetchFinancialData();
-  }, []);
+    if (session?.user?.dbId) {
+      fetchFinancialData();
+    }
+  }, [session]);
 
   // Regenerate forecast data when percentages change
   useEffect(() => {
@@ -148,30 +152,23 @@ export function ForecastContent() {
       setLoading(true);
       setError(null);
 
-      // Get a valid connection to QuickBooks
-      const connections = await getAvailableConnections();
-      if (!connections.availableConnections.length) {
+      if (!session?.user?.dbId) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get connection status from API
+      const statusResponse = await fetch('/api/quickbooks/status');
+      const connectionStatus = await statusResponse.json();
+      if (!connectionStatus.hasConnection || !connectionStatus.companyConnection) {
         throw new Error('No QuickBooks connection available');
       }
       
-      const connection = await getValidConnection(connections.availableConnections[0].id);
+      const connection = connectionStatus.companyConnection;
 
-      // Use API routes instead of direct client to work with shared connections
+      // Use API routes that handle authentication internally
       const [balanceSheetResponse, profitLossResponse] = await Promise.all([
-        fetch('/api/quickbooks/balance-sheet', {
-          method: 'GET',
-          headers: {
-            'X-QB-Access-Token': connection.access_token,
-            'X-QB-Realm-ID': connection.realm_id
-          }
-        }),
-        fetch('/api/quickbooks/profit-loss', {
-          method: 'GET',
-          headers: {
-            'X-QB-Access-Token': connection.access_token,
-            'X-QB-Realm-ID': connection.realm_id
-          }
-        })
+        fetch('/api/quickbooks/balance-sheet'),
+        fetch('/api/quickbooks/profit-loss')
       ]);
 
       if (!balanceSheetResponse.ok || !profitLossResponse.ok) {

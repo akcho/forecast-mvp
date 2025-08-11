@@ -1,33 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    let accessToken = request.headers.get('X-QB-Access-Token');
-    let realmId = request.headers.get('X-QB-Realm-ID');
-    const connectionId = request.headers.get('X-QB-Connection-ID');
-    const type = request.nextUrl.searchParams.get('type');
-
-    // If no access token is provided, get a valid connection from the database
+    const accessToken = request.headers.get('X-QB-Access-Token');
+    const realmId = request.headers.get('X-QB-Realm-ID');
+    
     if (!accessToken || !realmId) {
-      try {
-        const connection = await getValidConnection(connectionId ? parseInt(connectionId) : undefined);
-        accessToken = connection.access_token;
-        realmId = connection.realm_id;
-      } catch (error) {
-        console.error('Error getting valid connection:', error);
-        return NextResponse.json({ 
-          error: 'No valid QuickBooks connection available. Please connect your QuickBooks account first.',
-          code: 'NO_CONNECTION'
-        }, { status: 401 });
-      }
+      return NextResponse.json({ error: 'Missing QuickBooks credentials. Please provide X-QB-Access-Token and X-QB-Realm-ID headers.' }, { status: 400 });
     }
 
-    if (!accessToken || !realmId) {
-      return NextResponse.json({ error: 'Missing QuickBooks credentials' }, { status: 400 });
-    }
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
 
     let reportType = '';
     if (type === 'balance-sheet') reportType = 'BalanceSheet';

@@ -2,32 +2,46 @@
 
 import { useState, useEffect } from 'react';
 import { Card, Title, Text, Button, Badge } from '@tremor/react';
-import { getAvailableConnections, QuickBooksConnection, ConnectionStatus } from '@/lib/quickbooks/connectionManager';
+import { QuickBooksConnection } from '@/lib/quickbooks/connectionManager';
+import { useSession } from 'next-auth/react';
 
 interface ConnectionManagerProps {
   onConnectionChange?: (connection: QuickBooksConnection | null) => void;
+}
+
+interface ConnectionStatus {
+  userCompanies: any[];
+  companyConnection?: QuickBooksConnection;
+  activeCompanyId?: string;
+  error?: string;
 }
 
 export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionManagerProps) {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [selectedConnectionId, setSelectedConnectionId] = useState<number | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    loadConnections();
-  }, []);
+    if (session?.user?.dbId) {
+      loadConnections();
+    }
+  }, [session]);
 
   const loadConnections = async () => {
+    if (!session?.user?.dbId) {
+      return;
+    }
+    
     setLoading(true);
     try {
-      const status = await getAvailableConnections();
+      const response = await fetch('/api/quickbooks/status');
+      const status = await response.json();
       setConnectionStatus(status);
       
       // Set the active connection as selected
-      if (status.activeConnection) {
-        setSelectedConnectionId(status.activeConnection.id);
-        onConnectionChange?.(status.activeConnection);
+      if (status.hasConnection && status.companyConnection) {
+        onConnectionChange?.(status.companyConnection);
       }
     } catch (error) {
       console.error('Error loading connections:', error);
@@ -38,11 +52,8 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
   };
 
   const handleConnect = () => {
-    // Clear logout flag when user wants to connect
-    localStorage.removeItem('qb_logged_out');
-    
-    // If we already have connections, redirect to analysis page
-    if (connectionStatus && connectionStatus.availableConnections.length > 0) {
+    // If we already have a company connection, redirect to analysis page
+    if (connectionStatus?.companyConnection) {
       console.log('Already connected, redirecting to analysis page');
       window.location.href = '/analysis';
       return;
@@ -51,113 +62,6 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
     // Otherwise, go through OAuth flow
     console.log('No existing connections, starting OAuth flow');
     window.location.href = '/api/quickbooks/auth';
-  };
-
-  const handleShareConnection = async (connectionId: number) => {
-    setLoading(true);
-    setMessage('');
-    
-    try {
-      const response = await fetch('/api/quickbooks/connections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'share',
-          connectionId
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage('Connection shared successfully!');
-        await loadConnections();
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error sharing connection:', error);
-      setMessage('Failed to share connection');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUnshareConnection = async (connectionId: number) => {
-    setLoading(true);
-    setMessage('');
-    
-    try {
-      const response = await fetch('/api/quickbooks/connections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'unshare',
-          connectionId
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage('Connection unshared successfully!');
-        await loadConnections();
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error unsharing connection:', error);
-      setMessage('Failed to unshare connection');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteConnection = async (connectionId: number) => {
-    if (!confirm('Are you sure you want to delete this connection? This action cannot be undone.')) {
-      return;
-    }
-    
-    setLoading(true);
-    setMessage('');
-    
-    try {
-      const response = await fetch('/api/quickbooks/connections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'delete',
-          connectionId
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage('Connection deleted successfully!');
-        await loadConnections();
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error deleting connection:', error);
-      setMessage('Failed to delete connection');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSelectConnection = (connection: QuickBooksConnection) => {
-    // Clear logout flag when user selects a connection
-    localStorage.removeItem('qb_logged_out');
-    setSelectedConnectionId(connection.id);
-    onConnectionChange?.(connection);
   };
 
   const formatDate = (dateString: string) => {
@@ -202,7 +106,7 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
         </div>
       )}
 
-      {connectionStatus?.availableConnections.length === 0 ? (
+      {!connectionStatus?.companyConnection ? (
         <div className="text-center py-12">
           <div className="mb-6">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -227,106 +131,51 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
         </div>
       ) : (
         <div className="space-y-4">
-          {connectionStatus?.availableConnections.map((connection) => (
-            <div
-              key={connection.id}
-              className={`p-4 border rounded-lg ${
-                selectedConnectionId === connection.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Text className="font-semibold">
-                      {connection.company_name || `Company ${connection.realm_id}`}
-                    </Text>
-                    <Badge color={connection.is_active ? 'green' : 'red'}>
-                      {connection.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                    {connection.is_shared && (
-                      <Badge color="blue">Shared</Badge>
-                    )}
-                  </div>
-                  
-                  <div className="text-sm text-gray-600 space-y-1">
-                    {connection.is_service_account && (
-                      <div><span className="font-medium">Type:</span> <span className="text-blue-600">Service Account</span></div>
-                    )}
-                    {connection.user_name ? (
-                      <div><span className="font-medium">Admin:</span> {connection.user_name}</div>
-                    ) : (
-                      <div><span className="font-medium">Admin:</span> <span className="text-gray-400">Unknown user</span></div>
-                    )}
-                    {connection.user_email ? (
-                      <div><span className="font-medium">Email:</span> {connection.user_email}</div>
-                    ) : (
-                      <div><span className="font-medium">Email:</span> <span className="text-gray-400">Not available</span></div>
-                    )}
-                    <div><span className="font-medium">Connected:</span> {formatDate(connection.created_at)}</div>
-                    <div><span className="font-medium">Last used:</span> {formatDate(connection.last_used_at)}</div>
-                    <div className="text-xs text-gray-500">Realm ID: {connection.realm_id}</div>
-                  </div>
+          <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Text className="font-semibold">
+                    {connectionStatus.companyConnection.company_name || 'Connected Company'}
+                  </Text>
+                  <Badge color="green">Connected</Badge>
                 </div>
-
-                <div className="flex gap-2 ml-4">
-                  <Button
-                    size="xs"
-                    variant={selectedConnectionId === connection.id ? "primary" : "secondary"}
-                    onClick={() => handleSelectConnection(connection)}
-                  >
-                    {selectedConnectionId === connection.id ? 'Active' : 'Use'}
-                  </Button>
-                  
-                  {connection.is_service_account ? (
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      disabled
-                      title="Service accounts are automatically shared"
-                    >
-                      Shared
-                    </Button>
-                  ) : !connection.is_shared ? (
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      onClick={() => handleShareConnection(connection.id)}
-                      loading={loading}
-                    >
-                      Share
-                    </Button>
-                  ) : (
-                    <Button
-                      size="xs"
-                      variant="secondary"
-                      onClick={() => handleUnshareConnection(connection.id)}
-                      loading={loading}
-                    >
-                      Unshare
-                    </Button>
-                  )}
-                  
-                  <Button
-                    size="xs"
-                    variant="secondary"
-                    color="red"
-                    onClick={() => handleDeleteConnection(connection.id)}
-                    loading={loading}
-                  >
-                    Delete
-                  </Button>
+                
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div><span className="font-medium">Company:</span> {connectionStatus.companyConnection.company_name || 'QuickBooks Company'}</div>
+                  <div><span className="font-medium">Connected:</span> {formatDate(connectionStatus.companyConnection.created_at)}</div>
+                  <div><span className="font-medium">Last used:</span> {formatDate(connectionStatus.companyConnection.last_used_at)}</div>
+                  <div className="text-xs text-gray-500">Realm ID: {connectionStatus.companyConnection.realm_id}</div>
                 </div>
               </div>
+
+              <div className="flex gap-2 ml-4">
+                <Button
+                  size="xs"
+                  variant="primary"
+                  onClick={() => window.location.href = '/analysis'}
+                >
+                  Go to Analysis
+                </Button>
+              </div>
             </div>
-          ))}
+          </div>
+          
+          {connectionStatus.userCompanies?.length > 1 && (
+            <div className="mt-4">
+              <Text className="font-medium mb-2">Your Companies:</Text>
+              <div className="space-y-2">
+                {connectionStatus.userCompanies.map((company) => (
+                  <div key={company.id} className="p-3 bg-gray-50 rounded border">
+                    <Text className="font-medium">{company.company?.name || 'Unnamed Company'}</Text>
+                    <Text className="text-sm text-gray-600">Role: {company.role}</Text>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
-
-
-
-
     </Card>
   );
 } 

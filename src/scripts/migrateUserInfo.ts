@@ -159,7 +159,7 @@ async function migrateConnection(connection: QuickBooksConnection): Promise<void
   // Fetch company information if not available
   let companyName = connection.company_name;
   if (!companyName) {
-    companyName = await fetchCompanyInfo(connection.access_token, connection.realm_id);
+    companyName = await fetchCompanyInfo(connection.access_token, connection.realm_id) || undefined;
     if (companyName) {
       console.log(`  ✓ Fetched company name: ${companyName}`);
     } else {
