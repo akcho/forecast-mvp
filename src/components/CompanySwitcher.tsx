@@ -75,18 +75,18 @@ export function CompanySwitcher({
 
   if (companies.length === 0) {
     return (
-      <div className={`flex items-center space-x-2 ${className}`}>
-        <BuildingOffice2Icon className="h-4 w-4 text-gray-400" />
-        <Text className="text-sm text-gray-500">No companies connected</Text>
-        <Button
-          size="xs"
-          variant="secondary"
+      <div className={`flex flex-col space-y-2 ${className}`}>
+        <div className="flex items-center space-x-2">
+          <BuildingOffice2Icon className="h-4 w-4 text-gray-400" />
+          <Text className="text-sm text-gray-500">No companies connected</Text>
+        </div>
+        <button
           onClick={handleAddCompany}
-          className="ml-2"
+          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 hover:border-blue-300 transition-colors"
         >
           <PlusIcon className="h-3 w-3 mr-1" />
           Connect Company
-        </Button>
+        </button>
       </div>
     );
   }
@@ -94,39 +94,40 @@ export function CompanySwitcher({
   const currentCompany = companies.find(c => c.company_id === selectedCompanyId);
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      <BuildingOffice2Icon className="h-4 w-4 text-gray-600 flex-shrink-0" />
-      
-      <Select
-        value={selectedCompanyId}
-        onValueChange={handleCompanyChange}
-        className="min-w-[200px]"
-      >
-        {companies.map((companyRole) => (
-          <SelectItem
-            key={companyRole.company_id}
-            value={companyRole.company_id}
-          >
-            <div className="flex items-center justify-between w-full">
-              <span className="truncate">{companyRole.company.name}</span>
-              <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
-                {companyRole.role}
-              </span>
-            </div>
-          </SelectItem>
-        ))}
-      </Select>
+    <div className={`flex flex-col space-y-2 ${className}`}>
+      {/* Company Selector */}
+      <div className="flex items-center space-x-2">
+        <BuildingOffice2Icon className="h-4 w-4 text-gray-600 flex-shrink-0" />
+        <Select
+          value={selectedCompanyId}
+          onValueChange={handleCompanyChange}
+          className="flex-1"
+        >
+          {companies.map((companyRole) => (
+            <SelectItem
+              key={companyRole.company_id}
+              value={companyRole.company_id}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="truncate">{companyRole.company.name}</span>
+                <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                  {companyRole.role}
+                </span>
+              </div>
+            </SelectItem>
+          ))}
+        </Select>
+      </div>
 
+      {/* Add Company Button */}
       {companies.length > 0 && (
-        <Button
-          size="xs"
-          variant="secondary"
+        <button
           onClick={handleAddCompany}
-          className="flex-shrink-0"
+          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 hover:border-blue-300 transition-colors"
         >
           <PlusIcon className="h-3 w-3 mr-1" />
           Add Company
-        </Button>
+        </button>
       )}
     </div>
   );
