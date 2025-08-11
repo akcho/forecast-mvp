@@ -3,11 +3,8 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { Title, Text, Select, SelectItem, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
-import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { quickBooksStore } from '@/lib/quickbooks/store';
 import { PnlTable } from '.';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
-import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
 import { AppLayout } from '@/components/AppLayout';
@@ -26,6 +23,7 @@ function useIsMobile() {
 function AnalysisContent() {
   const [timePeriod, setTimePeriod] = useState('3months');
   const [aiPanelMinimized, setAiPanelMinimized] = useState(false);
+  const [activeStatement, setActiveStatement] = useState<'profitLoss' | 'balanceSheet' | 'cashFlow'>('profitLoss');
   const [reports, setReports] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ [key: string]: string | null }>({});
@@ -83,17 +81,6 @@ function AnalysisContent() {
       }
       
       try {
-        let client: QuickBooksClient;
-        
-        // Use company-owned connection with user context
-        console.log('Using company connection for financial data');
-        
-        const connection = await getValidConnection(session.user.dbId, activeCompanyId);
-        client = new QuickBooksClient();
-        quickBooksStore.setTokens(connection.access_token, connection.refresh_token);
-        client.setRealmId(connection.realm_id);
-        console.log('Using company connection:', connection.id, 'for company:', activeCompanyId);
-        
         const today = new Date();
         // Calculate end date (last day of previous month)
         const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
@@ -109,11 +96,20 @@ function AnalysisContent() {
 
         console.log('Fetching financial reports:', { startDateStr, endDateStr });
 
-        // Fetch all three reports concurrently
+        // Use API routes that handle authentication internally with monthly breakdown
         const [profitLossData, balanceSheetData, cashFlowData] = await Promise.allSettled([
-          client.getProfitAndLoss({ startDate: startDateStr, endDate: endDateStr }),
-          client.getBalanceSheet({ date: endDateStr }),
-          client.getCashFlow({ startDate: startDateStr, endDate: endDateStr })
+          fetch(`/api/quickbooks/profit-loss?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return res.json();
+          }),
+          fetch(`/api/quickbooks/balance-sheet?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return res.json();
+          }),
+          fetch(`/api/quickbooks/cash-flow?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return res.json();
+          })
         ]);
 
         // Process results
@@ -122,7 +118,7 @@ function AnalysisContent() {
 
         // Process Profit & Loss
         if (profitLossData.status === 'fulfilled') {
-          newReports.profitLoss = profitLossData.value;
+          newReports.profitLoss = profitLossData.value.QueryResponse?.Report || profitLossData.value;
           newError.profitLoss = null;
         } else {
           console.error('P&L Error:', profitLossData.reason);
@@ -131,7 +127,7 @@ function AnalysisContent() {
 
         // Process Balance Sheet
         if (balanceSheetData.status === 'fulfilled') {
-          newReports.balanceSheet = balanceSheetData.value;
+          newReports.balanceSheet = balanceSheetData.value.QueryResponse?.Report || balanceSheetData.value;
           newError.balanceSheet = null;
         } else {
           console.error('Balance Sheet Error:', balanceSheetData.reason);
@@ -140,7 +136,7 @@ function AnalysisContent() {
 
         // Process Cash Flow
         if (cashFlowData.status === 'fulfilled') {
-          newReports.cashFlow = cashFlowData.value;
+          newReports.cashFlow = cashFlowData.value.QueryResponse?.Report || cashFlowData.value;
           newError.cashFlow = null;
         } else {
           console.error('Cash Flow Error:', cashFlowData.reason);
@@ -228,39 +224,67 @@ function AnalysisContent() {
               {/* Statement Tabs */}
               <TabGroup>
                 <TabList>
-                  <Tab>Profit & Loss</Tab>
-                  <Tab>Balance Sheet</Tab>
-                  <Tab>Cash Flow</Tab>
+                  <Tab onClick={() => setActiveStatement('profitLoss')}>Profit & Loss</Tab>
+                  <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
+                  <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
                 </TabList>
-                <TabPanels className="mt-4">
-                  <TabPanel>
-                    {loading['profitLoss'] ? (
-                      <LoadingState type="general" className="py-8" />
-                    ) : error['profitLoss'] ? (
-                      <Text className="text-red-600">{error['profitLoss']}</Text>
-                    ) : reports['profitLoss'] ? (
-                      <PnlTable report={reports['profitLoss']} />
-                    ) : (
-                      <Text>No data available</Text>
-                    )}
+                <TabPanels className="mt-4 h-full min-h-0">
+                  <TabPanel className="h-full min-h-0">
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                      {loading['profitLoss'] ? (
+                        <LoadingState type="general" className="p-8" />
+                      ) : error['profitLoss'] ? (
+                        <div className="p-4">
+                          <Text className="text-red-600">{error['profitLoss']}</Text>
+                        </div>
+                      ) : reports['profitLoss'] ? (
+                        <div className="h-full min-h-0 overflow-auto">
+                          <PnlTable report={reports['profitLoss']} />
+                        </div>
+                      ) : (
+                        <div className="p-4">
+                          <Text>No data available</Text>
+                        </div>
+                      )}
+                    </div>
                   </TabPanel>
-                  <TabPanel>
-                    {loading['balanceSheet'] ? (
-                      <LoadingState type="general" className="py-8" />
-                    ) : error['balanceSheet'] ? (
-                      <Text className="text-red-600">{error['balanceSheet']}</Text>
-                    ) : (
-                      <Text>Balance Sheet data loaded</Text>
-                    )}
+                  <TabPanel className="h-full min-h-0">
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                      {loading['balanceSheet'] ? (
+                        <LoadingState type="general" className="p-8" />
+                      ) : error['balanceSheet'] ? (
+                        <div className="p-4">
+                          <Text className="text-red-600">{error['balanceSheet']}</Text>
+                        </div>
+                      ) : reports['balanceSheet'] ? (
+                        <div className="h-full min-h-0 overflow-auto">
+                          <PnlTable report={reports['balanceSheet']} />
+                        </div>
+                      ) : (
+                        <div className="p-4">
+                          <Text>No data available</Text>
+                        </div>
+                      )}
+                    </div>
                   </TabPanel>
-                  <TabPanel>
-                    {loading['cashFlow'] ? (
-                      <LoadingState type="general" className="py-8" />
-                    ) : error['cashFlow'] ? (
-                      <Text className="text-red-600">{error['cashFlow']}</Text>
-                    ) : (
-                      <Text>Cash Flow data loaded</Text>
-                    )}
+                  <TabPanel className="h-full min-h-0">
+                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white overflow-auto">
+                      {loading['cashFlow'] ? (
+                        <LoadingState type="general" className="p-8" />
+                      ) : error['cashFlow'] ? (
+                        <div className="p-4">
+                          <Text className="text-red-600">{error['cashFlow']}</Text>
+                        </div>
+                      ) : reports['cashFlow'] ? (
+                        <div className="h-full min-h-0 overflow-auto">
+                          <PnlTable report={reports['cashFlow']} />
+                        </div>
+                      ) : (
+                        <div className="p-4">
+                          <Text>No data available</Text>
+                        </div>
+                      )}
+                    </div>
                   </TabPanel>
                 </TabPanels>
               </TabGroup>

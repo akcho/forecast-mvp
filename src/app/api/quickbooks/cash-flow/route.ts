@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
-
-    if (!accessToken || !realmId) {
+    // Check if user is authenticated
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.dbId) {
       return NextResponse.json({ 
-        error: 'Missing QuickBooks credentials. Please provide X-QB-Access-Token and X-QB-Realm-ID headers.',
-        code: 'MISSING_CREDENTIALS'
-      }, { status: 400 });
+        error: 'Not authenticated',
+        code: 'UNAUTHORIZED'
+      }, { status: 401 });
     }
+
+    // Get valid connection (handles token refresh automatically)
+    const connection = await getValidConnection(session.user.dbId);
+    const accessToken = connection.access_token;
+    const realmId = connection.realm_id;
 
     // Get query parameters from the request
     const { searchParams } = new URL(request.url);

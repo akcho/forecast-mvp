@@ -119,15 +119,29 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
         
         if (cellValue === undefined) return <td key={`${rowKey}-cell-${index}`}></td>;
 
-        const isNegative = parseFloat(cellValue) < 0;
+        const numericValue = parseFloat(cellValue);
+        const isNegative = numericValue < 0;
+        const isZero = numericValue === 0;
+        
         let valueColor = 'text-gray-900';
         
+        // Apply specific group-based coloring first
         if (row.group === 'Income') {
           valueColor = 'text-green-600';
         } else if (row.group === 'Expenses' || row.group === 'COGS') {
           valueColor = 'text-red-600';
         } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
           valueColor = isNegative ? 'text-red-600' : 'text-green-600';
+        } else {
+          // For all other rows, apply general positive/negative coloring
+          if (isZero) {
+            valueColor = 'text-gray-500';
+          } else if (isNegative) {
+            valueColor = 'text-red-600';
+          } else {
+            // Positive values - use green for most financial metrics
+            valueColor = 'text-green-600';
+          }
         }
         
         return (
@@ -156,11 +170,8 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-2">{getFriendlyReportTitle(Header.ReportName)}</h2>
-      <div
-        className="overflow-x-scroll overflow-y-auto max-w-none custom-scrollbar"
-        style={{ maxHeight: '70vh', minHeight: 0 }}
-      >
-        <table className="table-fixed" style={{ minWidth: 1200 }}>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse bg-white" style={{ minWidth: `${Math.max(800, Columns.Column.length * 120)}px` }}>
           <thead>
             <tr>
               {Columns.Column.map((col, index) => (
