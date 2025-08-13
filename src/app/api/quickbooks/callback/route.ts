@@ -76,41 +76,92 @@ export async function GET(request: Request) {
       userId: session.user.dbId
     });
 
-    // Fetch company information from QuickBooks
-    console.log('Fetching company information...');
+    // Fetch company information directly from QuickBooks API
+    console.log('=== COMPANY NAME FETCH START ===');
+    console.log('Fetching company information for realm:', realmId);
     let companyName = `Company ${realmId}`;
+    console.log('Default fallback name set to:', companyName);
+    
     try {
-      console.log('Setting temporary tokens in store...');
-      // Temporarily set tokens to fetch company info
-      const { quickBooksStore } = await import('@/lib/quickbooks/store');
-      quickBooksStore.setTokens(tokens.access_token, tokens.refresh_token);
-      quickBooksStore.setRealmId(realmId);
+      console.log('Making direct QuickBooks CompanyInfo API call...');
+      const companyInfoUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+      console.log('API URL:', companyInfoUrl);
+      console.log('Access token length:', tokens.access_token?.length || 0);
+      console.log('Access token first 20 chars:', tokens.access_token?.substring(0, 20) + '...');
       
-      console.log('Calling QuickBooks CompanyInfo API...');
-      const companyInfo = await client.getCompanyInfo();
-      
-      console.log('Company info API response:', {
-        hasQueryResponse: !!companyInfo?.QueryResponse,
-        hasCompanyInfo: !!companyInfo?.QueryResponse?.CompanyInfo,
-        companyInfoCount: companyInfo?.QueryResponse?.CompanyInfo?.length || 0,
-        companyName: companyInfo?.QueryResponse?.CompanyInfo?.[0]?.CompanyName
+      const requestHeaders = {
+        'Authorization': `Bearer ${tokens.access_token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      console.log('Request headers:', {
+        Authorization: requestHeaders.Authorization?.substring(0, 20) + '...',
+        Accept: requestHeaders.Accept,
+        'Content-Type': requestHeaders['Content-Type']
       });
       
-      if (companyInfo?.QueryResponse?.CompanyInfo?.[0]?.CompanyName) {
-        companyName = companyInfo.QueryResponse.CompanyInfo[0].CompanyName;
-        console.log('✅ Successfully fetched company name:', companyName);
+      console.log('Sending fetch request to QuickBooks...');
+      const companyResponse = await fetch(companyInfoUrl, {
+        headers: requestHeaders,
+      });
+
+      console.log('QuickBooks API response received:', {
+        ok: companyResponse.ok,
+        status: companyResponse.status,
+        statusText: companyResponse.statusText,
+        headers: Object.fromEntries(companyResponse.headers.entries())
+      });
+
+      if (companyResponse.ok) {
+        console.log('Response OK - parsing JSON...');
+        const companyData = await companyResponse.json();
+        console.log('=== FULL COMPANY DATA RESPONSE ===');
+        console.log(JSON.stringify(companyData, null, 2));
+        console.log('=== END FULL RESPONSE ===');
+        
+        console.log('Company info API response analysis:', {
+          hasCompanyInfo: !!companyData?.CompanyInfo,
+          companyName: companyData?.CompanyInfo?.CompanyName,
+          fullCompanyInfo: companyData?.CompanyInfo || 'No company info'
+        });
+        
+        if (companyData?.CompanyInfo?.CompanyName) {
+          const fetchedName = companyData.CompanyInfo.CompanyName;
+          console.log('✅ COMPANY NAME FOUND:', fetchedName);
+          console.log('Changing company name from:', companyName);
+          companyName = fetchedName;
+          console.log('Changed company name to:', companyName);
+        } else {
+          console.log('⚠️ NO COMPANY NAME IN RESPONSE STRUCTURE');
+          console.log('Available keys in CompanyInfo:', 
+            companyData?.CompanyInfo ? 
+            Object.keys(companyData.CompanyInfo) : 'No CompanyInfo');
+        }
       } else {
-        console.log('⚠️ No company name in response, using default');
+        console.error('❌ QuickBooks API request failed');
+        const errorText = await companyResponse.text();
+        console.error('Error response details:', {
+          status: companyResponse.status,
+          statusText: companyResponse.statusText,
+          responseHeaders: Object.fromEntries(companyResponse.headers.entries()),
+          responseBody: errorText
+        });
       }
     } catch (companyError) {
-      console.error('❌ Error fetching company information:');
-      console.error('Company error details:', {
+      console.error('❌ EXCEPTION during company name fetch:');
+      console.error('Exception details:', {
+        name: companyError instanceof Error ? companyError.name : 'Unknown',
         message: companyError instanceof Error ? companyError.message : companyError,
         stack: companyError instanceof Error ? companyError.stack : 'No stack',
-        realmId
+        realmId,
+        tokenLength: tokens.access_token?.length || 0
       });
-      console.warn('Using default company name:', companyName);
     }
+    
+    console.log('=== COMPANY NAME FETCH COMPLETE ===');
+    console.log('Final company name to be used:', companyName);
+    console.log('Is it still the default?', companyName === `Company ${realmId}`);
+    console.log('=== END COMPANY NAME SECTION ===');
 
     // Create or get company and grant admin access to user
     console.log('Creating/getting company record...');
