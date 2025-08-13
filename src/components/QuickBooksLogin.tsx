@@ -170,7 +170,7 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
   // Show different UI based on connection status
   if (session?.user && connectionStatus) {
     // User is authenticated with Google
-    if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
+    if (connectionStatus.hasCompanyConnection && connectionStatus.companyConnection) {
       // User has access to a company with QuickBooks connection
       return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -190,7 +190,7 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
               </Badge>
 
               <Text className="text-xs text-gray-500">
-                You have access to {connectionStatus.userCompanies.length} company.
+                You have access to {connectionStatus.userCompaniesCount} company.
                 Your financial data is ready to view.
               </Text>
             </div>
@@ -199,7 +199,7 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
       );
     } 
     
-    if (connectionStatus.userCompanies.length === 0) {
+    if (connectionStatus.userCompaniesCount === 0) {
       // User has no company access - show empty state
       return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -223,21 +223,12 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
                 </Text>
               </div>
 
-              <Text className="text-xs text-gray-500 mb-4">
-                Or, if you're a QuickBooks admin, you can connect a new company:
+              <Text className="text-xs text-gray-500">
+                If you're a QuickBooks admin, you can connect a new company via the{' '}
+                <a href="/admin" className="text-blue-600 hover:text-blue-800 underline">
+                  Admin Panel
+                </a>.
               </Text>
-
-              <Button
-                size="lg"
-                onClick={handleQuickBooksConnect}
-                loading={connecting}
-                className="w-full group"
-              >
-                <span className="flex items-center justify-center">
-                  Connect Your QuickBooks
-                  <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
             </div>
           </Card>
         </div>
@@ -255,24 +246,17 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
 
             <Title className="text-2xl mb-2">QuickBooks Not Connected</Title>
             <Text className="text-gray-600 mb-6">
-              You're part of {connectionStatus.userCompanies.length} company, but QuickBooks isn't connected yet.
+              You're part of {connectionStatus.userCompaniesCount} company, but QuickBooks isn't connected yet.
             </Text>
 
-            <Button
-              size="xl"
-              onClick={handleQuickBooksConnect}
-              loading={connecting}
-              className="w-full group"
-            >
-              <span className="flex items-center justify-center">
-                Connect QuickBooks
-                <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Button>
-
-            <Text className="text-xs text-gray-500 mt-4">
-              Only QuickBooks admins can connect the account.
-            </Text>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <Text className="text-sm text-yellow-800 font-medium mb-2">
+                Contact your company admin
+              </Text>
+              <Text className="text-xs text-yellow-700">
+                Only QuickBooks admins can connect the account. Ask your admin to set up the QuickBooks connection.
+              </Text>
+            </div>
           </div>
         </Card>
       </div>

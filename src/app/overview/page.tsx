@@ -17,18 +17,29 @@ export default function OverviewPage() {
     // Check connection status on client side
     const checkConnection = async () => {
       if (!session?.user?.dbId) {
+        setIsConnected(false);
         setConnectionChecked(true);
         return;
       }
 
+      // Reset connection state before checking
+      setIsConnected(false);
+
       try {
         const response = await fetch('/api/quickbooks/status');
         const connectionStatus = await response.json();
-        if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
+        console.log('Overview page connection status:', connectionStatus);
+        
+        // Check for connection using the correct field names from API
+        if (connectionStatus.isAuthenticated && connectionStatus.hasCompanyConnection && connectionStatus.userCompaniesCount > 0) {
           console.log('Found company connection');
           setIsConnected(true);
         } else {
-          console.log('No company connection found');
+          console.log('No company connection found, reason:', {
+            isAuthenticated: connectionStatus.isAuthenticated,
+            hasCompanyConnection: connectionStatus.hasCompanyConnection,
+            userCompaniesCount: connectionStatus.userCompaniesCount
+          });
           setIsConnected(false);
         }
       } catch (error) {
@@ -57,9 +68,19 @@ export default function OverviewPage() {
   }
 
   // Show login screen if not authenticated or not connected
+  console.log('Overview page render decision:', {
+    hasUser: !!session?.user,
+    isConnected,
+    connectionChecked,
+    shouldShowLogin: !session?.user || !isConnected
+  });
+  
   if (!session?.user || !isConnected) {
     console.log('Not connected, showing login screen');
-    return <QuickBooksLogin onConnectionChange={() => setIsConnected(true)} />;
+    return <QuickBooksLogin onConnectionChange={(connection) => {
+      console.log('Overview: onConnectionChange called with:', connection);
+      setIsConnected(!!connection);
+    }} />;
   }
 
   // Show overview page content when connected
