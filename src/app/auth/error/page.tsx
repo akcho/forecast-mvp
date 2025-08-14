@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Card, Title, Text, Button } from '@tremor/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 const errorMessages: Record<string, { message: string; details?: string }> = {
   Signin: { 
@@ -36,7 +37,7 @@ const errorMessages: Record<string, { message: string; details?: string }> = {
   },
 };
 
-export default function AuthError() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   
@@ -91,5 +92,24 @@ export default function AuthError() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <Card className="max-w-lg w-full mx-4">
+          <div className="text-center">
+            <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+              <ExclamationTriangleIcon className="w-10 h-10 text-red-600" />
+            </div>
+            <Title className="text-2xl mb-2 text-red-900">Loading...</Title>
+          </div>
+        </Card>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
