@@ -7,8 +7,10 @@ import { BuildingLibraryIcon, ArrowRightIcon, CheckCircleIcon, UserGroupIcon } f
 
 interface ConnectionStatus {
   isAuthenticated: boolean;
-  hasConnection: boolean;
-  userCompanies: Array<{
+  hasConnection?: boolean;
+  hasCompanyConnection?: boolean;
+  userCompaniesCount?: number;
+  userCompanies?: Array<{
     id: string;
     quickbooks_realm_id: string;
     name: string;

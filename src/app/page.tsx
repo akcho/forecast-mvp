@@ -619,30 +619,42 @@ function HomeContent() {
     });
 
     const financialData: CompanyFinancials = {
-      currentCash: cashBalance,
-      monthlyRevenue: monthlyRevenue,
-      monthlyExpenses: monthlyExpenses,
+      startDate: startDate,
+      endDate: endDate,
+      cashBalance: cashBalance,
       revenueStreams: revenueAmounts.map(item => ({
         id: `revenue_${item.name.toLowerCase().replace(/\s+/g, '_')}`,
         name: item.name,
-        amount: item.amount / monthsInPeriod,
+        entries: [{
+          id: `${item.name.toLowerCase().replace(/\s+/g, '_')}_entry`,
+          date: format(startDate, 'yyyy-MM-dd'),
+          amount: item.amount / monthsInPeriod,
+          description: `Monthly revenue from ${item.name}`
+        }],
+        isRecurring: true,
         frequency: 'monthly' as const,
-        category: 'revenue' as const,
-        startDate: format(startDate, 'yyyy-MM-dd'),
-        endDate: format(endDate, 'yyyy-MM-dd')
+        growthRate: 0
       })),
-      expenseCategories: expenseAmounts.map(item => ({
+      expenses: expenseAmounts.map(item => ({
         id: `expense_${item.name.toLowerCase().replace(/\s+/g, '_')}`,
         name: item.name,
-        amount: item.amount / monthsInPeriod,
-        frequency: 'monthly' as const,
-        category: 'expense' as const,
-        startDate: format(startDate, 'yyyy-MM-dd'),
-        endDate: format(endDate, 'yyyy-MM-dd')
+        entries: [{
+          id: `${item.name.toLowerCase().replace(/\s+/g, '_')}_entry`,
+          date: format(startDate, 'yyyy-MM-dd'),
+          amount: item.amount / monthsInPeriod,
+          description: `Monthly expense for ${item.name}`
+        }],
+        isFixed: true,
+        frequency: 'monthly' as const
       })),
-      historicalData: {
-        timeline: 'last_quarter' as const,
-        entries: []
+      initialProjection: {
+        date: endDate,
+        revenue: monthlyRevenue,
+        expenses: monthlyExpenses,
+        netIncome: monthlyRevenue - monthlyExpenses,
+        cumulativeCash: cashBalance + (monthlyRevenue - monthlyExpenses),
+        cashBalance: cashBalance,
+        netCashFlow: monthlyRevenue - monthlyExpenses
       }
     };
 

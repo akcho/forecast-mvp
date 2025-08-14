@@ -142,7 +142,7 @@ export async function getUserCompanies(userId: string, useServiceKey = false): P
   console.log('✅ User companies processed:', {
     rawDataLength: data?.length || 0,
     companiesAfterFilter: companies.length,
-    companies: companies.map(c => ({ id: c?.id, name: c?.name, realmId: c?.quickbooks_realm_id }))
+    companies: companies.map((c: any) => ({ id: c?.id, name: c?.name, realmId: c?.quickbooks_realm_id }))
   });
   
   return companies;
