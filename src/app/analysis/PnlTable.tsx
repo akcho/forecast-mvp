@@ -103,18 +103,25 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
   }
 
   let labelColor = 'text-gray-800';
-  if (isSummaryRow) {
+  
+  // Only color labels for key metrics and critical totals
+  if (isKeyMetric) {
+    // Key business metrics: Color based on performance
+    const totalValueStr = rowData[rowData.length - 1]?.value;
+    const isTotalNegative = totalValueStr ? parseFloat(totalValueStr) < 0 : false;
+    labelColor = isTotalNegative ? 'text-red-600' : 'text-green-600';
+  } else if (isSectionTotal) {
+    // Section totals: Subtle coloring for context
     if (row.group === 'Income') {
-      labelColor = 'text-green-600';
+      labelColor = 'text-green-700';
     } else if (row.group === 'Expenses' || row.group === 'COGS') {
-      labelColor = 'text-red-600';
-    } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
-      const totalValueStr = rowData[rowData.length - 1]?.value;
-      const isTotalNegative = totalValueStr ? parseFloat(totalValueStr) < 0 : false;
-      labelColor = isTotalNegative ? 'text-red-600' : 'text-green-600';
+      labelColor = 'text-red-700';
     } else {
       labelColor = 'text-gray-900';
     }
+  } else {
+    // Regular items and sub-totals: Neutral
+    labelColor = 'text-gray-800';
   }
 
   const mainRow = (
@@ -138,24 +145,39 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
         const isNegative = numericValue < 0;
         const isZero = numericValue === 0;
         
-        let valueColor = 'text-gray-900';
+        let valueColor = 'text-gray-700'; // Default neutral color for regular data
         
-        // Apply specific group-based coloring first
-        if (row.group === 'Income') {
-          valueColor = 'text-green-600';
-        } else if (row.group === 'Expenses' || row.group === 'COGS') {
-          valueColor = 'text-red-600';
-        } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
-          valueColor = isNegative ? 'text-red-600' : 'text-green-600';
-        } else {
-          // For all other rows, apply general positive/negative coloring
-          if (isZero) {
-            valueColor = 'text-gray-500';
-          } else if (isNegative) {
+        // Only color meaningful totals and key metrics
+        if (isSummaryRow) {
+          if (row.group === 'Income') {
+            // Total Income: Green if positive, red if negative (unusual)
+            valueColor = isNegative ? 'text-red-600' : 'text-green-600';
+          } else if (row.group === 'Expenses' || row.group === 'COGS') {
+            // Total Expenses/COGS: Red (they're costs)
             valueColor = 'text-red-600';
+          } else if (row.group === 'NetIncome' || row.group === 'GrossProfit') {
+            // Key metrics: Strong color based on performance
+            valueColor = isNegative ? 'text-red-600' : 'text-green-600';
+          } else if (isSubTotal && row.group === 'Income') {
+            // Sub-totals in income: Green for positive
+            valueColor = isNegative ? 'text-red-600' : 'text-green-600';
           } else {
-            // Positive values - use green for most financial metrics
-            valueColor = 'text-green-600';
+            // Other totals: Neutral
+            valueColor = 'text-gray-700';
+          }
+        } else {
+          // Regular data rows: mostly neutral, except notable exceptions
+          if (isZero) {
+            valueColor = 'text-gray-400';
+          } else if (row.group === 'Income' && isNegative) {
+            // Negative income (like discounts): Show as red
+            valueColor = 'text-red-600';
+          } else if ((row.group === 'Expenses' || row.group === 'COGS') && !isNegative && numericValue > 0) {
+            // Positive expenses: Neutral (expected)
+            valueColor = 'text-gray-700';
+          } else {
+            // Everything else: Neutral
+            valueColor = 'text-gray-700';
           }
         }
         
