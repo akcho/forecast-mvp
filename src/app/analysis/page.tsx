@@ -201,7 +201,7 @@ function AnalysisContent() {
   // DESKTOP: Show full layout with sidebar and analysis panel
   return (
     <AppLayout>
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-white">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
@@ -230,7 +230,7 @@ function AnalysisContent() {
                 </TabList>
                 <TabPanels className="mt-4 flex-1 min-h-0 overflow-hidden">
                   <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['profitLoss'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['profitLoss'] ? (
@@ -249,7 +249,7 @@ function AnalysisContent() {
                     </div>
                   </TabPanel>
                   <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['balanceSheet'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['balanceSheet'] ? (
@@ -268,7 +268,7 @@ function AnalysisContent() {
                     </div>
                   </TabPanel>
                   <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 rounded-lg shadow bg-white flex flex-col" style={{ minWidth: 0 }}>
+                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
                       {loading['cashFlow'] ? (
                         <LoadingState type="general" className="p-8" />
                       ) : error['cashFlow'] ? (

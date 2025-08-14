@@ -69,27 +69,37 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
   const isSummary = !!row.Summary;
   const isDataRow = row.type === 'Data';
 
-  const rowStyle: React.CSSProperties = {
+  let rowClassName = 'border-b border-gray-100';
+  let textStyle: React.CSSProperties = {
     paddingLeft: `${level * 20}px`,
   };
-
-  let rowClassName = 'border-b border-gray-100 hover:bg-gray-50';
-  let textStyle: React.CSSProperties = {};
 
   const rowData = isDataRow ? row.ColData : isSummary ? row.Summary?.ColData : row.Header?.ColData;
   if (!rowData) return [];
   const label = rowData[0].value;
   const rowKey = `${parentKey}-${rowData[0].id || label || rowIndex}`;
 
-  const isSummaryRow = label?.includes('Total') || row.group === 'GrossProfit' || row.group === 'NetIncome' || row.group === 'NetOperatingIncome';
+  // Determine total level hierarchy
+  const isKeyMetric = row.group === 'GrossProfit' || row.group === 'NetIncome' || row.group === 'NetOperatingIncome';
+  const isSubTotal = level > 0 && label?.includes('Total');
+  const isSectionTotal = level === 0 && label?.includes('Total') && !isKeyMetric;
+  const isSummaryRow = isKeyMetric || isSubTotal || isSectionTotal;
 
-  if (isSummaryRow) {
+  if (isKeyMetric) {
+    // Key business metrics: bold + extra spacing, minimal background
     textStyle.fontWeight = 'bold';
-    rowClassName += ' bg-gray-50';
-  }
-  
-  if ((row.group === 'GrossProfit' || row.group === 'NetIncome') && rowIndex > 0) {
-    rowClassName += ' border-t-2 border-gray-300';
+    rowClassName += ' hover:bg-gray-50/50 border-t-2 border-gray-300 pt-4';
+  } else if (isSectionTotal) {
+    // Section totals: bold + subtle spacing
+    textStyle.fontWeight = 'bold';
+    rowClassName += ' hover:bg-gray-50/50 border-t border-gray-200 pt-2';
+  } else if (isSubTotal) {
+    // Sub-totals: semibold only, no background
+    textStyle.fontWeight = '600'; // semibold
+    rowClassName += ' hover:bg-gray-50/50';
+  } else {
+    // Regular rows: minimal styling with subtle hover
+    rowClassName += ' hover:bg-gray-50/50';
   }
 
   let labelColor = 'text-gray-800';
@@ -109,8 +119,13 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
 
   const mainRow = (
     <tr key={rowKey} className={rowClassName}>
-      <td style={rowStyle} className="py-2 px-2">
-        <span style={textStyle} className={labelColor}>
+      <td className="py-3 px-3">
+        <span style={textStyle} className={`${labelColor} ${
+          isKeyMetric ? 'text-base font-bold' : 
+          isSectionTotal ? 'text-sm font-bold' : 
+          isSubTotal ? 'text-sm font-semibold' : 
+          'text-sm font-normal'
+        }`}>
           {label}
         </span>
       </td>
@@ -145,7 +160,12 @@ const renderRow = (row: PnLRow, level = 0, columns: any[], rowIndex = 0, parentK
         }
         
         return (
-          <td key={`${rowKey}-cell-${index}`} className={`text-right py-2 px-2 font-mono ${valueColor}`}>
+          <td key={`${rowKey}-cell-${index}`} className={`text-right py-3 px-3 font-mono ${valueColor} ${
+            isKeyMetric ? 'text-base font-bold' : 
+            isSectionTotal ? 'text-sm font-bold' : 
+            isSubTotal ? 'text-sm font-semibold' : 
+            'text-sm font-normal'
+          }`}>
             {formatCurrency(cellValue)}
           </td>
         );
@@ -179,11 +199,10 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
         }}
       >
         <table 
-          className="border-collapse bg-white" 
+          className="border-collapse bg-white w-full" 
           style={{ 
-            minWidth: `${Math.max(1200, Columns.Column.length * 150)}px`,
-            tableLayout: 'fixed',
-            width: `${Math.max(1200, Columns.Column.length * 150)}px`
+            minWidth: `${220 + (Columns.Column.length - 1) * 110}px`,
+            tableLayout: 'fixed'
           }}
         >
           <thead>
@@ -191,8 +210,8 @@ export const PnlTable: React.FC<PnlTableProps> = ({ report }) => {
               {Columns.Column.map((col, index) => (
                 <th
                   key={index}
-                  className={`${index === 0 ? 'text-left' : 'text-right'} py-3 px-2 font-bold text-gray-600`}
-                  style={{ minWidth: index === 0 ? 220 : 140 }}
+                  className={`${index === 0 ? 'text-left' : 'text-right'} py-3 px-3 font-bold text-gray-600`}
+                  style={{ width: index === 0 ? 220 : 110 }}
                 >
                   {col.ColTitle}
                 </th>
