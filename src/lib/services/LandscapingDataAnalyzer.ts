@@ -211,32 +211,189 @@ export class LandscapingDataAnalyzer {
   }
 
   private extractReceivables(balanceSheet: any): number {
-    // TODO: Implement A/R extraction
-    return 0;
+    try {
+      const report = balanceSheet.QueryResponse?.Report;
+      if (!report?.Rows?.Row) return 0;
+
+      const findAccountsReceivable = (rows: any[]): number => {
+        for (const row of rows) {
+          // Look for "Accounts Receivable" section
+          if (row.type === 'Section' && 
+              row.Header?.ColData?.[0]?.value?.includes('Accounts Receivable') &&
+              row.Summary?.ColData) {
+            return parseFloat(row.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0');
+          }
+          // Also check for A/R in current assets
+          if (row.type === 'Data' && 
+              row.ColData?.[0]?.value?.includes('Accounts Receivable')) {
+            return parseFloat(row.ColData[1]?.value?.replace(/[^0-9.-]+/g, '') || '0');
+          }
+          if (row.Rows?.Row) {
+            const result = findAccountsReceivable(row.Rows.Row);
+            if (result > 0) return result;
+          }
+        }
+        return 0;
+      };
+
+      return findAccountsReceivable(report.Rows.Row);
+    } catch (error) {
+      console.error('Error extracting receivables:', error);
+      return 0;
+    }
   }
 
   private extractFixedAssets(balanceSheet: any): number {
-    // TODO: Implement fixed assets extraction
-    return 0;
+    try {
+      const report = balanceSheet.QueryResponse?.Report;
+      if (!report?.Rows?.Row) return 0;
+
+      const findFixedAssets = (rows: any[]): number => {
+        for (const row of rows) {
+          // Look for "Fixed Assets" or "Property and Equipment" section
+          if (row.type === 'Section' && 
+              (row.Header?.ColData?.[0]?.value?.includes('Fixed Assets') ||
+               row.Header?.ColData?.[0]?.value?.includes('Property and Equipment')) &&
+              row.Summary?.ColData) {
+            return parseFloat(row.Summary.ColData[1].value.replace(/[^0-9.-]+/g, '') || '0');
+          }
+          if (row.Rows?.Row) {
+            const result = findFixedAssets(row.Rows.Row);
+            if (result > 0) return result;
+          }
+        }
+        return 0;
+      };
+
+      return findFixedAssets(report.Rows.Row);
+    } catch (error) {
+      console.error('Error extracting fixed assets:', error);
+      return 0;
+    }
   }
 
   private classifyBusinessType(profitLoss: any, balanceSheet: any): 'service' | 'product' | 'hybrid' {
-    // TODO: Implement business type classification
-    return 'service'; // Default for landscaping
+    try {
+      // Analyze expense structure to determine business type
+      const report = profitLoss.QueryResponse?.Report;
+      if (!report?.Rows?.Row) return 'service';
+
+      const expenseSection = report.Rows.Row.find(
+        (row: any) => row.Header?.ColData?.[0]?.value === 'Expenses'
+      );
+
+      if (!expenseSection?.Rows?.Row) return 'service';
+
+      let laborCosts = 0;
+      let materialCosts = 0;
+      let totalExpenses = 0;
+
+      // Analyze expense categories
+      expenseSection.Rows.Row.forEach((row: any) => {
+        if (row.type === 'Data' && row.ColData) {
+          const expenseName = row.ColData[0]?.value?.toLowerCase() || '';
+          const amount = parseFloat(row.ColData[1]?.value || '0');
+          
+          totalExpenses += amount;
+
+          if (expenseName.includes('labor') || expenseName.includes('payroll') || 
+              expenseName.includes('wages') || expenseName.includes('salary')) {
+            laborCosts += amount;
+          }
+          if (expenseName.includes('material') || expenseName.includes('inventory') ||
+              expenseName.includes('cost of goods') || expenseName.includes('cogs')) {
+            materialCosts += amount;
+          }
+        }
+      });
+
+      const laborRatio = totalExpenses > 0 ? laborCosts / totalExpenses : 0;
+      const materialRatio = totalExpenses > 0 ? materialCosts / totalExpenses : 0;
+
+      // Classification thresholds
+      if (materialRatio > 0.3) return 'product';
+      if (laborRatio > 0.4) return 'service';
+      if (materialRatio > 0.1 && laborRatio > 0.2) return 'hybrid';
+      
+      return 'service'; // Default for landscaping
+    } catch (error) {
+      console.error('Error classifying business type:', error);
+      return 'service';
+    }
   }
 
   private analyzeRevenueConsistency(profitLoss: any): number {
-    // TODO: Implement revenue consistency analysis
-    return 0.8; // Default high consistency
+    try {
+      const report = profitLoss.QueryResponse?.Report;
+      if (!report?.Rows?.Row) return 0.8;
+
+      // For now, return a default since we need monthly breakdowns
+      // TODO: Extract monthly revenue data if available in report columns
+      return 0.8; // Assume moderate consistency for landscaping
+    } catch (error) {
+      console.error('Error analyzing revenue consistency:', error);
+      return 0.5;
+    }
   }
 
   private assessDataQuality(profitLoss: any, balanceSheet: any): 'good' | 'limited' | 'poor' {
-    // TODO: Implement data quality assessment
-    return 'limited'; // Conservative default
+    try {
+      let qualityScore = 0;
+      
+      // Check P&L completeness
+      if (profitLoss.QueryResponse?.Report?.Rows?.Row) {
+        qualityScore += 1;
+      }
+      
+      // Check Balance Sheet completeness
+      if (balanceSheet.QueryResponse?.Report?.Rows?.Row) {
+        qualityScore += 1;
+      }
+
+      // Check for key sections in P&L
+      const pnlReport = profitLoss.QueryResponse?.Report;
+      if (pnlReport?.Rows?.Row) {
+        const hasIncome = pnlReport.Rows.Row.some((row: any) => 
+          row.Header?.ColData?.[0]?.value === 'Income'
+        );
+        const hasExpenses = pnlReport.Rows.Row.some((row: any) => 
+          row.Header?.ColData?.[0]?.value === 'Expenses'
+        );
+        
+        if (hasIncome) qualityScore += 1;
+        if (hasExpenses) qualityScore += 1;
+      }
+
+      // Check data period
+      const startDate = new Date(pnlReport?.Header?.StartPeriod);
+      const endDate = new Date(pnlReport?.Header?.EndPeriod);
+      const monthsInPeriod = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+        (endDate.getMonth() - startDate.getMonth()) + 1;
+      
+      if (monthsInPeriod >= 6) qualityScore += 1;
+
+      if (qualityScore >= 4) return 'good';
+      if (qualityScore >= 2) return 'limited';
+      return 'poor';
+    } catch (error) {
+      console.error('Error assessing data quality:', error);
+      return 'poor';
+    }
   }
 
   private calculateAvailableMonths(profitLoss: any): number {
-    // TODO: Calculate actual months of data
-    return 6; // Conservative estimate
+    try {
+      const report = profitLoss.QueryResponse?.Report;
+      if (!report?.Header) return 0;
+
+      const startDate = new Date(report.Header.StartPeriod);
+      const endDate = new Date(report.Header.EndPeriod);
+      
+      return (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+             (endDate.getMonth() - startDate.getMonth()) + 1;
+    } catch (error) {
+      console.error('Error calculating available months:', error);
+      return 0;
+    }
   }
 }
