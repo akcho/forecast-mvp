@@ -33,9 +33,38 @@ export async function GET(request: NextRequest) {
     
     console.log('Extracting comprehensive landscaping data...');
     const businessData = await analyzer.extractComprehensiveData(connection.realm_id);
+    console.log('✅ Landscaping data extraction completed');
     
     console.log('Analyzing business complexity...');
     const complexityProfile = analyzer.analyzeBusinessComplexity(businessData);
+    console.log('✅ Business complexity analysis completed');
+
+    // TEST: Sprint 2 monthly data extraction
+    console.log('🧪 Testing Sprint 2 monthly data methods...');
+    let monthlyData, currentMonth;
+    
+    try {
+      console.log('Calling getMonthlyProfitAndLoss...');
+      monthlyData = await qbAPI.getMonthlyProfitAndLoss(12);
+      console.log('✅ getMonthlyProfitAndLoss completed');
+      
+      console.log('Calling getCurrentMonthActuals...');
+      currentMonth = await qbAPI.getCurrentMonthActuals();
+      console.log('✅ getCurrentMonthActuals completed');
+    } catch (error) {
+      console.error('❌ Error in monthly data calls:', error);
+      throw error;
+    }
+    
+    console.log('📊 Monthly Data Structure:');
+    console.log('- Columns:', monthlyData.Columns?.Column?.map(c => c.ColTitle));
+    console.log('- Full Header:', monthlyData.Header);
+    
+    console.log('📈 Current Month Structure:');
+    console.log('- Has data:', !!currentMonth.Header);
+    console.log('- Header:', currentMonth.Header);
+    
+    console.log('✅ Monthly data extraction completed with debugging');
 
     // Sprint 1 specific analysis results
     const sprint1Results = {
@@ -114,7 +143,20 @@ export async function GET(request: NextRequest) {
         'Validate tab recommendations with business context',
         'Document any unexpected findings',
         'Refine complexity thresholds based on results'
-      ]
+      ],
+
+      // Sprint 2 test results
+      sprint2Tests: {
+        monthlyDataExtraction: {
+          status: 'successful',
+          monthsRetrieved: monthlyData.Columns?.Column?.length || 0,
+          currentMonthData: !!currentMonth.Header,
+          summary: 'Monthly historical and current actuals successfully extracted',
+          monthlyDataColumns: monthlyData.Columns?.Column?.map(col => col.ColTitle) || [],
+          currentMonthHasHeader: !!currentMonth.Header,
+          summarizeColumnsBy: monthlyData.Header?.SummarizeColumnsBy
+        }
+      }
     };
 
     return NextResponse.json(sprint1Results);

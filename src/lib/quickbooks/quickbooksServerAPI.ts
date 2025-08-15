@@ -4,41 +4,43 @@
  */
 
 interface QuickBooksReport {
-  QueryResponse: {
-    Report: {
-      Header: {
-        Time: string;
-        ReportName: string;
-        DateMacro: string;
-        Currency: string;
-        StartPeriod: string;
-        EndPeriod: string;
-        Option: Array<{
-          Name: string;
-          Value: string;
-        }>;
-      };
-      Columns: {
-        Column: Array<{
-          ColTitle: string;
-          ColType: string;
-          MetaData?: Array<{
-            Name: string;
-            Value: string;
-          }>;
-        }>;
-      };
-      Rows: {
-        Row: Array<{
-          RowType: string;
-          ColData: Array<{
-            value: string;
-            id?: string;
-          }>;
-          group?: string;
-        }>;
-      };
-    }[];
+  Header: {
+    Time: string;
+    ReportName: string;
+    DateMacro?: string;
+    ReportBasis?: string;
+    Currency: string;
+    StartPeriod: string;
+    EndPeriod: string;
+    SummarizeColumnsBy?: string;
+    Option: Array<{
+      Name: string;
+      Value: string;
+    }>;
+  };
+  Columns: {
+    Column: Array<{
+      ColTitle: string;
+      ColType: string;
+      MetaData?: Array<{
+        Name: string;
+        Value: string;
+      }>;
+    }>;
+  };
+  Rows: {
+    Row: Array<{
+      RowType?: string;
+      ColData: Array<{
+        value: string;
+        id?: string;
+      }>;
+      group?: string;
+      Header?: any;
+      Rows?: any;
+      Summary?: any;
+      type?: string;
+    }>;
   };
 }
 
@@ -81,12 +83,8 @@ export class QuickBooksServerAPI {
     const result = await response.json();
     console.log(`✅ QB API Response for ${endpoint}:`, JSON.stringify(result, null, 2));
     
-    // Wrap response in QueryResponse format to match expected structure
-    return {
-      QueryResponse: {
-        Report: result
-      }
-    };
+    // QuickBooks API already returns data in the correct format
+    return result;
   }
 
   async getProfitAndLoss(params: Record<string, string> = {}): Promise<QuickBooksReport> {
@@ -101,6 +99,30 @@ export class QuickBooksServerAPI {
     }
 
     return this.makeRequest('reports/ProfitAndLoss', params);
+  }
+
+  // Get monthly P&L data for historical analysis and forecasting
+  async getMonthlyProfitAndLoss(monthsBack: number = 24): Promise<QuickBooksReport> {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of previous month
+    
+    return this.makeRequest('reports/ProfitAndLoss', {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0],
+      summarize_column_by: 'Month'
+    });
+  }
+
+  // Get current month actuals (month-to-date)
+  async getCurrentMonthActuals(): Promise<QuickBooksReport> {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    return this.makeRequest('reports/ProfitAndLoss', {
+      start_date: startOfMonth.toISOString().split('T')[0],
+      end_date: now.toISOString().split('T')[0]
+    });
   }
 
   async getBalanceSheet(params: Record<string, string> = {}): Promise<QuickBooksReport> {
