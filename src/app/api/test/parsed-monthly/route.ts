@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth/config';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { QuickBooksServerAPI } from '@/lib/quickbooks/quickbooksServerAPI';
 import { FinancialDataParser } from '@/lib/services/FinancialDataParser';
+import { DataValidator } from '@/lib/services/DataValidator';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,12 @@ export async function GET(request: NextRequest) {
     console.log('🔄 Parsing data with FinancialDataParser...');
     const parser = new FinancialDataParser();
     const parsedData = parser.parseMonthlyProfitLoss(monthlyPnLData);
+    
+    // Validate the parsed data
+    console.log('✅ Validating parsed data quality...');
+    const validator = new DataValidator();
+    const validationResult = validator.validateProfitLoss(parsedData);
+    const dataQualityReport = validator.generateDataQualityReport(validationResult);
 
     // Test current month actuals
     console.log('📈 Fetching current month actuals...');
@@ -73,7 +80,9 @@ export async function GET(request: NextRequest) {
         period: `${currentMonth.Header?.StartPeriod} to ${currentMonth.Header?.EndPeriod}`,
         reportBasis: currentMonth.Header?.ReportBasis
       },
-      validation: {
+      validation: validationResult,
+      dataQualityReport: dataQualityReport,
+      legacyValidation: {
         monthsWithData: parsedData.period.months.length,
         revenueVsExpense: {
           revenueTotal: parsedData.revenue.grandTotal,

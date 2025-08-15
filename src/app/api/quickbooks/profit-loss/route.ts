@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { FinancialDataParser } from '@/lib/services/FinancialDataParser';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
     const summarizeColumnBy = searchParams.get('summarize_column_by');
+    const parsed = searchParams.get('parsed') === 'true';
 
     // Build the QuickBooks API URL with parameters
     let url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual`;
@@ -57,7 +59,25 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
-    // Wrap the response in QueryResponse.Report structure to match frontend expectations
+    // If parsed data is requested and we have monthly data, include structured output
+    if (parsed && summarizeColumnBy === 'Month') {
+      try {
+        const parser = new FinancialDataParser();
+        const parsedData = parser.parseMonthlyProfitLoss(data);
+        
+        return NextResponse.json({
+          QueryResponse: {
+            Report: data
+          },
+          parsedData: parsedData
+        });
+      } catch (parseError) {
+        console.warn('Failed to parse P&L data:', parseError);
+        // Fall back to raw data if parsing fails
+      }
+    }
+    
+    // Default: Wrap the response in QueryResponse.Report structure to match frontend expectations
     return NextResponse.json({
       QueryResponse: {
         Report: data
