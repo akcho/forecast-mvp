@@ -40,12 +40,12 @@ export async function GET(request: NextRequest) {
       tests: {
         monthlyHistorical: {
           status: 'completed',
-          dataPoints: monthlyData.QueryResponse?.Report?.[0]?.Columns?.Column?.length || 0,
+          dataPoints: monthlyData.Columns?.Column?.length || 0,
           summary: 'Monthly historical P&L data retrieved'
         },
         currentMonthActuals: {
           status: 'completed', 
-          hasData: !!currentMonth.QueryResponse?.Report?.[0],
+          hasData: !!currentMonth.Header,
           summary: 'Current month actuals retrieved'
         }
       },

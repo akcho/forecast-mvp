@@ -17,7 +17,7 @@ export interface MonthlyFinancialLine {
   monthlyValues: MonthlyValue[];
   total: number;
   level: number;      // Indentation level for hierarchy
-  type: 'revenue' | 'expense' | 'summary';
+  type: 'revenue' | 'expense' | 'summary' | 'other';
 }
 
 // Parsed P&L structure ready for forecasting

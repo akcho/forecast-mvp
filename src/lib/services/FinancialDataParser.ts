@@ -143,7 +143,7 @@ export class FinancialDataParser {
     monthColumns: string[], 
     months: Date[], 
     level: number,
-    type: 'revenue' | 'expense' | 'summary'
+    type: 'revenue' | 'expense' | 'summary' | 'other'
   ): MonthlyFinancialLine | null {
     if (!row.ColData || row.ColData.length === 0) return null;
     
