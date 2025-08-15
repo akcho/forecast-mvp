@@ -5,6 +5,7 @@
 
 import { ParsedProfitLoss } from '../types/financialModels';
 import { TrendAnalysis, ExpenseBreakdown } from './TrendAnalyzer';
+import { CategorizedExpenses, ExpenseCategory } from './ExpenseCategorizer';
 
 export type ForecastScenario = 'baseline' | 'growth' | 'downturn';
 
@@ -33,14 +34,18 @@ export interface ForecastedMonth {
   
   // Projected financials
   revenue: number;
-  variableCosts: number;
-  fixedCosts: number;
+  expensesByCategory: {         // Detailed expense breakdown
+    [categoryName: string]: number;
+  };
   totalExpenses: number;
   netIncome: number;
   
   // Calculations metadata
   growthApplied: number;        // Growth rate applied this month
   seasonalMultiplier: number;   // Seasonal adjustment factor
+  inflationAdjustments: {       // Inflation applied by category
+    [categoryName: string]: number;
+  };
 }
 
 export interface ForecastResult {
@@ -62,6 +67,29 @@ export interface ForecastResult {
 }
 
 export class ForecastEngine {
+  
+  /**
+   * Generate enhanced 3-scenario forecasts with detailed expense categorization
+   */
+  generateEnhancedThreeScenarioForecast(
+    historicalData: ParsedProfitLoss,
+    trendAnalysis: TrendAnalysis,
+    categorizedExpenses: CategorizedExpenses,
+    monthsToForecast: number = 12
+  ): ForecastResult[] {
+    
+    // Create enhanced growth assumptions using categorized expenses
+    const baselineAssumptions = this.createEnhancedBaselineAssumptions(trendAnalysis, categorizedExpenses);
+    const growthAssumptions = this.createEnhancedGrowthAssumptions(trendAnalysis, categorizedExpenses);
+    const downturnAssumptions = this.createEnhancedDownturnAssumptions(trendAnalysis, categorizedExpenses);
+    
+    // Generate enhanced forecasts for each scenario
+    return [
+      this.generateEnhancedScenarioForecast(historicalData, baselineAssumptions, categorizedExpenses, monthsToForecast),
+      this.generateEnhancedScenarioForecast(historicalData, growthAssumptions, categorizedExpenses, monthsToForecast),
+      this.generateEnhancedScenarioForecast(historicalData, downturnAssumptions, categorizedExpenses, monthsToForecast)
+    ];
+  }
   
   /**
    * Generate 3-scenario forecasts based on historical data and trend analysis
@@ -291,12 +319,18 @@ export class ForecastEngine {
         date: forecastDate,
         scenario: assumptions.scenario,
         revenue: projectedRevenue,
-        variableCosts,
-        fixedCosts,
+        expensesByCategory: {
+          'Variable Costs': variableCosts,
+          'Fixed Costs': fixedCosts
+        },
         totalExpenses,
         netIncome,
         growthApplied: assumptions.monthlyGrowthRate,
-        seasonalMultiplier
+        seasonalMultiplier,
+        inflationAdjustments: {
+          'Variable Costs': 0,
+          'Fixed Costs': assumptions.fixedCostInflation
+        }
       });
       
       // Update current revenue for next iteration
@@ -315,6 +349,220 @@ export class ForecastEngine {
       totalProjectedExpenses: projections.reduce((sum, p) => sum + p.totalExpenses, 0),
       totalNetIncome: projections.reduce((sum, p) => sum + p.netIncome, 0),
       averageMonthlyGrowth: projections.reduce((sum, p) => sum + p.growthApplied, 0) / projections.length
+    };
+  }
+  
+  // Enhanced forecasting methods with detailed expense categorization
+  
+  /**
+   * Generate enhanced forecast for a single scenario with detailed expenses
+   */
+  private generateEnhancedScenarioForecast(
+    historicalData: ParsedProfitLoss,
+    assumptions: GrowthAssumptions,
+    categorizedExpenses: CategorizedExpenses,
+    monthsToForecast: number
+  ): ForecastResult {
+    
+    // Extract base metrics from historical data
+    const historicalBase = this.extractHistoricalBase(historicalData, assumptions);
+    
+    // Generate enhanced monthly projections with detailed expenses
+    const projections = this.projectEnhancedMonthlyFinancials(
+      historicalBase,
+      assumptions,
+      categorizedExpenses,
+      monthsToForecast
+    );
+    
+    // Calculate summary metrics
+    const summary = this.calculateForecastSummary(projections);
+    
+    return {
+      scenario: assumptions.scenario,
+      assumptions,
+      historicalBase,
+      projections,
+      summary
+    };
+  }
+  
+  /**
+   * Project enhanced monthly financials with category-level expense detail
+   */
+  private projectEnhancedMonthlyFinancials(
+    historicalBase: any,
+    assumptions: GrowthAssumptions,
+    categorizedExpenses: CategorizedExpenses,
+    monthsToForecast: number
+  ): ForecastedMonth[] {
+    
+    const projections: ForecastedMonth[] = [];
+    let currentRevenue = historicalBase.lastMonthRevenue;
+    
+    for (let i = 0; i < monthsToForecast; i++) {
+      const forecastDate = new Date();
+      forecastDate.setMonth(forecastDate.getMonth() + i + 1);
+      
+      const monthName = forecastDate.toLocaleDateString('en-US', { month: 'short' });
+      
+      // Apply growth and seasonal adjustments
+      const growthMultiplier = 1 + (assumptions.monthlyGrowthRate / 100);
+      const seasonalMultiplier = assumptions.seasonalAdjustments[monthName] || 1.0;
+      
+      const projectedRevenue = currentRevenue * growthMultiplier * seasonalMultiplier;
+      
+      // Calculate detailed expenses by category
+      const expensesByCategory: { [categoryName: string]: number } = {};
+      const inflationAdjustments: { [categoryName: string]: number } = {};
+      let totalExpenses = 0;
+      
+      categorizedExpenses.categories.forEach(category => {
+        const monthlyInflationFactor = Math.pow(1 + (category.inflationRate / 100), 1/12);
+        const baseAmount = category.monthlyAverage;
+        
+        let projectedExpense = 0;
+        
+        switch (category.behavior) {
+          case 'fixed':
+            // Fixed costs grow only with inflation
+            projectedExpense = baseAmount * Math.pow(monthlyInflationFactor, i + 1);
+            break;
+            
+          case 'variable':
+            // Variable costs scale with revenue and inflation
+            const revenueRatio = projectedRevenue / historicalBase.averageMonthlyRevenue;
+            projectedExpense = baseAmount * revenueRatio * Math.pow(monthlyInflationFactor, i + 1);
+            break;
+            
+          case 'seasonal':
+            // Seasonal costs with seasonal adjustments and inflation
+            const categorySeasonalMultiplier = category.seasonalPattern?.peakMonths.includes(monthName) ? 
+              (category.seasonalPattern?.multiplier || 1.0) : 1.0;
+            projectedExpense = baseAmount * categorySeasonalMultiplier * Math.pow(monthlyInflationFactor, i + 1);
+            break;
+            
+          case 'stepped':
+            // Stepped costs - simplified to behave like fixed with higher volatility
+            projectedExpense = baseAmount * Math.pow(monthlyInflationFactor, i + 1);
+            break;
+        }
+        
+        expensesByCategory[category.categoryName] = projectedExpense;
+        inflationAdjustments[category.categoryName] = category.inflationRate;
+        totalExpenses += projectedExpense;
+      });
+      
+      const netIncome = projectedRevenue - totalExpenses;
+      
+      projections.push({
+        month: monthName,
+        date: forecastDate,
+        scenario: assumptions.scenario,
+        revenue: projectedRevenue,
+        expensesByCategory,
+        totalExpenses,
+        netIncome,
+        growthApplied: assumptions.monthlyGrowthRate,
+        seasonalMultiplier,
+        inflationAdjustments
+      });
+      
+      // Update current revenue for next iteration
+      currentRevenue = projectedRevenue;
+    }
+    
+    return projections;
+  }
+  
+  /**
+   * Create enhanced baseline assumptions using categorized expenses
+   */
+  private createEnhancedBaselineAssumptions(
+    trendAnalysis: TrendAnalysis,
+    categorizedExpenses: CategorizedExpenses
+  ): GrowthAssumptions {
+    
+    const monthlyGrowthRate = trendAnalysis.recommendedGrowthRate;
+    
+    const seasonalAdjustments = this.buildSeasonalAdjustments(
+      trendAnalysis.peakMonths,
+      trendAnalysis.lowMonths,
+      1.0
+    );
+    
+    // Use categorized variable cost ratio
+    const variableCostRatio = (categorizedExpenses.totalVariableCosts / 
+      (categorizedExpenses.totalFixedCosts + categorizedExpenses.totalVariableCosts)) * 100;
+    
+    return {
+      scenario: 'baseline',
+      monthlyGrowthRate,
+      seasonalAdjustments,
+      variableCostRatio,
+      fixedCostInflation: categorizedExpenses.inflationAssumptions.generalInflation,
+      marketConditions: 'stable',
+      confidenceLevel: trendAnalysis.confidenceLevel
+    };
+  }
+  
+  /**
+   * Create enhanced growth assumptions
+   */
+  private createEnhancedGrowthAssumptions(
+    trendAnalysis: TrendAnalysis,
+    categorizedExpenses: CategorizedExpenses
+  ): GrowthAssumptions {
+    
+    const monthlyGrowthRate = trendAnalysis.recommendedGrowthRate * 1.5;
+    
+    const seasonalAdjustments = this.buildSeasonalAdjustments(
+      trendAnalysis.peakMonths,
+      trendAnalysis.lowMonths,
+      1.2
+    );
+    
+    const variableCostRatio = (categorizedExpenses.totalVariableCosts / 
+      (categorizedExpenses.totalFixedCosts + categorizedExpenses.totalVariableCosts)) * 100 * 0.95;
+    
+    return {
+      scenario: 'growth',
+      monthlyGrowthRate,
+      seasonalAdjustments,
+      variableCostRatio,
+      fixedCostInflation: categorizedExpenses.inflationAssumptions.generalInflation * 1.2,
+      marketConditions: 'expanding',
+      confidenceLevel: trendAnalysis.confidenceLevel === 'high' ? 'medium' : 'low'
+    };
+  }
+  
+  /**
+   * Create enhanced downturn assumptions
+   */
+  private createEnhancedDownturnAssumptions(
+    trendAnalysis: TrendAnalysis,
+    categorizedExpenses: CategorizedExpenses
+  ): GrowthAssumptions {
+    
+    const monthlyGrowthRate = Math.min(trendAnalysis.recommendedGrowthRate * 0.3, -2.0);
+    
+    const seasonalAdjustments = this.buildSeasonalAdjustments(
+      trendAnalysis.peakMonths,
+      trendAnalysis.lowMonths,
+      0.8
+    );
+    
+    const variableCostRatio = (categorizedExpenses.totalVariableCosts / 
+      (categorizedExpenses.totalFixedCosts + categorizedExpenses.totalVariableCosts)) * 100 * 1.05;
+    
+    return {
+      scenario: 'downturn',
+      monthlyGrowthRate,
+      seasonalAdjustments,
+      variableCostRatio,
+      fixedCostInflation: categorizedExpenses.inflationAssumptions.generalInflation * 0.7,
+      marketConditions: 'contracting',
+      confidenceLevel: 'medium'
     };
   }
 }
