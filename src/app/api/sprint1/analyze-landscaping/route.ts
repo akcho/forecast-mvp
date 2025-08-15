@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth/config';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
-import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { QuickBooksServerAPI } from '@/lib/quickbooks/quickbooksServerAPI';
 import { LandscapingDataAnalyzer } from '@/lib/services/LandscapingDataAnalyzer';
 
 /**
@@ -22,14 +22,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No QuickBooks connection available' }, { status: 404 });
     }
 
-    const qbClient = new QuickBooksClient(
+    const qbAPI = new QuickBooksServerAPI(
       connection.access_token,
       connection.refresh_token,
       connection.realm_id
     );
 
     // Initialize analyzer and extract data
-    const analyzer = new LandscapingDataAnalyzer(qbClient);
+    const analyzer = new LandscapingDataAnalyzer(qbAPI);
     
     console.log('Extracting comprehensive landscaping data...');
     const businessData = await analyzer.extractComprehensiveData(connection.realm_id);

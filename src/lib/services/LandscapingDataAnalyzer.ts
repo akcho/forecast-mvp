@@ -3,7 +3,7 @@
  * Tests our assumptions about business complexity detection
  */
 
-import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { QuickBooksServerAPI } from '@/lib/quickbooks/quickbooksServerAPI';
 
 export interface LandscapingBusinessData {
   // Raw QB data
@@ -46,20 +46,20 @@ export interface BusinessComplexityProfile {
 }
 
 export class LandscapingDataAnalyzer {
-  private qbClient: QuickBooksClient;
+  private qbAPI: QuickBooksServerAPI;
 
-  constructor(qbClient: QuickBooksClient) {
-    this.qbClient = qbClient;
+  constructor(qbAPI: QuickBooksServerAPI) {
+    this.qbAPI = qbAPI;
   }
 
   /**
    * Extract comprehensive data from QB for analysis
    */
-  async extractComprehensiveData(companyId: string): Promise<LandscapingBusinessData> {
+  async extractComprehensiveData(_companyId: string): Promise<LandscapingBusinessData> {
     // Get basic financial reports
     const [profitLoss, balanceSheet] = await Promise.all([
-      this.qbClient.getProfitAndLoss(companyId),
-      this.qbClient.getBalanceSheet(companyId)
+      this.qbAPI.getProfitAndLoss(),
+      this.qbAPI.getBalanceSheet()
     ]);
 
     // Extract basic metrics (reusing existing logic from ForecastContent)

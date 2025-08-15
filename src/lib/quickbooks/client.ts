@@ -87,26 +87,17 @@ export class QuickBooksClient {
   private clientId: string;
   private clientSecret: string;
   private redirectUri: string;
-  private accessToken?: string;
-  private refreshToken?: string;
-  private realmId?: string;
 
-  constructor(accessToken?: string, refreshToken?: string, realmId?: string) {
+  constructor() {
     console.log('Initializing QuickBooks client');
     this.clientId = process.env.NEXT_PUBLIC_QB_CLIENT_ID || '';
     this.clientSecret = process.env.NEXT_PUBLIC_QB_CLIENT_SECRET || '';
     this.redirectUri = process.env.NEXT_PUBLIC_QB_REDIRECT_URI || '';
     
-    // Support direct token injection for server-side usage
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-    this.realmId = realmId;
-    
     console.log('QuickBooks client initialized:', {
       hasClientId: !!this.clientId,
       hasClientSecret: !!this.clientSecret,
-      hasRedirectUri: !!this.redirectUri,
-      hasDirectTokens: !!(accessToken && refreshToken && realmId)
+      hasRedirectUri: !!this.redirectUri
     });
   }
 
@@ -245,9 +236,8 @@ export class QuickBooksClient {
 
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
     try {
-      // Use direct tokens if available (server-side), otherwise use store (client-side)
-      const accessToken = this.accessToken || quickBooksStore.getAccessToken();
-      const realmId = this.realmId || quickBooksStore.getRealmId();
+      const accessToken = quickBooksStore.getAccessToken();
+      const realmId = quickBooksStore.getRealmId();
 
       if (!accessToken || !realmId) {
         throw new Error('Not authenticated with QuickBooks');
@@ -311,13 +301,11 @@ export class QuickBooksClient {
     }
   }
 
-  async getBalanceSheet(_companyId?: string, params: Record<string, string> = {}): Promise<QuickBooksReport> {
-    // _companyId parameter for compatibility with analyzer, but we use realmId from connection
+  async getBalanceSheet(params: Record<string, string> = {}): Promise<QuickBooksReport> {
     return this.makeRequest('balance-sheet', params);
   }
 
-  async getProfitAndLoss(_companyId?: string, params: Record<string, string> = {}): Promise<QuickBooksReport> {
-    // _companyId parameter for compatibility with analyzer, but we use realmId from connection
+  async getProfitAndLoss(params: Record<string, string> = {}): Promise<QuickBooksReport> {
     return this.makeRequest('profit-loss', params);
   }
 
