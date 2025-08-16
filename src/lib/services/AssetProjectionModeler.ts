@@ -224,9 +224,9 @@ export class AssetProjectionModeler {
       const monthlyRevenue = revenueProjection?.revenue || 0;
       
       // Calculate beginning balances
-      const beginningGrossAssets = Object.values(currentAssetsByCategory).reduce((sum: number, cat: any) => sum + cat.grossValue, 0);
-      const beginningAccumulatedDepreciation = Object.values(currentAssetsByCategory).reduce((sum: number, cat: any) => sum + cat.accumulatedDepreciation, 0);
-      const beginningNetAssets = beginningGrossAssets - beginningAccumulatedDepreciation;
+      const beginningGrossAssets = Object.values(currentAssetsByCategory).reduce((sum: number, cat: any) => sum + (cat.grossValue || 0), 0);
+      const beginningAccumulatedDepreciation = Object.values(currentAssetsByCategory).reduce((sum: number, cat: any) => sum + (cat.accumulatedDepreciation || 0), 0);
+      const beginningNetAssets = Number(beginningGrossAssets) - Number(beginningAccumulatedDepreciation);
       
       // Calculate new asset additions
       const seasonalCapexFactor = (assumptions.seasonalCapexTiming[monthName] || 8) / 100;
@@ -273,9 +273,9 @@ export class AssetProjectionModeler {
       });
       
       // Calculate ending balances
-      const endingGrossAssets = Object.values(updatedAssetsByCategory).reduce((sum: number, cat: any) => sum + cat.grossValue, 0);
-      const endingAccumulatedDepreciation = Object.values(updatedAssetsByCategory).reduce((sum: number, cat: any) => sum + cat.accumulatedDepreciation, 0);
-      const endingNetAssets = endingGrossAssets - endingAccumulatedDepreciation;
+      const endingGrossAssets = Object.values(updatedAssetsByCategory).reduce((sum: number, cat: any) => sum + (cat.grossValue || 0), 0);
+      const endingAccumulatedDepreciation = Object.values(updatedAssetsByCategory).reduce((sum: number, cat: any) => sum + (cat.accumulatedDepreciation || 0), 0);
+      const endingNetAssets = Number(endingGrossAssets) - Number(endingAccumulatedDepreciation);
       
       // Cash flow impacts
       const capexCashOutflow = totalAssetAdditions * (assumptions.cashVsFinanced / 100);
@@ -290,16 +290,16 @@ export class AssetProjectionModeler {
       projections.push({
         month: monthName,
         date: forecastDate,
-        beginningGrossAssets,
-        beginningAccumulatedDepreciation,
-        beginningNetAssets,
+        beginningGrossAssets: Number(beginningGrossAssets),
+        beginningAccumulatedDepreciation: Number(beginningAccumulatedDepreciation),
+        beginningNetAssets: Number(beginningNetAssets),
         assetAdditions: totalAssetAdditions,
         assetDisposals,
         monthlyDepreciation: totalMonthlyDepreciation,
         assetsByCategory: updatedAssetsByCategory,
-        endingGrossAssets,
-        endingAccumulatedDepreciation,
-        endingNetAssets,
+        endingGrossAssets: Number(endingGrossAssets),
+        endingAccumulatedDepreciation: Number(endingAccumulatedDepreciation),
+        endingNetAssets: Number(endingNetAssets),
         capexCashOutflow,
         disposalCashInflow,
         netCapexCashFlow,
