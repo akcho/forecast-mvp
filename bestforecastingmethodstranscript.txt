@@ -1,0 +1,580 @@
+# tactiq.io free youtube transcript
+# No title found
+# https://www.youtube.com/watch/81DV6Q9HinQ
+
+00:00:00.000 No text
+00:00:00.080 in corporate finance creating forecasts
+00:00:02.639 is something we do constantly but the
+00:00:05.600 truth is most finance professionals are
+00:00:08.400 stuck using just one or two basic
+00:00:11.280 forecasting methods leading to
+00:00:13.360 unreliable forecasts that executives
+00:00:17.039 simply don't trust now as an FPNA leader
+00:00:21.119 with over a decade of experience
+00:00:23.199 training thousands of finance pros I'm
+00:00:25.680 making this video to break down the
+00:00:28.240 seven best forecasting techniques you
+00:00:30.640 need to master explaining exactly when
+00:00:33.760 and how to use each one to drastically
+00:00:37.120 improve your forecast accuracy let's
+00:00:39.920 start with the first one which is
+00:00:40.000 No text
+00:00:42.640 percentage adjustments this is also
+00:00:45.200 called the incremental approach this is
+00:00:48.239 the simplest method of all you simply
+00:00:50.719 multiply prior year's figures by how
+00:00:53.840 much you expect them to grow or decline
+00:00:57.920 so imagine you have your profit and loss
+00:01:01.039 statement and then you have your
+00:01:03.600 financials by month and then to come up
+00:01:06.880 with your forecast for the next year you
+00:01:09.439 take each month's number for revenues
+00:01:13.439 expenses etc and multiply it with say a
+00:01:17.720 5% increase for revenues and a 3%
+00:01:21.759 increase for certain expenses now let's
+00:01:25.360 take a look at the advantages and
+00:01:27.520 disadvantages of this method because
+00:01:29.600 there are a few advantages and an even
+00:01:32.400 longer list of disadvantages to keep in
+00:01:35.360 mind first of all the advantage is that
+00:01:37.840 this method is simple and quick to
+00:01:40.880 implement it's also simple to explain to
+00:01:44.640 people outside of finance you don't need
+00:01:47.439 to have a a degree in finance or
+00:01:50.640 accounting to understand that well if
+00:01:52.720 there's a 3% inflation on your marketing
+00:01:56.799 expenses then you can expect this cost
+00:01:59.439 to increase by 3% in the future another
+00:02:02.640 advantage is that using this method you
+00:02:04.719 can also account for seasonality if you
+00:02:08.160 already have an understanding of what
+00:02:09.520 that seasonality is because you can use
+00:02:12.400 you can take your actuals as a baseline
+00:02:15.440 you can do that on a monthly or even
+00:02:17.120 more granular on a weekly or even daily
+00:02:19.520 basis and then use that as the baseline
+00:02:23.120 for your forecast which ensures that any
+00:02:26.080 seasonality that was already there in
+00:02:28.800 your actuals will also be included in
+00:02:32.319 your projections now let's talk about
+00:02:34.959 the disadvantages one there is no force
+00:02:38.120 analysis it's a fairly shallow way of
+00:02:41.200 doing forecasting right you take your
+00:02:43.519 existing actual results and then you
+00:02:46.000 come up with a multiplication and a
+00:02:49.519 factor to drive this number now to be
+00:02:52.560 clear how you come up with this number
+00:02:55.200 this percentage increase or decrease for
+00:02:57.760 your revenue and expenses there can be a
+00:03:00.160 whole sophisticated process behind that
+00:03:03.840 but even then you're just taking your
+00:03:06.959 actuals as for granted essentially and
+00:03:10.640 you're you're not taking into account
+00:03:12.480 there could be oneoffs that only occur
+00:03:14.640 occur once um and shouldn't influence
+00:03:17.040 your forecast and you're also not taking
+00:03:20.000 a closer look at whether there are any
+00:03:23.040 expenses or revenue growth tactics that
+00:03:26.480 maybe didn't work as well as uh
+00:03:29.360 originally planned that shouldn't be
+00:03:31.440 included in projections going forward in
+00:03:34.000 short because it is so simple it's easy
+00:03:37.040 to brush over these um important aspects
+00:03:40.879 that can actually have a big impact on
+00:03:43.280 your business secondly using the
+00:03:46.560 incremental approach for forecasting
+00:03:49.040 expenses can create unwanted incentives
+00:03:52.480 consider this example your marketing
+00:03:55.120 team knows that you will forecast their
+00:03:58.400 budget for next year using the
+00:04:00.480 incremental method meaning they will
+00:04:03.040 probably get a four or 5% increase in
+00:04:06.480 their budgets to account to inflation
+00:04:09.040 they've known from experience that this
+00:04:11.360 is usually what they can expect now the
+00:04:13.439 incentives you're creating is that this
+00:04:15.599 marketing manager will make sure to
+00:04:17.918 spend every last dollar by the end of
+00:04:20.720 the year because if they spend less this
+00:04:22.960 year then the basis for that four to 5%
+00:04:26.960 inflation increase for next year is
+00:04:29.199 lower and they will also get less money
+00:04:32.160 next year what that means is that they
+00:04:34.720 might be spending marketing dollars on
+00:04:37.600 lower ROI activities than they would
+00:04:39.919 have otherwise what you want your
+00:04:41.840 leaders across the company to do is to
+00:04:44.479 flag when they can't spend the budget
+00:04:47.919 anymore at a high ROI and hand it back
+00:04:50.639 so the company can reallocate the funds
+00:04:52.960 to higher ROI activities but an
+00:04:55.440 incremental budgeting approach can
+00:04:57.400 incentivize the opposite now even though
+00:05:00.080 there are some significant disadvantages
+00:05:02.800 associated with the incremental approach
+00:05:05.759 it still made it on the list of the
+00:05:08.560 seven best forecasting techniques
+00:05:10.560 because it's fantastic in a very narrow
+00:05:13.199 but in a very specific set of um
+00:05:16.199 circumstances and that's when you need
+00:05:18.560 to forecast expenses with low strategic
+00:05:21.919 importance because the thing is the
+00:05:23.919 other forecasting techniques that we
+00:05:26.400 discuss here have significant advantages
+00:05:28.960 but they uh are also much more time
+00:05:31.919 consuming so if time of is of the
+00:05:34.320 essence and if what you're forecasting
+00:05:36.880 is just a small part of the business
+00:05:38.880 it's not strategic in nature by all
+00:05:41.120 means use this technique an example
+00:05:43.520 would be office supplies right that's
+00:05:46.000 simply where you can take last year's
+00:05:47.600 spending apply a 3% increase for
+00:05:50.560 inflation and you're good to go next we
+00:05:53.000 No text
+00:05:53.199 have driver-based forecasting which is
+00:05:55.840 actually one of my absolute favorite
+00:05:57.919 forecasting techniques as you will see
+00:06:00.960 here you each strategic business driver
+00:06:04.000 is mathematically tied to associated
+00:06:07.039 sales or costs so you come up with a
+00:06:10.400 list of 10 to 15 drivers that influence
+00:06:14.720 your business things that you might be
+00:06:16.880 doing differently tactics that that
+00:06:19.440 people across the company employ then
+00:06:21.360 you estimate the return on these uh of
+00:06:24.080 these drivers so for example you might
+00:06:26.720 be considering to increase the number of
+00:06:30.000 salespeople on your team you have an
+00:06:32.080 associated increase of sales with that
+00:06:34.639 or you might invest more into marketing
+00:06:38.800 around your brand name so when people
+00:06:41.039 come across your your your offers they
+00:06:44.720 uh recognize the brand and everything
+00:06:46.479 the brand stands for that's a bit more
+00:06:49.039 difficult to measure than hiring more
+00:06:52.319 salespeople but could also be an
+00:06:54.160 important business driver and so you
+00:06:56.479 make your list you estimate the impact
+00:06:58.960 on your results and then you can also
+00:07:02.160 use this as a starting point for
+00:07:04.240 scenario planning so for each business
+00:07:06.080 driver you have a a worst case scenario
+00:07:09.280 of the of its impact on the business you
+00:07:12.000 have a base case and you have a bestcase
+00:07:15.599 scenario and then you have a range of
+00:07:17.840 possible outcomes and what this allows
+00:07:19.919 you to do is let's say the base case for
+00:07:22.800 all your business drivers doesn't get
+00:07:24.800 you to the revenue forecast that you
+00:07:28.000 need to be at and so then you have a
+00:07:30.560 discussion with the leadership team and
+00:07:32.080 you might say well we have good data on
+00:07:35.840 increasing salespeople we have a good
+00:07:37.759 track record of attracting high
+00:07:40.160 performing salespeople so for this
+00:07:42.319 business driver we are happy to go with
+00:07:44.880 the best case scenario and we're willing
+00:07:46.880 to take that risk other common business
+00:07:49.759 drivers that are included here are the
+00:07:52.400 number of your leads or any new features
+00:07:57.120 or products you roll out now looking at
+00:08:00.000 the advantages what I love about
+00:08:02.160 driver-based forecasting is that it
+00:08:04.560 enables and forces you to do a thorough
+00:08:07.440 analysis of what really matters you
+00:08:10.479 can't throw 50 drivers on the sheet that
+00:08:13.360 would be completely overkill and
+00:08:15.680 difficult to manage and wouldn't really
+00:08:17.360 get you there because you can't have
+00:08:19.280 proper discussions around it you have to
+00:08:21.520 think about what are the 10 to 15 things
+00:08:24.319 that will really move the needle and in
+00:08:26.240 doing so you build your business
+00:08:27.919 understanding you're getting closer to
+00:08:30.319 your cross functional business partners
+00:08:32.479 all of which is important for having a
+00:08:35.519 bigger impact as a as a finance leader
+00:08:38.240 server based forecasting also enables
+00:08:40.399 scenario planning as we've discussed
+00:08:42.000 which is a big advantage because
+00:08:44.080 scenario planning allows you to have a
+00:08:46.720 conversation around risk and also make
+00:08:49.519 sure that you put things into motion
+00:08:52.880 early when you realize that the upside
+00:08:55.279 the best case is particularly
+00:08:57.519 significant for example furthermore
+00:08:59.920 driverbased forecasting is a technique
+00:09:02.560 that remains useful throughout the year
+00:09:05.360 because let's say you refresh your
+00:09:07.040 forecast on a monthly basis every time
+00:09:09.120 you you learn something new about one of
+00:09:11.279 the drivers of your driver-based
+00:09:13.200 forecast you can tweak the model you can
+00:09:15.519 update it and so it becomes more and
+00:09:18.000 more accurate as you go through the year
+00:09:20.720 it's a living and breathing document but
+00:09:22.720 like any forecasting techniques there
+00:09:24.800 are also a few disadvantages to consider
+00:09:27.680 number one is it requires deep business
+00:09:30.880 understanding i mentioned that forcing
+00:09:33.279 you to do this analysis is an advantage
+00:09:36.240 but if you're just getting started or
+00:09:38.480 maybe you're new to the company and the
+00:09:40.399 business then this might be something
+00:09:42.560 that yeah can hold you back and it can
+00:09:44.959 make the process of building a driver
+00:09:46.959 base forecast quite time consuming
+00:09:49.279 because there are a lot of conversations
+00:09:50.800 you need to have a lot you need to do to
+00:09:52.959 build that understanding and there's
+00:09:54.800 also a risk of error stacking what it
+00:09:57.519 means is that every estimating the
+00:09:59.839 return on investment of each driver is
+00:10:02.320 often more an art than a science and so
+00:10:05.920 with each line item there's a margin of
+00:10:08.320 error and if you have many drivers then
+00:10:10.399 these margins for error add up sometimes
+00:10:14.240 if drivers are interrelated then they
+00:10:17.120 can even multiply but it's possible to
+00:10:19.839 work around that by making sure you're
+00:10:22.240 not including too many drivers overall
+00:10:25.680 driver-based forecasting is fantastic
+00:10:29.040 for estimating revenue and having a
+00:10:32.440 collaborative forecasting process with
+00:10:34.959 the cross functional team i truly think
+00:10:37.440 driver-based forecasting is one of the
+00:10:39.760 best techniques out there so I made a
+00:10:42.320 course about it breaking down exactly
+00:10:44.399 how it works and how you can use it i'm
+00:10:47.120 giving it away right now completely for
+00:10:49.519 free so just click the first link in the
+00:10:51.839 description you can get the course for
+00:10:53.920 free now back to the video next on the
+00:10:56.000 No text
+00:10:56.399 list is expert judgment this is where a
+00:10:59.920 subject matter expert provides their
+00:11:02.000 opinion on future developments for
+00:11:04.800 example a sales director might proate
+00:11:07.760 provide their assessment of which deals
+00:11:10.480 will close next quarter this is a
+00:11:12.959 commonly used forecast technique that's
+00:11:15.200 often combined with other methods and
+00:11:18.079 there are some clear advantages number
+00:11:20.000 one it considers qualitative factors and
+00:11:23.519 context which some other statistical
+00:11:26.000 methods don't do it's also flexible and
+00:11:29.519 adapts to quickly changing environments
+00:11:32.800 whereas again statistical methods might
+00:11:35.040 put too much emphasis on recent data and
+00:11:37.680 it incorporates nuances that the data
+00:11:40.959 alone doesn't capture this is where the
+00:11:43.839 the human ability of reading between the
+00:11:47.120 lines and connecting dots between
+00:11:49.200 disparate sources of information comes
+00:11:51.360 in the disadvantages of an expertled
+00:11:55.040 forecast is that of course you know we
+00:11:57.519 are all influenced by biases and
+00:12:00.360 emotions there you could also run into
+00:12:03.200 challenges where one expert says the
+00:12:05.760 opposite of what the other one says so
+00:12:07.839 sometimes it is a bit subjective and
+00:12:10.480 then yeah you have to think about how do
+00:12:12.399 you weigh those reports and then there's
+00:12:15.120 a risk of group think what is group
+00:12:17.200 think group thick means that if someone
+00:12:20.000 has an idea or an opinion in a group and
+00:12:22.959 then everyone around the table agrees
+00:12:25.680 with that uh viewpoint then people often
+00:12:28.800 quickly assume that this must be the
+00:12:31.279 best solution but just because everyone
+00:12:33.600 agrees doesn't mean that there are other
+00:12:36.000 options that should be analyzed and
+00:12:38.399 considered so when should you use expert
+00:12:41.040 judgment as a forecast technique one
+00:12:43.440 when you're dealing with uh experts that
+00:12:46.000 have a strong track record of high
+00:12:48.160 forecast accuracy so it's very important
+00:12:50.320 that you track that over time and you
+00:12:52.720 look back at how forecast accuracy
+00:12:55.200 changed and in areas where you don't
+00:12:59.120 have a lot of solid data because then
+00:13:02.720 often expert judgment is the um the only
+00:13:06.160 way forward in any case if you use
+00:13:09.120 experts who give you input to your
+00:13:11.040 forecast it's very important that you
+00:13:13.519 ask them questions when you get the
+00:13:15.839 numbers you ask them about their
+00:13:17.279 methodology you ask them which factors
+00:13:19.440 they considered you ask them what gave
+00:13:22.000 them doubt or a question I love asking
+00:13:25.440 is "How would you improve the accuracy
+00:13:27.920 of your projections if you had unlimited
+00:13:30.639 time and unlimited resources?" The
+00:13:33.360 answers to the questions can often be
+00:13:35.360 quite insightful the next forecasting
+00:13:36.000 No text
+00:13:37.760 technique on the list is zerobased
+00:13:40.399 budgeting for this you evaluate each
+00:13:43.200 expense line item or related groups and
+00:13:45.920 determine the ROI then you can do
+00:13:49.040 zerobased budgeting in two ways you can
+00:13:52.079 either start completely from scratch and
+00:13:54.720 imagine like you're starting the company
+00:13:56.880 a new and think carefully which vendors
+00:13:59.360 and expense line items you want to
+00:14:01.920 include this is theoretical approach and
+00:14:04.240 it does not work well if your business
+00:14:06.800 is bigger and more complex in those
+00:14:09.760 situations you can still do zerobased
+00:14:12.399 budgeting but you would do it
+00:14:13.920 differently rather than starting from
+00:14:15.680 scratch you take a close look at your
+00:14:18.240 existing expense items line by line and
+00:14:22.240 review whether you want to eliminate a
+00:14:25.839 line item or renegotiate the contract or
+00:14:30.240 keep it and perhaps even invest more in
+00:14:32.480 that area now looking at pros and cons
+00:14:34.959 zerbased budgeting is fantastic if you
+00:14:37.680 want to identify cost-saving
+00:14:40.079 opportunities because it forces you to
+00:14:42.959 question decisions that people made
+00:14:45.440 years ago it helps you avoid the status
+00:14:48.399 quo bias in other words and it can help
+00:14:51.199 you discover the 20% of expenses that
+00:14:54.240 drive 80% of outcomes this is important
+00:14:57.680 beyond just looking for cost cutting
+00:15:00.639 opportunities because once you've
+00:15:02.800 identified these 20% expenses that drive
+00:15:05.440 80% of the sales you can actually put
+00:15:08.160 fuel on the fire and focus more
+00:15:10.560 resources on them now one of the major
+00:15:13.279 disadvantages of zerobased budgeting is
+00:15:15.680 that it can be quite time inensive you
+00:15:18.720 need a cross functional team to help you
+00:15:20.639 with this finance can't do it alone and
+00:15:23.360 depending on how good your your systems
+00:15:26.320 are setting up the reports takes some
+00:15:28.639 time and then reviewing whether each
+00:15:31.680 line item makes sense or not requires
+00:15:34.320 meetings and discussions the second
+00:15:36.480 disadvantage is that there's a risk of
+00:15:39.199 rewarding short-term focus only because
+00:15:42.320 the thing is if something has immediate
+00:15:45.440 returns it's easier to justify than if
+00:15:49.199 an expense line item has returns that
+00:15:51.600 are far in the future and you don't want
+00:15:53.600 to remove all your expenses that have a
+00:15:56.800 long-term focus so where does that leave
+00:15:59.440 us when should you use zerobased
+00:16:01.040 budgeting well when there is a lot of
+00:16:03.279 pressure to identify cost savings
+00:16:05.519 because then it's easy to get the cross
+00:16:07.199 functional team aboard and in areas of
+00:16:10.079 your business where it's relatively
+00:16:12.639 straightforward to connect expenses with
+00:16:16.399 their return on investment for example
+00:16:19.839 marketing expenses is often a good
+00:16:22.320 starting point next is time series
+00:16:23.000 No text
+00:16:25.199 analysis this means you review
+00:16:27.440 historical actuals in detail to identify
+00:16:30.560 one-offs and trends and then you apply
+00:16:33.040 what you've learned to future months
+00:16:34.959 let's take a look at an example imagine
+00:16:36.959 you work at a software as a service
+00:16:39.279 business say Netflix and you need to
+00:16:42.880 model sales so you look at the marketing
+00:16:45.680 funnel starting from when someone visits
+00:16:49.360 the website then they book a free trial
+00:16:53.199 and then eventually they hopefully buy
+00:16:56.079 the product and so you model out the
+00:16:58.560 funnel at these three points and review
+00:17:01.120 how conversion rates change over time
+00:17:03.839 and extrapolate trends from that now the
+00:17:07.039 advantage is that the more often you do
+00:17:10.480 this the faster it gets it can be
+00:17:13.039 difficult for the first time but if you
+00:17:14.959 do the same time series analysis every
+00:17:17.039 month you only really need to look at
+00:17:18.799 the most recent data because you have
+00:17:20.880 already analyzed previous periods in
+00:17:23.520 earlier months and the other advantage
+00:17:25.439 is that it's a combination between an an
+00:17:28.079 expert judgment approach and an approach
+00:17:30.480 that relies on data and so you have a
+00:17:33.600 bit of the best of both worlds there as
+00:17:36.559 long as you make sure that you are
+00:17:38.720 indeed using primarily the data you have
+00:17:42.000 available to make your projections
+00:17:44.000 without putting too much in terms of
+00:17:46.400 assumptions into it because then it can
+00:17:48.880 become a full-fledged expert
+00:17:50.919 judgmentbased forecast now there are
+00:17:53.200 some situations where this doesn't work
+00:17:56.160 some disadvantages it doesn't work well
+00:17:58.320 in new businesses simply because then
+00:18:00.799 often you don't have enough data
+00:18:02.799 available to do this properly it can
+00:18:05.440 also amplify data quality issues because
+00:18:08.880 if you have problems in your data that
+00:18:11.200 you're unaware of you can it can lead to
+00:18:14.160 wrong projections obviously this is a
+00:18:16.880 bit less of a problem than if you're
+00:18:18.799 using a full-fledged statistical model
+00:18:21.120 approach as we'll discuss in a moment
+00:18:23.039 because when you are reviewing the data
+00:18:26.160 yourself you might be able to spot some
+00:18:28.320 of these data quality issues but
+00:18:30.160 sometimes it can be difficult to
+00:18:32.320 identify one-offs without advanced
+00:18:35.039 statistical tools this time series
+00:18:37.600 approach is is best when you can isolate
+00:18:40.559 a single variable in this case in our
+00:18:43.120 example it was purchases of the product
+00:18:45.200 and then have the ability to break out
+00:18:48.400 one-time impacts that shouldn't
+00:18:50.400 influence your projections going forward
+00:18:52.000 No text
+00:18:53.039 now let's talk about statistical methods
+00:18:56.559 for forecasting you have your simple and
+00:19:00.000 multiple linear regression techniques
+00:19:02.320 you probably learned about those in
+00:19:04.720 school it's where you have um a
+00:19:06.880 dependent variable and and an
+00:19:08.559 independent variable and one predicts
+00:19:10.559 the other then there are moving averages
+00:19:13.760 that's where you calculate the average
+00:19:15.280 of data points in a specific period or
+00:19:17.919 exponential smoothing techniques now it
+00:19:20.080 gets a bit more advanced that's um
+00:19:22.160 statistical technique that places more
+00:19:24.400 weight on recent data points also
+00:19:26.880 commonly used in FPNA are ARMA models
+00:19:30.799 that's where you combine trends
+00:19:32.760 seasonality and error patterns you can
+00:19:35.760 use some of these techniques in Excel
+00:19:38.240 but to get to the more advanced and
+00:19:40.240 often also more useful techniques like
+00:19:43.120 ARMA you need a specialized tool or
+00:19:45.840 access to someone with data science
+00:19:49.440 skills now the advantages of statistical
+00:19:51.919 methods are that they can be highly
+00:19:54.320 accurate in the short term with enough
+00:19:57.120 historical data and also much faster to
+00:20:00.720 do than the other methods we mentioned
+00:20:03.120 because once the model is set up it's
+00:20:05.360 really just a press of the button and it
+00:20:07.360 creates a new scenario but there are
+00:20:10.480 also some significant disadvantages it
+00:20:13.600 requires a relatively stable environment
+00:20:16.880 if there are a lot of changes to how
+00:20:20.640 customers find you how why customers buy
+00:20:23.520 your product or the the markets you
+00:20:26.320 serve then this might not work well for
+00:20:28.400 you because it only takes historical
+00:20:30.320 data into account it also really only
+00:20:33.120 works well for short and medium-term
+00:20:35.440 forecasts because for longerterm
+00:20:37.559 forecasts recent data just may not be
+00:20:41.120 adequate you know you you approaching
+00:20:43.039 the you might be approaching the
+00:20:44.480 business differently in a year from now
+00:20:46.320 than you do today which doesn't get
+00:20:48.400 picked up by historical data and
+00:20:50.840 statistical methods can be highly
+00:20:53.120 sensitive to data quality meaning if you
+00:20:56.080 have some data issues they get amplified
+00:21:00.240 especially if they happened in more
+00:21:02.559 recent data now when you use statistical
+00:21:05.280 methods they can be fantastic if your
+00:21:08.000 business has a lot of data and in
+00:21:10.799 combination with other forecasting
+00:21:13.280 methods in fact when I worked at
+00:21:14.960 Squarespace we tested this and we found
+00:21:17.440 that statistical methods combined with
+00:21:20.799 expert judgment have a better forecast
+00:21:23.919 accuracy than either statistical methods
+00:21:26.080 alone or expert judgment alone and last
+00:21:29.120 on the list of the seven best
+00:21:31.120 forecasting techniques is machine
+00:21:33.679 learning this is where complex
+00:21:35.760 statistical models like neural networks
+00:21:38.559 or random forests extrapolate trends
+00:21:41.679 from historical data these models are
+00:21:45.200 often so complex that even the data
+00:21:48.480 scientists who build them can't tell why
+00:21:52.159 your machine learning model gives you a
+00:21:54.720 certain projection they're called
+00:21:56.720 blackbox models but at the same time
+00:21:59.360 they can be much more accurate than
+00:22:02.240 simpler than simpler models and they
+00:22:04.559 have some other advantages as well for
+00:22:06.480 example you feed the model with data
+00:22:09.120 from 2 years ago and then you ask it to
+00:22:12.400 predict last year's sales and then you
+00:22:14.960 can immediately compare it to actual
+00:22:17.280 results to see how well the model does
+00:22:19.360 in fact data scientists use this back
+00:22:22.400 testing technique to have multiple
+00:22:24.960 algorithms compete against each other so
+00:22:27.440 you can use um the most accurate one
+00:22:30.000 every time now these work fantastic if
+00:22:32.720 you have vast amount of data and they
+00:22:35.280 can identify patterns that humans and s
+00:22:38.960 simpler algorithms might simply miss
+00:22:41.600 they can also significantly save you
+00:22:43.919 time and they can learn and become
+00:22:46.480 better and better if you feed it more
+00:22:48.400 with more data and if you experiment
+00:22:50.320 with different data points and data
+00:22:52.559 series to feed it with but the
+00:22:54.159 disadvantages are that they require
+00:22:56.880 technical expertise to implement you
+00:22:59.679 need to work with a data scientist or if
+00:23:02.320 you get an out ofthe-box solution you
+00:23:05.120 need to be very careful with uh testing
+00:23:08.400 it for a period of time before you rely
+00:23:10.720 on the outputs and because these are
+00:23:13.120 blackbox models it can be difficult to
+00:23:15.679 answer questions around why is there
+00:23:18.400 still a variance how do you explain the
+00:23:20.720 variance you can't explain it based on
+00:23:22.559 how the machine works you have to
+00:23:24.640 explain it based on what you're feeding
+00:23:28.320 the machine with the data you're using
+00:23:30.640 to make projections so when do you use a
+00:23:33.600 machine learning model when you have
+00:23:35.600 large amounts of high quality data and
+00:23:39.039 you use it in combination with one of
+00:23:41.520 the other techniques especially
+00:23:43.919 driver-based forecasting it's a great
+00:23:46.320 combination with machine learning
+00:23:48.000 because they have almost opposite
+00:23:49.840 advantages and disadvantages and there
+00:23:52.000 No text
+00:23:52.320 you have it the seven best forecasting
+00:23:54.640 methods for finance professionals now in
+00:23:57.760 my experience training over 1,000
+00:24:00.080 finance pros I found that out of these
+00:24:03.039 seven driver-based forecasting is the
+00:24:05.679 most powerful one that everyone needs to
+00:24:09.039 master that's why I've created a free
+00:24:11.279 online course about driver-based
+00:24:13.200 forecasting and scenario planning that
+00:24:15.360 gives you everything you need to
+00:24:17.120 leverage these two techniques to get
+00:24:19.760 instant access just click the first link
+00:24:22.240 in the description in this course you'll
+00:24:24.320 learn everything you need to know to
+00:24:26.080 create efficient and accurate
+00:24:27.679 driver-based forecasts how to use
+00:24:29.919 operational metrics to predict financial
+00:24:32.159 performance how to give leadership
+00:24:34.080 concrete options for improving results
+00:24:36.480 the difference between scenario planning
+00:24:38.480 and what-if analysis and when to use
+00:24:41.039 each and a lot more so again click the
+00:24:43.760 link below to get the free course thanks
+00:24:45.919 for watching and I'll see you in the
+00:24:48.159 next
