@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
               operatingCashFlowMargin: projection.summary.operatingCashFlowMargin,
               cashFlowVolatility: projection.summary.cashFlowVolatility,
               monthsOfCashCushion: projection.summary.monthsOfCashCushion,
-              riskLevel: projection.summary.negativeCashFlowMonths > 2 ? 'high' : 
-                         projection.summary.negativeCashFlowMonths > 0 ? 'medium' : 'low'
+              riskLevel: (projection.summary.negativeCashFlowMonths >= 3 || projection.summary.monthsOfCashCushion < 3) ? 'high' : 
+                         (projection.summary.negativeCashFlowMonths >= 1 || projection.summary.monthsOfCashCushion < 6) ? 'medium' : 'low'
             },
             
             // Monthly data for charts

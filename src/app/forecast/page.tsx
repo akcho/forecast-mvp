@@ -6,7 +6,7 @@ import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
-import { ForecastContent } from '@/components/ForecastContent';
+import { ForecastContentEnhanced } from '@/components/ForecastContentEnhanced';
 
 export default function ForecastPage() {
   const [isConnected, setIsConnected] = useState(false);
@@ -65,7 +65,7 @@ export default function ForecastPage() {
   // Show forecast page content when connected
   return (
     <AppLayout>
-      <ForecastContent />
+      <ForecastContentEnhanced />
     </AppLayout>
   );
 }
