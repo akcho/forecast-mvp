@@ -1,62 +1,91 @@
 # TODO List - Forecast MVP
 
-Last updated: 2025-01-21
+Last updated: 2025-08-17
 
-## 🚨 URGENT: Login UX Issue
-**Priority: HIGH** - Current login shows confusing technical interface
+## 🎯 SPRINT 3: Driver-Based Forecasting Implementation
 
-### Problem
-- Users see "Company 9341454766470181" repeated 10+ times
-- `MultiAdminConnectionManager` (admin debug interface) used as user login
-- No clear approval workflow for non-admin QuickBooks users
-- Database has duplicate connections for same company
+**Strategic Pivot**: Replacing complex cash flow modeling with data-driven driver discovery based on industry best practices.
 
-### Solution Required
-Replace current login with normal SaaS approval workflow:
+### 🔥 Current Sprint (In Progress)
 
-1. **User Experience**:
-   - Single "Connect QuickBooks" button
-   - Admin users → immediate access  
-   - Non-admin users → "Waiting for admin approval" message
-   - Clear status updates when approved
+#### Phase 1: Driver Discovery Engine
+- [ ] **Create DriverDiscoveryService.ts** 
+  - Systematic analysis of every QuickBooks line item
+  - Scoring algorithm: Materiality + Variability + Predictability + Growth + Data Quality
+  - Correlation analysis to group related items
+  - Forecast method assignment per driver type
 
-2. **Admin Experience**:
-   - "Pending Approval Requests" notification
-   - List of users requesting access
-   - Approve/deny buttons
-   - Automatic user access once approved
+- [ ] **Fix QuickBooks Data Extraction**
+  - Remove ALL hardcoded fallback values (e.g., $140,000 cash balance)
+  - Ensure real cash balance extraction from Balance Sheet
+  - Proper error handling when QB data unavailable
+  - User feedback for data quality issues
 
-3. **Technical Implementation**:
-   - New approval requests table in Supabase
-   - Replace `MultiAdminConnectionManager` usage in login flows
-   - Clean up duplicate connections for same realm_id
-   - Fetch actual company names from QuickBooks API
+#### Phase 2: API Integration  
+- [ ] **Create `/api/quickbooks/discover-drivers` endpoint**
+  - Fetch P&L and Balance Sheet data from QuickBooks
+  - Run driver discovery analysis
+  - Cache results for performance
+  - Return comprehensive driver metrics and recommendations
 
-### Files to Modify
-- `/src/components/MultiAdminConnectionManager.tsx` → Replace with user-friendly component
-- `/src/app/overview/page.tsx` (login flow)
-- `/src/app/forecast/page.tsx` (login flow) 
-- `/src/app/analysis/page.tsx` (login flow)
-- `/src/lib/quickbooks/connectionManager.ts` (connection logic)
+#### Phase 3: UI Replacement
+- [ ] **Create DriverDashboard.tsx** (replaces ForecastContentEnhanced)
+  - Driver discovery results header
+  - Driver cards grid with sparklines and impact scores
+  - Driver insights table with detailed analysis
+  - Simple, focused interface
 
-## ✅ COMPLETED
-- [x] Forecast page with scenario modeling (Baseline, Growth, Downturn)
-- [x] Real QuickBooks data integration for forecasting
-- [x] Multi-user shared connection system (technical implementation)
-- [x] Logout/login functionality for testing
-- [x] User switching between connections
-- [x] API routes working with shared connections
+- [ ] **Update forecast/page.tsx**
+  - Replace ForecastContentEnhanced with DriverDashboard
+  - Remove complex multi-tab interface
 
-## 📋 PENDING (Lower Priority)
-- [ ] **MEDIUM**: AI assistant integration for forecast page
-- [ ] **LOW**: AI-driven scenario editing via chat interface
+#### Phase 4: Deprecation Cleanup
+- [ ] **Remove deprecated components**
+  - CashFlowStatement.tsx (overly complex)
+  - Complex service classes that don't connect to real drivers
+  - All hardcoded demo data and fallback values
 
-## 🔧 Current Working State
-- **Forecast page**: Fully functional with real QB data and percentage controls
-- **Multi-user access**: Works technically via shared connections
-- **All core features**: Implemented and working
-- **Main blocker**: User-unfriendly login interface needs replacement
+### 📋 Type Definitions Needed
+- [ ] **Create `/src/types/driverTypes.ts`**
+  - DiscoveredDriver interface
+  - DriverDiscoveryResult interface  
+  - ForecastMethod types
+  - Analysis score types
+
+### 📊 Documentation Status
+- [x] **CLAUDE.md updated** with Sprint 3 pivot explanation
+- [x] **SPRINT_3_PLAN.md created** with implementation details
+- [x] **DRIVER_DISCOVERY_DESIGN.md created** with technical design
+- [x] **FORECAST_MVP_BLUEPRINT.md updated** with new approach
+- [x] **TODO.md updated** with current Sprint 3 tasks
+
+## ✅ SPRINT 2 COMPLETED (August 2025)
+- [x] FinancialDataParser for structured QB data extraction
+- [x] TrendAnalyzer for historical pattern analysis  
+- [x] ExpenseCategorizer for behavioral expense analysis
+- [x] ForecastEngine for 3-scenario projections
+- [x] ServiceBusinessForecaster for revenue modeling
+- [x] WorkingCapitalModeler for A/R, A/P projections
+- [x] AssetProjectionModeler for capex and depreciation
+- [x] CashFlowStatementService for comprehensive integration
+- [x] 9 test endpoints for validation
+- [x] Enhanced forecast tab with visual components
+- [x] Fixed metrics tab runtime errors
+
+## 🗑️ DEPRECATED (Being Removed)
+- ❌ Complex 3-statement cash flow modeling approach
+- ❌ CashFlowStatement.tsx component
+- ❌ ForecastContentEnhanced.tsx multi-tab interface  
+- ❌ Hardcoded fallback values throughout codebase
+- ❌ Generic service classes not tied to actual business drivers
+
+## 🎯 Success Criteria for Sprint 3
+- [ ] Driver discovery runs on 100% real QuickBooks data (zero fallbacks)
+- [ ] Users see what actually drives their specific business
+- [ ] Driver selection is purely data-driven (no arbitrary counts)
+- [ ] Simplified UI that's intuitive without training
+- [ ] Forecast accuracy improves with actual business drivers
 
 ---
 
-**Next Claude Code session should focus entirely on the login UX issue above.**
+**Focus**: Build data-driven driver discovery that shows users what matters in their business, replacing complex financial modeling with actionable insights.

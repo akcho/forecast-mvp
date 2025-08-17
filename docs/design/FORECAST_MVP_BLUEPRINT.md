@@ -2,7 +2,68 @@
 
 *This is a living document that will evolve as we build and learn. Expect regular updates based on implementation discoveries and user feedback.*
 
-## 🎯 Current Vision (Subject to Change)
+## 🎯 MAJOR PIVOT: Driver-Based Forecasting (August 2025)
+
+### Strategic Direction Change
+
+After analyzing industry best practices from forecasting experts, we're pivoting from complex 3-statement modeling to **driver-based forecasting** - the #1 recommended technique for finance professionals.
+
+**Previous Approach (Deprecated):**
+- ❌ Complex 3-statement financial modeling
+- ❌ Generic business complexity profiles  
+- ❌ Arbitrary tab generation (A/R, Equipment, etc.)
+- ❌ Hardcoded assumptions and fallback values
+
+**New Approach (Current Focus):**
+- ✅ **Data-driven driver discovery** from QuickBooks
+- ✅ **Systematic scoring** of what actually matters
+- ✅ **Transparent methodology** users can understand
+- ✅ **Simplified UI** focused on actionable insights
+
+### Core Philosophy Shift
+
+**Old:** "Build comprehensive financial models with mathematical integration"
+**New:** "Discover what drives your specific business and forecast from those drivers"
+
+### New Success Target
+**"Complex to Actionable"** - Users immediately understand what drives their business and can make informed forecasting decisions based on their actual data.
+
+## 🔬 Driver Discovery Methodology
+
+### Systematic Analysis Process
+
+Instead of predetermined complexity profiles, we analyze every QuickBooks line item using:
+
+1. **Materiality Score** (30% weight): How much of the business does this represent?
+2. **Variability Score** (20% weight): Does it change enough to matter for forecasting?
+3. **Predictability Score** (20% weight): Can we reasonably forecast it?
+4. **Growth Impact** (20% weight): Is it growing/declining significantly?
+5. **Data Quality** (10% weight): Do we have reliable historical data?
+
+```typescript
+interface DiscoveredDriver {
+  name: string;
+  category: 'revenue' | 'expense' | 'balance_sheet';
+  impactScore: number;        // 0-100 composite score
+  materiality: number;        // % of business
+  forecastMethod: string;     // How to project it
+  confidence: 'high' | 'medium' | 'low';
+  monthlyValues: number[];    // Historical data
+  correlationWithRevenue: number;
+}
+```
+
+### Inclusion Criteria (Data-Driven, Not Arbitrary)
+
+Drivers are automatically included if:
+- **Score > 40** (composite of all factors)
+- **Materiality > 1%** (at least 1% of business)
+- **Data Quality > 50%** (at least 6 months of data)
+- **Not highly correlated** (>80%) with another selected driver
+
+**Result:** Some businesses have 3 drivers, others have 15 - determined by actual data, not assumptions.
+
+## 🎯 Current Vision (Revised August 2025)
 
 ### Core Goal
 Generate **data-driven, comprehensive financial models** that fractional CFOs trust for client work. The model structure adapts to business complexity rather than using fixed templates.

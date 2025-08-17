@@ -216,6 +216,81 @@ ESM enabled, `@/*` → `src/*`, mobile-first responsive, loading states, error b
 - Maintains full backwards compatibility with existing analysis page
 - Test endpoints require authentication but provide detailed error reporting
 
+## 🎯 SPRINT 3: Driver-Based Forecasting Pivot (August 2025)
+
+### Rationale for Strategic Pivot
+
+After analyzing best forecasting practices from industry experts, we identified critical issues with our complex cash flow modeling approach:
+
+**Problems with Previous Approach:**
+- **Too Complex**: 3-statement cash flow modeling was overwhelming for users
+- **Data Issues**: Using hardcoded fallback values ($140,000) instead of real QuickBooks data
+- **Missing Best Practice**: Not implementing driver-based forecasting (the #1 recommended technique)
+- **Not Actionable**: Users couldn't understand what actually drives their business
+- **Generic Models**: Complex services that don't connect to real business drivers
+
+### New Approach: Data-Driven Driver Discovery
+
+**Core Philosophy:** Let QuickBooks data tell us what matters instead of making assumptions
+
+**Systematic Driver Discovery Process:**
+1. **Analyze Every Line Item** - Evaluate all P&L and Balance Sheet entries
+2. **Score by Importance** - Use materiality, variability, predictability, and correlation
+3. **Automatic Selection** - No arbitrary "10-15 drivers" - data determines what matters
+4. **Transparent Methodology** - Users see why each driver is important
+5. **Forecast Method Matching** - Different drivers use appropriate forecasting techniques
+
+**Driver Scoring Algorithm:**
+```
+Score = (Materiality × 0.3) + (Variability × 0.2) + (Predictability × 0.2) + 
+        (Growth Rate × 0.2) + (Data Quality × 0.1)
+
+Include if: Score > 0.4 AND Materiality > 1% AND >= 6 months data
+```
+
+### Implementation Architecture
+
+**New Components:**
+- **DriverDiscoveryService** - Systematic analysis of QB data to identify true business drivers
+- **DriverDashboard** - Clean UI showing discovered drivers with sparklines and insights
+- **/api/quickbooks/discover-drivers** - API endpoint for driver discovery and analysis
+
+**Components Being Deprecated:**
+- ❌ **CashFlowStatement.tsx** - Overly complex 3-statement modeling
+- ❌ **ForecastContentEnhanced.tsx** - Too many tabs and confusing views
+- ❌ **Complex service classes** that don't connect to real drivers
+- ❌ **Hardcoded demo data** and fallback values throughout
+
+### Sprint 3 Current Status: Planning Complete ✅
+
+**Driver Discovery Methodology:**
+- ✅ Systematic scoring algorithm designed
+- ✅ Correlation analysis for grouping related items
+- ✅ Forecast method assignment per driver type
+- ✅ Documentation complete in DRIVER_DISCOVERY_DESIGN.md
+
+**Ready for Implementation:**
+- Create DriverDiscoveryService with core analysis logic
+- Build /api/quickbooks/discover-drivers endpoint
+- Replace forecast tab with DriverDashboard
+- Remove deprecated complex components
+
+### Expected Outcome
+
+**User Experience:**
+1. **"Analyzing your data..."** - Driver discovery runs automatically
+2. **"Found 7 key drivers"** - Clear list of what drives the business
+3. **Driver insights** - "Your revenue correlates 85% with customer count"
+4. **Simple forecasting** - Adjust driver assumptions to see impact
+5. **Actionable results** - Revenue/expense projections based on real drivers
+
+**Technical Benefits:**
+- Real QuickBooks data (no fallbacks)
+- Systematic approach works for any business
+- Transparent scoring and methodology
+- Focused on actual business drivers
+- Simplified, understandable UI
+
 ### Sprint 2 Implementation Summary
 
 **Services Architecture Completed:**
