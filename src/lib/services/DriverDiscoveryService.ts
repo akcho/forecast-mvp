@@ -161,8 +161,8 @@ export class DriverDiscoveryService {
     const stdDev = Math.sqrt(variance);
     const coefficientOfVariation = stdDev / Math.abs(mean);
     
-    // Normalize to 0-1 scale (cap at 2.0 for extremely volatile items)
-    return Math.min(coefficientOfVariation, 2.0) / 2.0;
+    // Normalize to 0-1 scale (cap at 5.0 for extremely volatile items to handle sparse sandbox data)
+    return Math.min(coefficientOfVariation, 5.0) / 5.0;
   }
   
   /**

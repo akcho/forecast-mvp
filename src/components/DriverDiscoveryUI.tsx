@@ -334,16 +334,16 @@ function DriverCard({ driver, rank, compact = false }: {
           <div className="text-2xl font-bold text-purple-600">{driver.predictability}</div>
           <div className="text-xs text-gray-600 cursor-help">Predictability</div>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 w-48 z-10">
-            <strong>Predictability (0-100):</strong> How well this driver follows clear trends. 
-            Higher = easier to forecast accurately.
+            <strong>Predictability (0-100):</strong> Does this follow a straight-line trend over time? 
+            High = steady growth/decline. Low = random ups and downs.
           </div>
         </div>
         <div className="text-center group relative">
           <div className="text-2xl font-bold text-orange-600">{driver.variability}</div>
           <div className="text-xs text-gray-600 cursor-help">Variability</div>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 w-48 z-10">
-            <strong>Variability (0-100):</strong> How much this driver changes month-to-month. 
-            Higher = more volatile, harder to predict.
+            <strong>Variability (0-100):</strong> How big are the month-to-month swings relative to the average? 
+            High = wild swings ($1K to $10K). Low = consistent amounts ($5K to $6K).
           </div>
         </div>
         <div className="text-center group relative">
