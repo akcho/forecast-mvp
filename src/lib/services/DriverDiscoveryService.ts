@@ -68,7 +68,7 @@ export class DriverDiscoveryService {
       
     } catch (error) {
       console.error('❌ Driver discovery failed:', error);
-      throw new Error(`Driver discovery failed: ${error.message}`);
+      throw new Error(`Driver discovery failed: ${(error as Error).message}`);
     }
   }
   
@@ -139,7 +139,7 @@ export class DriverDiscoveryService {
       // Additional metrics
       correlationWithRevenue: this.calculateCorrelationWithRevenue(monthlyValues, parsedData),
       totalValue: line.total,
-      averageMonthlyValue: monthlyValues.reduce((sum, val) => sum + val, 0) / monthlyValues.length
+      averageMonthlyValue: monthlyValues.reduce((sum: number, val: number) => sum + val, 0) / monthlyValues.length
     };
   }
   

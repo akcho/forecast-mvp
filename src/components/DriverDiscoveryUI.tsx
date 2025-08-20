@@ -38,7 +38,7 @@ export function DriverDiscoveryUI({}: DriverDiscoveryUIProps) {
       setDriverData(data.analysis);
     } catch (err) {
       console.error('❌ Error fetching driver data:', err);
-      setError(err.message || 'Failed to load driver data');
+      setError((err as Error).message || 'Failed to load driver data');
     } finally {
       setLoading(false);
     }

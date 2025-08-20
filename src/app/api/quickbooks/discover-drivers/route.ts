@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     const processingTime = Date.now() - startTime;
     
     // Prepare response
-    const responseData = {
+    const responseData: any = {
       success: true,
       analysis: driverResults,
       metadata: {
@@ -115,8 +115,8 @@ export async function GET(request: NextRequest) {
     
     const errorResponse = {
       success: false,
-      error: error.message || 'Driver discovery failed',
-      details: error.stack,
+      error: (error as Error).message || 'Driver discovery failed',
+      details: (error as Error).stack,
       metadata: {
         processingTimeMs: Date.now() - startTime,
         timestamp: new Date().toISOString()
