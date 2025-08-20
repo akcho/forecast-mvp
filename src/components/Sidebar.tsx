@@ -1,13 +1,13 @@
 'use client';
 
-import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-import { ChartBarIcon as ChartBarIconSolid, HomeIcon as HomeIconSolid, ChartPieIcon as ChartPieIconSolid } from '@heroicons/react/24/solid';
+import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon, ArrowLeftOnRectangleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon as ChartBarIconSolid, HomeIcon as HomeIconSolid, ChartPieIcon as ChartPieIconSolid, LightBulbIcon as LightBulbIconSolid } from '@heroicons/react/24/solid';
 import { signOut } from 'next-auth/react';
 import { CompanySwitcher } from './CompanySwitcher';
 
 interface SidebarProps {
-  currentPage: 'analysis' | 'overview' | 'forecast';
-  onPageChange: (page: 'analysis' | 'overview' | 'forecast') => void;
+  currentPage: 'analysis' | 'overview' | 'forecast' | 'drivers';
+  onPageChange: (page: 'analysis' | 'overview' | 'forecast' | 'drivers') => void;
 }
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
@@ -37,6 +37,13 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
       icon: HomeIcon,
       iconSolid: HomeIconSolid,
       description: 'Dashboard home'
+    },
+    {
+      id: 'drivers' as const,
+      name: 'Drivers',
+      icon: LightBulbIcon,
+      iconSolid: LightBulbIconSolid,
+      description: 'Discover key business drivers'
     },
     {
       id: 'forecast' as const,

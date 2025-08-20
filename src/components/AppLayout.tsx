@@ -14,20 +14,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   
   // Determine current page from pathname
-  const getCurrentPage = (): 'analysis' | 'overview' | 'forecast' => {
+  const getCurrentPage = (): 'analysis' | 'overview' | 'forecast' | 'drivers' => {
     if (pathname?.includes('/overview')) return 'overview';
     if (pathname?.includes('/forecast')) return 'forecast';
+    if (pathname?.includes('/drivers')) return 'drivers';
     return 'analysis';
   };
 
-  const [currentPage, setCurrentPage] = useState<'analysis' | 'overview' | 'forecast'>(getCurrentPage());
+  const [currentPage, setCurrentPage] = useState<'analysis' | 'overview' | 'forecast' | 'drivers'>(getCurrentPage());
 
   // Update current page when pathname changes
   useEffect(() => {
     setCurrentPage(getCurrentPage());
   }, [pathname]);
 
-  const handlePageChange = (page: 'analysis' | 'overview' | 'forecast') => {
+  const handlePageChange = (page: 'analysis' | 'overview' | 'forecast' | 'drivers') => {
     setCurrentPage(page);
     router.push(`/${page}`);
   };
