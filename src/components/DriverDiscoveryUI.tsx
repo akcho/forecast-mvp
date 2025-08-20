@@ -223,6 +223,32 @@ export function DriverDiscoveryUI({}: DriverDiscoveryUIProps) {
   );
 }
 
+// Helper functions for business-friendly display
+function getBusinessFriendlyTrend(trend: string, growthRate: number): string {
+  const annualGrowth = Math.abs(growthRate * 100);
+  
+  if (trend === 'growing') {
+    if (annualGrowth > 20) return 'Growing fast';
+    if (annualGrowth > 10) return 'Growing steadily';
+    return 'Growing slowly';
+  } else if (trend === 'declining') {
+    if (annualGrowth > 20) return 'Declining fast';
+    if (annualGrowth > 10) return 'Declining steadily';
+    return 'Declining slowly';
+  } else {
+    return 'Staying steady';
+  }
+}
+
+function getRevenueRelationship(correlation: number): string {
+  const corr = Math.abs(correlation);
+  
+  if (corr > 0.8) return 'Very connected';
+  if (corr > 0.6) return 'Somewhat connected';
+  if (corr > 0.3) return 'Loosely connected';
+  return 'Independent';
+}
+
 function DriverCard({ driver, rank, compact = false }: { 
   driver: DiscoveredDriver; 
   rank?: number; 
@@ -331,10 +357,24 @@ function DriverCard({ driver, rank, compact = false }: {
       </div>
 
       <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>Trend: <span className="font-medium">{driver.trend}</span></span>
-        <span>Growth: <span className="font-medium">{(driver.growthRate * 100).toFixed(1)}%</span></span>
-        <span>Method: <span className="font-medium">{driver.suggestedMethod.method}</span></span>
-        <span>Revenue Corr: <span className="font-medium">{(driver.correlationWithRevenue * 100).toFixed(0)}%</span></span>
+        <span className="group relative cursor-help">
+          Pattern: <span className="font-medium">{getBusinessFriendlyTrend(driver.trend, driver.growthRate)}</span>
+          <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 w-48 z-10">
+            How this driver has been changing over time based on your historical data
+          </div>
+        </span>
+        <span className="group relative cursor-help">
+          Avg Monthly: <span className="font-medium">${Math.round(driver.monthlyValues.reduce((sum: number, val: number) => sum + val, 0) / driver.monthlyValues.length).toLocaleString()}</span>
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 w-48 z-10">
+            Average monthly value for this driver over your historical period
+          </div>
+        </span>
+        <span className="group relative cursor-help">
+          Follows Revenue: <span className="font-medium">{getRevenueRelationship(driver.correlationWithRevenue)}</span>
+          <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded p-2 w-48 z-10">
+            How closely this driver moves up and down with your revenue changes
+          </div>
+        </span>
       </div>
     </div>
   );
