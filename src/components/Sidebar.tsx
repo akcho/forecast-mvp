@@ -1,13 +1,13 @@
 'use client';
 
-import { ChartBarIcon, Cog6ToothIcon, HomeIcon, ChartPieIcon, ArrowLeftOnRectangleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
-import { ChartBarIcon as ChartBarIconSolid, HomeIcon as HomeIconSolid, ChartPieIcon as ChartPieIconSolid, LightBulbIcon as LightBulbIconSolid } from '@heroicons/react/24/solid';
+import { DocumentTextIcon, Cog6ToothIcon, HomeIcon, ArrowTrendingUpIcon, ArrowLeftOnRectangleIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon as DocumentTextIconSolid, HomeIcon as HomeIconSolid, ArrowTrendingUpIcon as ArrowTrendingUpIconSolid, AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid } from '@heroicons/react/24/solid';
 import { signOut } from 'next-auth/react';
 import { CompanySwitcher } from './CompanySwitcher';
 
 interface SidebarProps {
-  currentPage: 'analysis' | 'overview' | 'forecast' | 'drivers';
-  onPageChange: (page: 'analysis' | 'overview' | 'forecast' | 'drivers') => void;
+  currentPage: 'reports' | 'forecast' | 'drivers';
+  onPageChange: (page: 'reports' | 'forecast' | 'drivers') => void;
 }
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
@@ -32,32 +32,22 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
   const navigationItems = [
     {
-      id: 'overview' as const,
-      name: 'Home',
-      icon: HomeIcon,
-      iconSolid: HomeIconSolid,
-      description: 'Dashboard home'
+      id: 'forecast' as const,
+      name: 'Forecast',
+      icon: ArrowTrendingUpIcon,
+      iconSolid: ArrowTrendingUpIconSolid
     },
     {
       id: 'drivers' as const,
       name: 'Drivers',
-      icon: LightBulbIcon,
-      iconSolid: LightBulbIconSolid,
-      description: 'Discover key business drivers'
+      icon: AdjustmentsHorizontalIcon,
+      iconSolid: AdjustmentsHorizontalIconSolid
     },
     {
-      id: 'forecast' as const,
-      name: 'Forecast',
-      icon: ChartPieIcon,
-      iconSolid: ChartPieIconSolid,
-      description: 'Financial forecasting'
-    },
-    {
-      id: 'analysis' as const,
-      name: 'Analysis',
-      icon: ChartBarIcon,
-      iconSolid: ChartBarIconSolid,
-      description: 'Financial analysis and AI insights'
+      id: 'reports' as const,
+      name: 'Reports',
+      icon: DocumentTextIcon,
+      iconSolid: DocumentTextIconSolid
     }
   ];
 
@@ -96,13 +86,8 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                       isActive ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'
                     }`}
                   />
-                  <div className="text-left">
-                    <div className={isActive ? 'text-blue-700' : 'text-gray-900'}>
-                      {item.name}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {item.description}
-                    </div>
+                  <div className={isActive ? 'text-blue-700' : 'text-gray-900'}>
+                    {item.name}
                   </div>
                 </button>
               );

@@ -10,6 +10,7 @@ import {
   LineItemAnalysis, 
   ForecastMethod
 } from '../../types/driverTypes';
+import { ParsedProfitLoss } from '../../types/financialModels';
 
 export class DriverDiscoveryService {
   private parser: FinancialDataParser;
@@ -36,15 +37,49 @@ export class DriverDiscoveryService {
   }
   
   /**
-   * Main entry point: Discover drivers from QuickBooks P&L data
+   * Type guard to check if data is already parsed ParsedProfitLoss
    */
-  async discoverDrivers(profitLossReport: any): Promise<DriverDiscoveryResult> {
+  private isParsedProfitLoss(data: any): data is ParsedProfitLoss {
+    return data && 
+           typeof data === 'object' &&
+           data.period &&
+           data.revenue &&
+           data.expenses &&
+           data.netIncome &&
+           Array.isArray(data.revenue.lines) &&
+           Array.isArray(data.expenses.lines);
+  }
+  
+  /**
+   * Main entry point: Discover drivers from QuickBooks P&L data (raw QB format)
+   */
+  async discoverDrivers(profitLossReport: any): Promise<DriverDiscoveryResult>;
+  
+  /**
+   * Overloaded entry point: Discover drivers from already-parsed P&L data
+   */
+  async discoverDrivers(parsedData: ParsedProfitLoss): Promise<DriverDiscoveryResult>;
+  
+  /**
+   * Implementation: Handle both raw and parsed data
+   */
+  async discoverDrivers(data: any | ParsedProfitLoss): Promise<DriverDiscoveryResult> {
     const startTime = Date.now();
     console.log('🔍 Starting driver discovery analysis...');
     
     try {
-      // Step 1: Parse financial data into structured format
-      const parsedData = this.parser.parseMonthlyProfitLoss(profitLossReport);
+      // Step 1: Determine if we have raw QB data or parsed data
+      let parsedData: ParsedProfitLoss;
+      
+      if (this.isParsedProfitLoss(data)) {
+        // Data is already parsed
+        console.log('📊 Using already-parsed P&L data');
+        parsedData = data;
+      } else {
+        // Data is raw QuickBooks format, parse it
+        console.log('🔄 Parsing raw QuickBooks P&L data');
+        parsedData = this.parser.parseMonthlyProfitLoss(data);
+      }
       
       // Step 2: Analyze each line item
       const lineItemAnalyses = this.analyzeAllLineItems(parsedData);
