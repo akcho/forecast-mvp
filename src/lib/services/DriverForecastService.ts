@@ -216,7 +216,7 @@ export class DriverForecastService {
     
     return {
       name: driver.name,
-      category: driver.category,
+      category: driver.category as 'revenue' | 'expense', // Safe cast after filtering
       historicalTrend: monthlyGrowthRate,
       monthlyValues,
       confidence,
