@@ -135,10 +135,10 @@ function HomeContent() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [projections, setProjections] = useState<any[]>([]);
 
-  // Redirect to overview page
+  // Redirect to forecast page
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/overview';
+      window.location.href = '/forecast';
     }
   }, []);
 
