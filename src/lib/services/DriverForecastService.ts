@@ -30,8 +30,15 @@ export class DriverForecastService {
   ): BaseForecast {
     console.log(`🔮 Generating base forecast for ${drivers.length} drivers over ${monthsToProject} months`);
     
+    // Filter out balance sheet drivers (only use revenue/expense for forecasting)
+    const forecastableDrivers = drivers.filter(driver => 
+      driver.category === 'revenue' || driver.category === 'expense'
+    );
+    
+    console.log(`📊 Using ${forecastableDrivers.length} forecastable drivers (filtered out ${drivers.length - forecastableDrivers.length} balance sheet drivers)`);
+    
     // Project each driver forward using its historical trend
-    const projectedDrivers = drivers.map(driver => 
+    const projectedDrivers = forecastableDrivers.map(driver => 
       this.projectDriverForward(driver, monthsToProject)
     );
     
@@ -45,7 +52,7 @@ export class DriverForecastService {
     const summary = this.calculateForecastSummary(monthlyProjections, projectedDrivers);
     
     // Assess overall confidence
-    const confidence = this.calculateConfidenceMetrics(drivers, []);
+    const confidence = this.calculateConfidenceMetrics(forecastableDrivers, []);
     
     const forecast: BaseForecast = {
       drivers: projectedDrivers,
