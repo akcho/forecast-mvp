@@ -10,7 +10,7 @@ import {
   LineItemAnalysis, 
   ForecastMethod
 } from '../../types/driverTypes';
-import { ParsedProfitLoss } from '../../types/financialModels';
+import { ParsedProfitLoss } from '../types/financialModels';
 
 export class DriverDiscoveryService {
   private parser: FinancialDataParser;
