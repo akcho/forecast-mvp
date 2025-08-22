@@ -42,6 +42,7 @@ export interface BaseForecast {
   monthlyProjections: MonthlyProjection[];
   summary: ForecastSummary;
   confidence: ConfidenceMetrics;
+  insights?: any; // CategorizedInsights - added as optional for backward compatibility
   metadata: {
     generatedAt: Date;
     baseDataPeriod: { start: Date; end: Date; };

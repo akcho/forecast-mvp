@@ -10,6 +10,7 @@ import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { DriverDiscoveryService } from '@/lib/services/DriverDiscoveryService';
 import { DriverForecastService } from '@/lib/services/DriverForecastService';
 import { FinancialDataParser } from '@/lib/services/FinancialDataParser';
+import { InsightEngine } from '@/lib/services/InsightEngine';
 import { 
   ForecastRequest, 
   ForecastResponse, 
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
     const parser = new FinancialDataParser();
     const driverService = new DriverDiscoveryService();
     const forecastService = new DriverForecastService();
+    const insightEngine = new InsightEngine();
 
     // Step 1: Get QuickBooks P&L data
     console.log('📈 Fetching QuickBooks P&L data...');
@@ -122,10 +124,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 7: Prepare response
+    // Step 7: Generate intelligent insights
+    console.log('🧠 Generating intelligent insights...');
+    const insights = insightEngine.generateInsights(
+      parsedData,
+      driverResult.drivers,
+      finalForecast.monthlyProjections
+    );
+
+    // Step 8: Prepare response
     const response: ForecastResponse = {
       success: true,
-      forecast: finalForecast,
+      forecast: {
+        ...finalForecast,
+        insights
+      },
       scenarios: scenarioComparison
     };
 
@@ -186,6 +199,7 @@ export async function GET(request: NextRequest) {
     const parser = new FinancialDataParser();
     const driverService = new DriverDiscoveryService();
     const forecastService = new DriverForecastService();
+    const insightEngine = new InsightEngine();
 
     // Get QuickBooks P&L data
     const startDate = new Date();
@@ -232,9 +246,20 @@ export async function GET(request: NextRequest) {
       monthsToProject
     );
 
+    // Generate intelligent insights
+    console.log('🧠 Generating intelligent insights...');
+    const insights = insightEngine.generateInsights(
+      parsedData,
+      driverResult.drivers,
+      baseForecast.monthlyProjections
+    );
+
     const response: ForecastResponse = {
       success: true,
-      forecast: baseForecast
+      forecast: {
+        ...baseForecast,
+        insights
+      }
     };
 
     console.log(`✅ Simple forecast generated: ${driverResult.drivers.length} drivers, ${monthsToProject} months`);
