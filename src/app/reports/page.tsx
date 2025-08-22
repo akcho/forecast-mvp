@@ -2,11 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect, Suspense } from 'react';
-import { Title, Text, Select, SelectItem, Button, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
+import { Text, Select, SelectItem, Tab, TabList, TabGroup, TabPanel, TabPanels } from '@tremor/react';
 import { PnlTable } from '../analysis';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
+import { usePageHeader } from '@/components/PageHeaderContext';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
@@ -22,6 +23,7 @@ function useIsMobile() {
 function ReportsContent() {
   const [timePeriod, setTimePeriod] = useState('3months');
   const [activeStatement, setActiveStatement] = useState<'profitLoss' | 'balanceSheet' | 'cashFlow'>('profitLoss');
+  const { setHeaderConfig } = usePageHeader();
   const [reports, setReports] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [error, setError] = useState<{ [key: string]: string | null }>({});
@@ -30,6 +32,25 @@ function ReportsContent() {
   const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const { data: session } = useSession();
+
+  // Set page header configuration
+  useEffect(() => {
+    setHeaderConfig({
+      title: 'Financial Reports',
+      icon: '📊',
+      description: 'View and analyze your financial statements',
+      controls: (
+        <Select value={timePeriod} onValueChange={setTimePeriod}>
+          <SelectItem value="3months">Last 3 Months</SelectItem>
+          <SelectItem value="6months">Last 6 Months</SelectItem>
+          <SelectItem value="12months">Last 12 Months</SelectItem>
+        </Select>
+      )
+    });
+
+    // Cleanup function to clear header on unmount
+    return () => setHeaderConfig(null);
+  }, [setHeaderConfig, timePeriod]);
 
   // Check connection status when user is authenticated
   useEffect(() => {
@@ -198,27 +219,14 @@ function ReportsContent() {
 
   // DESKTOP: Show full layout with sidebar and analysis panel
   return (
-      <div className="flex h-screen bg-white">
+      <div className="flex h-screen bg-gray-50">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
           <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: 0, width: 0, flexGrow: 1 }}>
-            {/* Controls */}
-            <div className="flex-shrink-0 p-6 bg-white border-b">
-              <div className="flex items-center justify-between mb-4">
-                <Title>Financial Reports</Title>
-                <div className="flex space-x-4">
-                  <Select value={timePeriod} onValueChange={setTimePeriod}>
-                    <SelectItem value="3months">Last 3 Months</SelectItem>
-                    <SelectItem value="6months">Last 6 Months</SelectItem>
-                    <SelectItem value="12months">Last 12 Months</SelectItem>
-                  </Select>
-                </div>
-              </div>
-            </div>
 
             {/* Statement Tabs */}
-            <div className="flex-1 min-h-0 p-6 pt-0">
+            <div className="flex-1 min-h-0 p-6">
               <TabGroup className="flex flex-col h-full min-h-0">
                 <TabList className="flex-shrink-0">
                   <Tab onClick={() => setActiveStatement('profitLoss')}>Profit & Loss</Tab>
