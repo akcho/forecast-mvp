@@ -179,21 +179,8 @@ export class DriverForecastService {
   ): ProjectedDriver {
     const monthlyGrowthRate = driver.growthRate / 12; // Convert annual to monthly
     
-    // Find the most recent non-zero value to use as baseline
-    let baseValue = 0;
-    for (let i = driver.monthlyValues.length - 1; i >= 0; i--) {
-      if (driver.monthlyValues[i] > 0) {
-        baseValue = driver.monthlyValues[i];
-        break;
-      }
-    }
-    
-    // If no non-zero values found, calculate average of all non-zero values
-    if (baseValue === 0) {
-      const nonZeroValues = driver.monthlyValues.filter(val => val > 0);
-      baseValue = nonZeroValues.length > 0 ? 
-        nonZeroValues.reduce((sum, val) => sum + val, 0) / nonZeroValues.length : 0;
-    }
+    // Calculate a robust baseline value using improved methodology
+    let baseValue = this.calculateRobustBaseline(driver.monthlyValues, driver.name);
     
     const monthlyValues: number[] = [];
     
@@ -516,5 +503,73 @@ export class DriverForecastService {
     insights.push(`${topDriver.name} is the largest driver of financial performance`);
     
     return insights;
+  }
+
+  /**
+   * Calculate a robust baseline value that handles outliers and seasonal patterns
+   */
+  private calculateRobustBaseline(monthlyValues: number[], driverName: string): number {
+    console.log(`📊 Calculating robust baseline for "${driverName}"`);
+    
+    // Filter out zero values for analysis
+    const nonZeroValues = monthlyValues.filter(val => val > 0);
+    
+    if (nonZeroValues.length === 0) {
+      console.log(`⚠️ No non-zero values found for ${driverName}`);
+      return 0;
+    }
+
+    // Detect catch-all categories that should be treated differently
+    const isCatchAllCategory = this.isCatchAllCategory(driverName);
+    
+    if (isCatchAllCategory) {
+      // For catch-all categories, use the minimum non-zero value to be conservative
+      // This prevents large one-time expenses from being projected forward
+      const minValue = Math.min(...nonZeroValues);
+      console.log(`🔧 Using conservative minimum for catch-all category "${driverName}": ${minValue} (vs median which would be higher)`);
+      return minValue;
+    }
+
+    // For regular categories, use trailing 3-month average with outlier filtering
+    const recentValues = nonZeroValues.slice(-3); // Last 3 non-zero values
+    
+    if (recentValues.length === 0) {
+      return 0;
+    }
+
+    // Calculate mean and standard deviation for outlier detection
+    const mean = recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
+    const variance = recentValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / recentValues.length;
+    const stdDev = Math.sqrt(variance);
+    
+    // Filter out outliers (values more than 2 standard deviations from mean)
+    const filteredValues = recentValues.filter(val => Math.abs(val - mean) <= 2 * stdDev);
+    
+    if (filteredValues.length === 0) {
+      // If all recent values are outliers, fall back to median of all values
+      const sortedValues = [...nonZeroValues].sort((a, b) => a - b);
+      const median = sortedValues[Math.floor(sortedValues.length / 2)];
+      console.log(`⚠️ All recent values are outliers for ${driverName}, using median: ${median}`);
+      return median;
+    }
+
+    // Calculate average of filtered recent values
+    const robustBaseline = filteredValues.reduce((sum, val) => sum + val, 0) / filteredValues.length;
+    
+    console.log(`✅ Robust baseline for ${driverName}: ${robustBaseline} (from ${filteredValues.length} recent values)`);
+    return robustBaseline;
+  }
+
+  /**
+   * Detect if a driver name represents a catch-all category
+   */
+  private isCatchAllCategory(driverName: string): boolean {
+    const catchAllTerms = [
+      'miscellaneous', 'misc', 'other', 'uncategorized', 'unassigned',
+      'general', 'various', 'additional', 'sundry'
+    ];
+    
+    const lowerName = driverName.toLowerCase();
+    return catchAllTerms.some(term => lowerName.includes(term));
   }
 }
