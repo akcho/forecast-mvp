@@ -46,6 +46,7 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adjustments, setAdjustments] = useState<DriverAdjustment[]>([]);
+  const [activeTab, setActiveTab] = useState<'revenue' | 'expense' | 'external'>('revenue');
   // Driver controls are always visible - no toggle needed
   
   // Load initial forecast
@@ -302,10 +303,45 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
               <p className="text-sm text-gray-600 mt-1">Adjust drivers to see impact on forecast</p>
             </div>
             
-            <div className="p-6 space-y-6 overflow-y-auto overflow-x-visible h-full">
-              {/* Revenue Drivers */}
-              <div>
-                <h3 className="text-md font-semibold text-gray-800 mb-3">Revenue Drivers</h3>
+            {/* Tab Navigation */}
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                <button
+                  onClick={() => setActiveTab('revenue')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'revenue'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Revenue
+                </button>
+                <button
+                  onClick={() => setActiveTab('expense')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'expense'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Expenses
+                </button>
+                <button
+                  onClick={() => setActiveTab('external')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'external'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  External
+                </button>
+              </nav>
+            </div>
+            
+            {/* Tab Content */}
+            <div className="p-6 overflow-y-auto overflow-x-visible h-full">
+              {activeTab === 'revenue' && (
                 <div className="space-y-3">
                   {forecast.drivers
                     .filter(driver => driver.category === 'revenue')
@@ -320,11 +356,9 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
                     ))
                   }
                 </div>
-              </div>
-
-              {/* Expense Drivers */}
-              <div>
-                <h3 className="text-md font-semibold text-gray-800 mb-3">Expense Drivers</h3>
+              )}
+              
+              {activeTab === 'expense' && (
                 <div className="space-y-3">
                   {forecast.drivers
                     .filter(driver => driver.category === 'expense')
@@ -339,7 +373,14 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
                     ))
                   }
                 </div>
-              </div>
+              )}
+              
+              {activeTab === 'external' && (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-lg font-medium">External Factors</p>
+                  <p className="text-sm mt-2">Coming soon - market conditions, economic indicators, and external drivers</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
