@@ -39,34 +39,32 @@ export function PageHeader({
           </div>
         </div>
 
-        {/* Middle: Page-specific controls */}
-        {controls && (
-          <div className="flex-1 flex justify-center">
-            <div className="flex items-center space-x-4">
+        {/* Right: Controls and AI Toggle */}
+        <div className="flex items-center space-x-3">
+          {/* Page-specific controls */}
+          {controls && (
+            <div className="flex items-center">
               {controls}
             </div>
-          </div>
-        )}
-
-        {/* Right: AI Assistant Toggle */}
-        <div className="flex items-center">
+          )}
+          
+          {/* AI Toggle */}
           <button
             onClick={onAIToggle}
-            className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`p-2 rounded-md transition-colors ${
               showAI
                 ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             }`}
-            title="Toggle AI Assistant (Ctrl+`)"
+            title="Toggle AI Chat (Ctrl+`)"
           >
             <ChatBubbleLeftIcon 
-              className={`h-5 w-5 mr-2 ${
+              className={`h-5 w-5 ${
                 showAI ? 'text-blue-700' : 'text-gray-500'
               }`} 
             />
-            <span className="hidden sm:inline">AI Assistant</span>
             {loadingData && (
-              <div className="ml-2">
+              <div className="absolute -top-1 -right-1">
                 <div className="w-3 h-3 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
               </div>
             )}

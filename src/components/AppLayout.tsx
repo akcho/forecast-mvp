@@ -262,7 +262,7 @@ function AppLayoutInner({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <ChatBubbleLeftIcon className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-900">AI Financial Assistant</span>
+              <span className="font-medium text-gray-900">Personal CFO</span>
             </div>
             <div className="flex items-center space-x-1">
               {!isMobile && (
