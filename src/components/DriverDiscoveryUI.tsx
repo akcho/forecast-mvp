@@ -91,11 +91,8 @@ export function DriverDiscoveryUI({}: DriverDiscoveryUIProps) {
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header */}
+      {/* Analysis Summary */}
       <div className="border-b border-gray-200 pb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          📊 Business Driver Discovery
-        </h1>
         <p className="text-gray-600 mb-4">
           We analyzed {driverData.summary.monthsAnalyzed} months of your QuickBooks data and found{' '}
           <span className="font-semibold text-blue-600">{driverData.summary.driversFound} key drivers</span>{' '}

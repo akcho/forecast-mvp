@@ -38,9 +38,10 @@ import { LoadingState } from './LoadingSpinner';
 
 interface ForecastDashboardProps {
   className?: string;
+  forecastPeriod?: string;
 }
 
-export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
+export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }: ForecastDashboardProps) {
   const [forecast, setForecast] = useState<BaseForecast | AdjustedForecast | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -221,32 +222,6 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
 
   return (
     <div className={`h-full ${className}`}>
-      {/* Header */}
-      <div className="border-b border-gray-200 pb-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-              <span>📈</span>
-              <span>Financial Forecast</span>
-            </h1>
-            <p className="text-gray-600 mt-2">
-              13-week projection based on your business drivers
-            </p>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            {/* Driver controls toggle removed - always visible */}
-            
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              forecast.confidence.overall === 'high' ? 'bg-green-100 text-green-800' :
-              forecast.confidence.overall === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
-              {forecast.confidence.overall.toUpperCase()} CONFIDENCE
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content Area with Sidebar */}
       <div className="flex gap-6 h-full">

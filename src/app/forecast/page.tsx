@@ -6,11 +6,35 @@ import { ForecastDashboard } from '@/components/ForecastDashboard';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
+import { usePageHeader } from '@/components/PageHeaderContext';
+import { Select, SelectItem } from '@tremor/react';
 
 export default function ForecastPage() {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
+  const [forecastPeriod, setForecastPeriod] = useState('13weeks');
   const { data: session } = useSession();
+  const { setHeaderConfig } = usePageHeader();
+
+  // Set page header configuration
+  useEffect(() => {
+    setHeaderConfig({
+      title: 'Financial Forecast',
+      icon: '📈',
+      description: 'Project your business performance based on key drivers',
+      controls: (
+        <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
+          <SelectItem value="4weeks">4 Weeks</SelectItem>
+          <SelectItem value="13weeks">13 Weeks</SelectItem>
+          <SelectItem value="26weeks">26 Weeks</SelectItem>
+          <SelectItem value="52weeks">52 Weeks</SelectItem>
+        </Select>
+      )
+    });
+
+    // Cleanup function to clear header on unmount
+    return () => setHeaderConfig(null);
+  }, [setHeaderConfig, forecastPeriod]);
 
   useEffect(() => {
     // Check connection status on client side
@@ -64,7 +88,7 @@ export default function ForecastPage() {
   // Show forecast page content when connected
   return (
       <div className="p-8">
-        <ForecastDashboard />
+        <ForecastDashboard forecastPeriod={forecastPeriod} />
       </div>
   );
 }

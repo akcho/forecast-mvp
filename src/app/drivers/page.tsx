@@ -6,11 +6,25 @@ import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 import { DriverDiscoveryUI } from '@/components/DriverDiscoveryUI';
+import { usePageHeader } from '@/components/PageHeaderContext';
 
 export default function DriversPage() {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
   const { data: session } = useSession();
+  const { setHeaderConfig } = usePageHeader();
+
+  // Set page header configuration
+  useEffect(() => {
+    setHeaderConfig({
+      title: 'Business Drivers',
+      icon: '🎯',
+      description: 'Discover and analyze your key business drivers'
+    });
+
+    // Cleanup function to clear header on unmount
+    return () => setHeaderConfig(null);
+  }, [setHeaderConfig]);
 
   useEffect(() => {
     // Check connection status on client side
