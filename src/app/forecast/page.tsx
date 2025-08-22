@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/AppLayout';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { ForecastDashboard } from '@/components/ForecastDashboard';
 import { quickBooksStore } from '@/lib/quickbooks/store';
@@ -64,10 +63,8 @@ export default function ForecastPage() {
 
   // Show forecast page content when connected
   return (
-    <AppLayout>
       <div className="p-8">
         <ForecastDashboard />
       </div>
-    </AppLayout>
   );
 }

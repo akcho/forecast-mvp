@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/AppLayout';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
@@ -64,8 +63,6 @@ export default function DriversPage() {
 
   // Show drivers page content when connected
   return (
-    <AppLayout>
       <DriverDiscoveryUI />
-    </AppLayout>
   );
 }

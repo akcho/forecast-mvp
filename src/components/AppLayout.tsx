@@ -15,9 +15,20 @@ export function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   
-  // AI Assistant state
-  const [showAI, setShowAI] = useState(false);
-  const [aiWidth, setAiWidth] = useState(400); // Default width for right sidebar
+  // AI Assistant state with localStorage persistence
+  const [showAI, setShowAI] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ai-assistant-visible') === 'true';
+    }
+    return false;
+  });
+  const [aiWidth, setAiWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ai-assistant-width');
+      return saved ? parseInt(saved) : 400;
+    }
+    return 400;
+  });
   const [isResizing, setIsResizing] = useState(false);
   const [financialData, setFinancialData] = useState<any>(null);
   const [loadingData, setLoadingData] = useState(false);
@@ -86,7 +97,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (!showAI && !financialData && !loadingData) {
       fetchAllFinancialData();
     }
-    setShowAI(!showAI);
+    const newShowAI = !showAI;
+    setShowAI(newShowAI);
+    localStorage.setItem('ai-assistant-visible', newShowAI.toString());
   };
 
   // Keyboard shortcut handler (Ctrl+` like VS Code)
@@ -98,6 +111,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       }
       if (e.key === 'Escape' && showAI) {
         setShowAI(false);
+        localStorage.setItem('ai-assistant-visible', 'false');
       }
     };
 
@@ -116,7 +130,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       if (!isResizing) return;
       
       const newWidth = window.innerWidth - e.clientX;
-      setAiWidth(Math.max(300, Math.min(newWidth, window.innerWidth * 0.6)));
+      const finalWidth = Math.max(300, Math.min(newWidth, window.innerWidth * 0.6));
+      setAiWidth(finalWidth);
+      localStorage.setItem('ai-assistant-width', finalWidth.toString());
     };
 
     const handleMouseUp = () => {
@@ -191,7 +207,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="flex items-center space-x-1">
               {!isMobile && (
                 <button
-                  onClick={() => setAiWidth(aiWidth === 300 ? 500 : 300)}
+                  onClick={() => {
+                    const newWidth = aiWidth === 300 ? 500 : 300;
+                    setAiWidth(newWidth);
+                    localStorage.setItem('ai-assistant-width', newWidth.toString());
+                  }}
                   className="p-1 hover:bg-gray-200 rounded text-gray-500"
                   title={aiWidth === 300 ? 'Expand sidebar' : 'Minimize sidebar'}
                 >
@@ -203,7 +223,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
               )}
               <button
-                onClick={() => setShowAI(false)}
+                onClick={() => {
+                  setShowAI(false);
+                  localStorage.setItem('ai-assistant-visible', 'false');
+                }}
                 className="p-1 hover:bg-gray-200 rounded text-gray-500"
                 title="Close AI assistant (Ctrl+`)"
               >

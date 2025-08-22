@@ -7,7 +7,6 @@ import { PnlTable } from '../analysis';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
-import { AppLayout } from '@/components/AppLayout';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
@@ -22,7 +21,6 @@ function useIsMobile() {
 
 function ReportsContent() {
   const [timePeriod, setTimePeriod] = useState('3months');
-  const [aiPanelMinimized, setAiPanelMinimized] = useState(false);
   const [activeStatement, setActiveStatement] = useState<'profitLoss' | 'balanceSheet' | 'cashFlow'>('profitLoss');
   const [reports, setReports] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
@@ -200,7 +198,6 @@ function ReportsContent() {
 
   // DESKTOP: Show full layout with sidebar and analysis panel
   return (
-    <AppLayout>
       <div className="flex h-screen bg-white">
         {/* Main Content Area */}
         <div className="flex-1 flex">
@@ -291,48 +288,8 @@ function ReportsContent() {
             </div>
 
           </div>
-
-          {/* AI Chat Panel */}
-          <div className={`bg-white border-l transition-all duration-300 ${
-            aiPanelMinimized ? 'w-16' : 'w-96'
-          }`}>
-            {aiPanelMinimized ? (
-              <div className="p-4">
-                <Button
-                  variant="light"
-                  onClick={() => setAiPanelMinimized(false)}
-                  className="w-full"
-                >
-                  Expand AI
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col h-full">
-                <div className="flex-shrink-0 p-4 border-b flex items-center justify-between">
-                  <Title>AI Assistant</Title>
-                  <Button
-                    variant="light"
-                    onClick={() => setAiPanelMinimized(true)}
-                    size="xs"
-                  >
-                    Minimize
-                  </Button>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                  <ChatPanel 
-                    currentReports={{
-                      profitLoss: reports['profitLoss'],
-                      balanceSheet: reports['balanceSheet'],
-                      cashFlow: reports['cashFlow']
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
-    </AppLayout>
   );
 }
 

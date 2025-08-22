@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { SessionProvider } from '@/components/SessionProvider';
+import { AppLayout } from '@/components/AppLayout';
 
 export const metadata: Metadata = {
   title: 'Runway Analysis Dashboard',
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className="h-full">
         <SessionProvider>
-          {children}
+          <AppLayout>
+            {children}
+          </AppLayout>
         </SessionProvider>
       </body>
     </html>
