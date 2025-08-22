@@ -228,6 +228,11 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
       <div className="flex gap-6 h-full">
         {/* Main Content */}
         <div className="flex-1 space-y-6 transition-all duration-300">
+          {/* Enhanced Key Insights - Moved to Top */}
+          {forecast.insights && (
+            <EnhancedInsightsPanel insights={forecast.insights} />
+          )}
+
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {keyMetrics.map((metric, index) => (
@@ -386,23 +391,150 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
         </div>
       </div>
 
-      {/* Insights */}
-      {forecast.summary.keyInsights.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-blue-900 mb-4 flex items-center space-x-2">
-            <InformationCircleIcon className="h-6 w-6" />
-            <span>Key Insights</span>
-          </h2>
-          <ul className="space-y-2">
-            {forecast.summary.keyInsights.map((insight, index) => (
-              <li key={index} className="flex items-start space-x-2 text-blue-800">
-                <span className="text-blue-600 mt-1">•</span>
-                <span>{insight}</span>
-              </li>
-            ))}
-          </ul>
+    </div>
+  );
+}
+
+// Enhanced Insights Panel with color-coded categories
+function EnhancedInsightsPanel({ insights }: { insights: any }) {
+  const { critical, warnings, opportunities, dataQuality, summary } = insights;
+  
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'warning': return <ExclamationTriangleIcon className="h-5 w-5" />;
+      case 'opportunity': return <ArrowTrendingUpIcon className="h-5 w-5" />;
+      case 'success': return <InformationCircleIcon className="h-5 w-5" />;
+      default: return <InformationCircleIcon className="h-5 w-5" />;
+    }
+  };
+  
+  const getInsightColors = (type: string, priority: string) => {
+    if (type === 'warning' && priority === 'high') {
+      return {
+        bg: 'bg-red-50',
+        border: 'border-red-200',
+        text: 'text-red-900',
+        icon: 'text-red-600'
+      };
+    } else if (type === 'warning') {
+      return {
+        bg: 'bg-orange-50',
+        border: 'border-orange-200', 
+        text: 'text-orange-900',
+        icon: 'text-orange-600'
+      };
+    } else if (type === 'opportunity') {
+      return {
+        bg: 'bg-green-50',
+        border: 'border-green-200',
+        text: 'text-green-900', 
+        icon: 'text-green-600'
+      };
+    } else {
+      return {
+        bg: 'bg-blue-50',
+        border: 'border-blue-200',
+        text: 'text-blue-900',
+        icon: 'text-blue-600'
+      };
+    }
+  };
+
+  if (!insights.all || insights.all.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
+          <InformationCircleIcon className="h-6 w-6 text-gray-600" />
+          <span>Key Insights & Data Quality</span>
+        </h2>
+        <div className="flex items-center space-x-4 text-sm text-gray-600">
+          <span className="flex items-center space-x-1">
+            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+            <span>Data Quality: {summary.dataQualityScore}%</span>
+          </span>
+          <span>{summary.totalInsights} insights</span>
         </div>
-      )}
+      </div>
+
+      <div className="space-y-4">
+        {/* Critical Insights First */}
+        {critical.map((insight: any) => {
+          const colors = getInsightColors(insight.type, insight.priority);
+          return (
+            <div
+              key={insight.id}
+              className={`${colors.bg} ${colors.border} border rounded-lg p-4`}
+            >
+              <div className="flex items-start space-x-3">
+                <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
+                  {getInsightIcon(insight.type)}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h3 className={`font-semibold ${colors.text}`}>
+                      {insight.title}
+                    </h3>
+                    {insight.priority === 'high' && (
+                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                        HIGH PRIORITY
+                      </span>
+                    )}
+                  </div>
+                  <p className={`${colors.text} text-sm mb-2`}>
+                    {insight.message}
+                  </p>
+                  {insight.detail && (
+                    <p className={`${colors.text.replace('900', '700')} text-xs mb-2`}>
+                      {insight.detail}
+                    </p>
+                  )}
+                  {insight.action && (
+                    <div className={`${colors.bg.replace('50', '100')} rounded-md p-2 mt-2`}>
+                      <p className={`${colors.text} text-xs font-medium`}>
+                        💡 Recommended Action: {insight.action}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Other Important Insights */}
+        {insights.all.filter((i: any) => i.priority !== 'high' || i.type !== 'warning').slice(0, 3).map((insight: any) => {
+          const colors = getInsightColors(insight.type, insight.priority);
+          return (
+            <div
+              key={insight.id}
+              className={`${colors.bg} ${colors.border} border rounded-lg p-3`}
+            >
+              <div className="flex items-start space-x-3">
+                <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
+                  {getInsightIcon(insight.type)}
+                </div>
+                <div className="flex-1">
+                  <h4 className={`font-medium ${colors.text} text-sm`}>
+                    {insight.title}
+                  </h4>
+                  <p className={`${colors.text} text-xs mt-1`}>
+                    {insight.message}
+                  </p>
+                  {insight.action && (
+                    <p className={`${colors.text.replace('900', '600')} text-xs mt-1 font-medium`}>
+                      → {insight.action}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
