@@ -1,16 +1,19 @@
 'use client';
 
-import { DocumentTextIcon, Cog6ToothIcon, HomeIcon, ArrowTrendingUpIcon, ArrowLeftOnRectangleIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
-import { DocumentTextIcon as DocumentTextIconSolid, HomeIcon as HomeIconSolid, ArrowTrendingUpIcon as ArrowTrendingUpIconSolid, AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid } from '@heroicons/react/24/solid';
+import { DocumentTextIcon, Cog6ToothIcon, HomeIcon, ArrowTrendingUpIcon, ArrowLeftOnRectangleIcon, AdjustmentsHorizontalIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon as DocumentTextIconSolid, HomeIcon as HomeIconSolid, ArrowTrendingUpIcon as ArrowTrendingUpIconSolid, AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid, ChatBubbleLeftIcon as ChatBubbleLeftIconSolid } from '@heroicons/react/24/solid';
 import { signOut } from 'next-auth/react';
 import { CompanySwitcher } from './CompanySwitcher';
 
 interface SidebarProps {
   currentPage: 'reports' | 'forecast' | 'drivers';
   onPageChange: (page: 'reports' | 'forecast' | 'drivers') => void;
+  showAI: boolean;
+  onAIToggle: () => void;
+  loadingData?: boolean;
 }
 
-export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
+export function Sidebar({ currentPage, onPageChange, showAI, onAIToggle, loadingData = false }: SidebarProps) {
   const handleLogout = async () => {
     try {
       // Clear local storage
@@ -94,8 +97,32 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             })}
           </nav>
 
-          {/* Settings & Logout */}
+          {/* AI Assistant & Actions */}
           <div className="flex-shrink-0 px-2 pb-4 space-y-1">
+            {/* AI Assistant Toggle */}
+            <button 
+              onClick={onAIToggle}
+              className={`group w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                showAI
+                  ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <ChatBubbleLeftIcon 
+                className={`mr-3 flex-shrink-0 h-5 w-5 ${
+                  showAI ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'
+                }`} 
+              />
+              <span className={showAI ? 'text-blue-700' : 'text-gray-900'}>
+                AI Assistant
+              </span>
+              {loadingData && (
+                <div className="ml-auto">
+                  <div className="w-3 h-3 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                </div>
+              )}
+            </button>
+            
             <button className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900">
               <Cog6ToothIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
               Settings

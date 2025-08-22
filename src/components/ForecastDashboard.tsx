@@ -24,10 +24,7 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
   ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  AdjustmentsHorizontalIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
+  ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
 import { 
   BaseForecast, 
@@ -48,7 +45,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adjustments, setAdjustments] = useState<DriverAdjustment[]>([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Driver controls are always visible - no toggle needed
   
   // Load initial forecast
   useEffect(() => {
@@ -238,18 +235,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <AdjustmentsHorizontalIcon className="h-4 w-4" />
-              <span>{sidebarOpen ? 'Hide' : 'Show'} Controls</span>
-              {sidebarOpen ? (
-                <ChevronRightIcon className="h-4 w-4" />
-              ) : (
-                <ChevronLeftIcon className="h-4 w-4" />
-              )}
-            </button>
+            {/* Driver controls toggle removed - always visible */}
             
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
               forecast.confidence.overall === 'high' ? 'bg-green-100 text-green-800' :
@@ -265,9 +251,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       {/* Main Content Area with Sidebar */}
       <div className="flex gap-6 h-full">
         {/* Main Content */}
-        <div className={`flex-1 space-y-6 transition-all duration-300 ${
-          sidebarOpen ? 'mr-0' : 'mr-0'
-        }`}>
+        <div className="flex-1 space-y-6 transition-all duration-300">
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {keyMetrics.map((metric, index) => (
@@ -336,9 +320,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
         </div>
 
         {/* Collapsible Sidebar */}
-        <div className={`transition-all duration-300 ${
-          sidebarOpen ? 'w-96' : 'w-0'
-        } overflow-visible`}>
+        <div className="w-96 transition-all duration-300 overflow-visible">
           <div className="bg-white border border-gray-200 rounded-lg h-full">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-bold text-gray-900">Driver Controls</h2>

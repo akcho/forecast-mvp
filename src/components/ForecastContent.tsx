@@ -439,9 +439,9 @@ export function ForecastContent() {
         </div>
       </Card>
 
-      {/* Scenario Controls */}
+      {/* Driver Controls */}
       <Card className="mb-6">
-        <Title className="mb-4">Scenario Settings</Title>
+        <Title className="mb-4">Driver Controls</Title>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Growth Controls */}
           <div>
