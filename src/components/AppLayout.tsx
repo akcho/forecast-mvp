@@ -19,7 +19,7 @@ function AppLayoutInner({ children }: AppLayoutProps) {
   const { headerConfig } = usePageHeader();
   
   // AI Assistant state with localStorage persistence
-  const [showAI, setShowAI] = useState(false);
+  const [showAI, setShowAI] = useState(true);
   const [aiWidth, setAiWidth] = useState(400);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -32,24 +32,27 @@ function AppLayoutInner({ children }: AppLayoutProps) {
     setIsHydrated(true);
     
     // Load AI assistant state from localStorage after hydration
-    const savedVisible = localStorage.getItem('ai-assistant-visible') === 'true';
+    const savedVisibleStr = localStorage.getItem('ai-assistant-visible');
     const savedWidth = localStorage.getItem('ai-assistant-width');
+    
+    // Default to true if no localStorage value exists, otherwise use saved value
+    const savedVisible = savedVisibleStr === null ? true : savedVisibleStr === 'true';
     
     setShowAI(savedVisible);
     if (savedWidth) {
       setAiWidth(parseInt(savedWidth));
     }
     
-    // If AI assistant was previously open, set basic financial data
+    // If AI assistant is open (either default or restored), set basic financial data
     if (savedVisible) {
-      console.log('🤖 AI Assistant: Restoring from localStorage, setting basic financial data...');
+      console.log('🤖 AI Assistant: Setting up for default/restored state, setting basic financial data...');
       setFinancialData({
         profitLoss: { connected: true, hasData: true },
         balanceSheet: { connected: true, hasData: true },
         cashFlow: { connected: true, hasData: true },
         status: 'QuickBooks connected'
       });
-      console.log('✅ AI Assistant: Ready for chat (restored from localStorage)');
+      console.log('✅ AI Assistant: Ready for chat (default/restored state)');
     }
   }, []);
   
@@ -262,7 +265,7 @@ function AppLayoutInner({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <ChatBubbleLeftIcon className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-900">Personal CFO</span>
+              <span className="font-medium text-gray-900">Ask Netflow</span>
             </div>
             <div className="flex items-center space-x-1">
               {!isMobile && (
