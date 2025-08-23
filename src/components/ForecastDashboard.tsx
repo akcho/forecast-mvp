@@ -14,12 +14,9 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer,
-  Area,
-  AreaChart
+  ResponsiveContainer
 } from 'recharts';
 import { 
-  CurrencyDollarIcon, 
   ClockIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
@@ -41,9 +38,10 @@ interface ForecastDashboardProps {
   forecastPeriod?: string;
 }
 
-export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }: ForecastDashboardProps) {
+export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
   const [forecast, setForecast] = useState<BaseForecast | AdjustedForecast | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false); // Separate state for slider updates
   const [error, setError] = useState<string | null>(null);
   const [adjustments, setAdjustments] = useState<DriverAdjustment[]>([]);
   const [activeTab, setActiveTab] = useState<'revenue' | 'expense' | 'external'>('revenue');
@@ -77,45 +75,10 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
     }
   };
 
-  const handleDriverAdjustment = async (driverId: string, impactPercent: number) => {
-    console.log('🎛️ handleDriverAdjustment called:', { driverId, impactPercent });
-    if (!forecast) return;
-    
+  const updateForecast = async (newAdjustments: DriverAdjustment[]) => {
     try {
-      // Create or update adjustment for this driver
-      const existingAdjustmentIndex = adjustments.findIndex(adj => adj.driverId === driverId);
-      let newAdjustments = [...adjustments];
+      setUpdating(true);
       
-      if (impactPercent === 0) {
-        // Remove adjustment if impact is 0
-        if (existingAdjustmentIndex !== -1) {
-          newAdjustments.splice(existingAdjustmentIndex, 1);
-        }
-      } else {
-        // Use June 2025 as forecast start date to match DriverForecastService
-        const forecastStartDate = new Date('2025-06-01');
-        
-        const adjustment: DriverAdjustment = {
-          id: `adj_${driverId}_${Date.now()}`,
-          driverId,
-          label: `Manual adjustment`,
-          impact: impactPercent / 100, // Convert percentage to decimal
-          startDate: forecastStartDate, // Start from forecast beginning
-          createdBy: 'user',
-          createdAt: new Date(),
-          modifiedAt: new Date()
-        };
-        
-        if (existingAdjustmentIndex !== -1) {
-          newAdjustments[existingAdjustmentIndex] = adjustment;
-        } else {
-          newAdjustments.push(adjustment);
-        }
-      }
-      
-      setAdjustments(newAdjustments);
-      
-      // Apply adjustments to forecast
       if (newAdjustments.length > 0) {
         const response = await fetch('/api/quickbooks/generate-forecast', {
           method: 'POST',
@@ -128,13 +91,60 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
           setForecast(data.forecast);
         }
       } else {
-        // No adjustments - reload base forecast
-        loadForecast();
+        // No adjustments - get base forecast without setting loading state
+        const response = await fetch('/api/quickbooks/generate-forecast');
+        const data: ForecastResponse = await response.json();
+        if (data.success && data.forecast) {
+          setForecast(data.forecast);
+        }
       }
-      
     } catch (err) {
-      console.error('❌ Error applying adjustment:', err);
+      console.error('❌ Error updating forecast:', err);
+    } finally {
+      setUpdating(false);
     }
+  };
+
+  const handleDriverAdjustment = (driverId: string, impactPercent: number) => {
+    console.log('🎛️ handleDriverAdjustment called:', { driverId, impactPercent });
+    if (!forecast) return;
+    
+    // Create or update adjustment for this driver
+    const existingAdjustmentIndex = adjustments.findIndex(adj => adj.driverId === driverId);
+    let newAdjustments = [...adjustments];
+    
+    if (impactPercent === 0) {
+      // Remove adjustment if impact is 0
+      if (existingAdjustmentIndex !== -1) {
+        newAdjustments.splice(existingAdjustmentIndex, 1);
+      }
+    } else {
+      // Use June 2025 as forecast start date to match DriverForecastService
+      const forecastStartDate = new Date('2025-06-01');
+      
+      const adjustment: DriverAdjustment = {
+        id: `adj_${driverId}_${Date.now()}`,
+        driverId,
+        label: `Manual adjustment`,
+        impact: impactPercent / 100, // Convert percentage to decimal
+        startDate: forecastStartDate, // Start from forecast beginning
+        createdBy: 'user',
+        createdAt: new Date(),
+        modifiedAt: new Date()
+      };
+      
+      if (existingAdjustmentIndex !== -1) {
+        newAdjustments[existingAdjustmentIndex] = adjustment;
+      } else {
+        newAdjustments.push(adjustment);
+      }
+    }
+    
+    // Update adjustments immediately for UI responsiveness
+    setAdjustments(newAdjustments);
+    
+    // Update forecast immediately since this is now called only on pointer up
+    updateForecast(newAdjustments);
   };
 
   if (loading) {
@@ -224,26 +234,34 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
   return (
     <div className={`h-full ${className}`}>
 
-      {/* Main Content Area with Sidebar */}
-      <div className="flex gap-6 h-full">
-        {/* Main Content */}
-        <div className="flex-1 space-y-6 transition-all duration-300">
-          {/* Enhanced Key Insights - Moved to Top */}
-          {forecast.insights && (
-            <EnhancedInsightsPanel insights={forecast.insights} />
-          )}
+      {/* Main Content Area */}
+      <div className="space-y-6">
+        {/* Key Insights - Top Priority */}
+        {forecast.insights && (
+          <EnhancedInsightsPanel insights={forecast.insights} />
+        )}
 
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {keyMetrics.map((metric, index) => (
-              <MetricCard key={index} metric={metric} />
-            ))}
-          </div>
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {keyMetrics.map((metric, index) => (
+            <MetricCard key={index} metric={metric} />
+          ))}
+        </div>
 
+        {/* Chart and Controls Side by Side */}
+        <div className="flex gap-6 h-full">
           {/* Main Chart */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Financial Projections</h2>
+              <div className="flex items-center space-x-3">
+                <h2 className="text-xl font-bold text-gray-900">Financial Projections</h2>
+                {updating && (
+                  <div className="flex items-center space-x-2 text-sm text-blue-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span>Updating...</span>
+                  </div>
+                )}
+              </div>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-blue-500 rounded"></div>
@@ -298,94 +316,94 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
 
-        {/* Collapsible Sidebar */}
-        <div className="w-96 transition-all duration-300 overflow-visible">
-          <div className="bg-white border border-gray-200 rounded-lg h-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900">Driver Controls</h2>
-              <p className="text-sm text-gray-600 mt-1">Adjust drivers to see impact on forecast</p>
-            </div>
-            
-            {/* Tab Navigation */}
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8 px-6" aria-label="Tabs">
-                <button
-                  onClick={() => setActiveTab('revenue')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'revenue'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Revenue
-                </button>
-                <button
-                  onClick={() => setActiveTab('expense')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'expense'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Expenses
-                </button>
-                <button
-                  onClick={() => setActiveTab('external')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === 'external'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  External
-                </button>
-              </nav>
-            </div>
-            
-            {/* Tab Content */}
-            <div className="p-6 overflow-y-auto overflow-x-visible h-full">
-              {activeTab === 'revenue' && (
-                <div className="space-y-3">
-                  {forecast.drivers
-                    .filter(driver => driver.category === 'revenue')
-                    .map(driver => (
-                      <DriverControl
-                        key={driver.name}
-                        driver={driver}
-                        adjustment={adjustments.find(adj => adj.driverId === driver.name)}
-                        onAdjustment={(impactPercent) => handleDriverAdjustment(driver.name, impactPercent)}
-                        compact={true}
-                      />
-                    ))
-                  }
-                </div>
-              )}
+          {/* Driver Controls Sidebar - Aligned with Chart */}
+          <div className="w-96 transition-all duration-300 overflow-visible">
+            <div className="bg-white border border-gray-200 rounded-lg h-full">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-bold text-gray-900">Driver Controls</h2>
+                <p className="text-sm text-gray-600 mt-1">Adjust drivers to see impact on forecast</p>
+              </div>
               
-              {activeTab === 'expense' && (
-                <div className="space-y-3">
-                  {forecast.drivers
-                    .filter(driver => driver.category === 'expense')
-                    .map(driver => (
-                      <DriverControl
-                        key={driver.name}
-                        driver={driver}
-                        adjustment={adjustments.find(adj => adj.driverId === driver.name)}
-                        onAdjustment={(impactPercent) => handleDriverAdjustment(driver.name, impactPercent)}
-                        compact={true}
-                      />
-                    ))
-                  }
-                </div>
-              )}
+              {/* Tab Navigation */}
+              <div className="border-b border-gray-200">
+                <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                  <button
+                    onClick={() => setActiveTab('revenue')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === 'revenue'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Revenue
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('expense')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === 'expense'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Expenses
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('external')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === 'external'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    External
+                  </button>
+                </nav>
+              </div>
               
-              {activeTab === 'external' && (
-                <div className="text-center py-12 text-gray-500">
-                  <p className="text-lg font-medium">External Factors</p>
-                  <p className="text-sm mt-2">Coming soon - market conditions, economic indicators, and external drivers</p>
-                </div>
-              )}
+              {/* Tab Content */}
+              <div className="p-6 overflow-y-auto overflow-x-visible h-full">
+                {activeTab === 'revenue' && (
+                  <div className="space-y-3">
+                    {forecast.drivers
+                      .filter(driver => driver.category === 'revenue')
+                      .map(driver => (
+                        <DriverControl
+                          key={driver.name}
+                          driver={driver}
+                          adjustment={adjustments.find(adj => adj.driverId === driver.name)}
+                          onAdjustment={(impactPercent) => handleDriverAdjustment(driver.name, impactPercent)}
+                          compact={true}
+                        />
+                      ))
+                    }
+                  </div>
+                )}
+                
+                {activeTab === 'expense' && (
+                  <div className="space-y-3">
+                    {forecast.drivers
+                      .filter(driver => driver.category === 'expense')
+                      .map(driver => (
+                        <DriverControl
+                          key={driver.name}
+                          driver={driver}
+                          adjustment={adjustments.find(adj => adj.driverId === driver.name)}
+                          onAdjustment={(impactPercent) => handleDriverAdjustment(driver.name, impactPercent)}
+                          compact={true}
+                        />
+                      ))
+                    }
+                  </div>
+                )}
+                
+                {activeTab === 'external' && (
+                  <div className="text-center py-12 text-gray-500">
+                    <p className="text-lg font-medium">External Factors</p>
+                    <p className="text-sm mt-2">Coming soon - market conditions, economic indicators, and external drivers</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -397,7 +415,7 @@ export function ForecastDashboard({ className = '', forecastPeriod = '13weeks' }
 
 // Enhanced Insights Panel with color-coded categories
 function EnhancedInsightsPanel({ insights }: { insights: any }) {
-  const { critical, warnings, opportunities, dataQuality, summary } = insights;
+  const { critical, summary } = insights;
   
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -449,14 +467,61 @@ function EnhancedInsightsPanel({ insights }: { insights: any }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
           <InformationCircleIcon className="h-6 w-6 text-gray-600" />
-          <span>Key Insights & Data Quality</span>
+          <span>Key Insights</span>
         </h2>
         <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <span className="flex items-center space-x-1">
-            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-            <span>Data Quality: {summary.dataQualityScore}%</span>
-          </span>
-          <span>{summary.totalInsights} insights</span>
+          <div className="relative group cursor-help">
+            <span className="flex items-center space-x-1">
+              <span className={`w-3 h-3 rounded-full ${
+                summary.dataQualityScore >= 80 ? 'bg-green-500' :
+                summary.dataQualityScore >= 60 ? 'bg-yellow-500' :
+                'bg-red-500'
+              }`}></span>
+              <span>Data Quality: {summary.dataQualityScore}%</span>
+            </span>
+            
+            {/* Tooltip */}
+            <div className="absolute top-full right-0 mt-2 w-80 p-4 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="space-y-3">
+                <div>
+                  <div className="font-semibold text-white mb-1">Data Quality Score</div>
+                  <p className="text-gray-300">Measures completeness and reliability of your financial data for accurate forecasting.</p>
+                </div>
+                
+                <div className="border-t border-gray-700 pt-2">
+                  <div className="font-semibold text-white mb-1">Score Guide:</div>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-gray-300">80-100%: Excellent - High confidence forecasts</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                      <span className="text-gray-300">60-79%: Good - Reliable with minor gaps</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      <span className="text-gray-300">Below 60%: Needs improvement</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border-t border-gray-700 pt-2">
+                  <div className="font-semibold text-white mb-1">How to Improve:</div>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• Ensure consistent monthly data entry</li>
+                    <li>• Fill gaps in historical transactions</li>
+                    <li>• Categorize expenses properly in QuickBooks</li>
+                    <li>• Record all revenue sources completely</li>
+                    <li>• Maintain regular bookkeeping schedule</li>
+                  </ul>
+                </div>
+              </div>
+              
+              {/* Tooltip arrow */}
+              <div className="absolute bottom-full right-4 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -607,10 +672,8 @@ function DriverControl({
   // Sync slider value with adjustment prop changes
   useEffect(() => {
     const newValue = adjustment ? Math.round(adjustment.impact * 100) : 0;
-    if (newValue !== sliderValue) {
-      setSliderValue(newValue);
-    }
-  }, [adjustment, sliderValue]);
+    setSliderValue(newValue);
+  }, [adjustment]);
 
   const currentValue = driver.monthlyValues[0] || 0;
   const adjustedValue = currentValue * (1 + sliderValue / 100);
