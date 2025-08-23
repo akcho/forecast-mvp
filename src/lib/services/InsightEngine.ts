@@ -232,17 +232,37 @@ class DataQualityAnalyzer implements InsightAnalyzer {
               ? ` (${operationalMonths} month${operationalMonths === 1 ? '' : 's'} old business)`
               : '';
             
+            // Analyze revenue gap patterns for better insights
+            const recentGaps = zeroRevenueMonths.filter(m => 
+              m.date >= new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000) // Last 6 months
+            );
+            
+            const monthsWithRevenue = operationalPeriod.filter(m => m.value > 0);
+            const avgMonthlyRevenue = monthsWithRevenue.length > 0
+              ? monthsWithRevenue.reduce((sum, m) => sum + m.value, 0) / monthsWithRevenue.length
+              : 0;
+            
+            const recentGapsText = recentGaps.length > 0
+              ? ` including ${recentGaps.length} in the last 6 months (${recentGaps.map(m => m.month).join(', ')})`
+              : '';
+            
+            const revenueContext = avgMonthlyRevenue > 0
+              ? `. Avg monthly revenue when active: $${avgMonthlyRevenue.toLocaleString()}`
+              : '';
+            
             insights.push({
               id: `data-quality-gaps-${Date.now()}`,
               type: 'warning',
-              priority: significantGaps >= 5 ? 'high' : 'medium',
+              priority: recentGaps.length >= 3 ? 'high' : significantGaps >= 5 ? 'high' : 'medium',
               category: 'data_quality',
-              title: 'Revenue Gaps After Operations Began',
-              message: `${significantGaps} months with zero revenue since ${businessStartDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}${businessAgeContext}`,
-              detail: `Zero revenue months: ${zeroRevenueMonths.map(m => m.month).join(', ')}`,
-              action: isNewBusiness 
-                ? 'Normal for new businesses, but verify transactions are recorded correctly'
-                : 'Verify if this is accurate or if transactions are missing',
+              title: 'Revenue Gaps in Operational Period',
+              message: `${significantGaps} months with zero revenue since operations began (${businessStartDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })})${businessAgeContext}`,
+              detail: `Zero revenue months: ${zeroRevenueMonths.map(m => m.month).join(', ')}${recentGapsText}${revenueContext}`,
+              action: recentGaps.length >= 2
+                ? 'Recent revenue gaps detected - verify current business operations and transaction recording'
+                : isNewBusiness 
+                  ? 'Ensure all customer payments and sales are properly recorded in QuickBooks'
+                  : 'Review historical periods - confirm if zero revenue months represent actual business downtime or missing data',
               timeframe: 'historical',
               score: 0
             });
@@ -441,15 +461,31 @@ class MarginAnalyzer implements InsightAnalyzer {
         score: 0
       });
     } else if (overallMargin < 20) {
+      // Find largest expense categories for specific recommendations
+      const expenseDrivers = drivers.filter(d => d.category === 'expense');
+      const topExpenses = expenseDrivers
+        .sort((a, b) => (b.baseValue || 0) - (a.baseValue || 0))
+        .slice(0, 3);
+      
+      const expenseBreakdown = topExpenses.length > 0
+        ? `Top expenses: ${topExpenses.map(e => `${e.name} ($${(e.baseValue || 0).toLocaleString()})`).join(', ')}`
+        : 'Review all expense categories';
+      
+      const revenueVsExpenseAnalysis = totalRevenue > 0
+        ? `Revenue: $${totalRevenue.toLocaleString()}, Expenses: $${totalExpenses.toLocaleString()}`
+        : 'No revenue detected in analysis period';
+      
       insights.push({
         id: `margin-low-${Date.now()}`,
         type: 'warning',
-        priority: 'medium',
+        priority: overallMargin <= 0 ? 'high' : 'medium',
         category: 'margin',
-        title: 'Low Profit Margins',
-        message: `Overall margin is ${overallMargin.toFixed(0)}% - below recommended 20-30%`,
-        detail: 'Consider reviewing pricing strategy or reducing costs',
-        action: 'Analyze pricing and cost structure',
+        title: overallMargin <= 0 ? 'Zero or Negative Profit Margins' : 'Low Profit Margins',
+        message: `Overall margin is ${overallMargin.toFixed(1)}% - ${overallMargin <= 0 ? 'expenses exceed revenue' : 'below recommended 20-30%'}`,
+        detail: `${revenueVsExpenseAnalysis}. ${expenseBreakdown}`,
+        action: overallMargin <= 0 
+          ? 'Urgent: Reduce costs or increase revenue to avoid losses'
+          : 'Consider raising prices or reducing major expense categories',
         timeframe: 'current',
         score: 0
       });
