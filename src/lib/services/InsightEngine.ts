@@ -437,14 +437,25 @@ class MarginAnalyzer implements InsightAnalyzer {
   analyze(monthlyData: ParsedProfitLoss, drivers: DiscoveredDriver[]): Insight[] {
     const insights: Insight[] = [];
     
-    // Calculate total revenue and expenses
-    const totalRevenue = drivers
-      .filter(d => d.category === 'revenue')
-      .reduce((sum, d) => sum + (d.baseValue || 0), 0);
+    // Calculate total revenue and expenses from recent monthly averages
+    const revenueDrivers = drivers.filter(d => d.category === 'revenue');
+    const expenseDrivers = drivers.filter(d => d.category === 'expense');
     
-    const totalExpenses = drivers
-      .filter(d => d.category === 'expense')
-      .reduce((sum, d) => sum + (d.baseValue || 0), 0);
+    // Calculate recent average (last 3 months or available data)
+    const getRecentAverage = (driver: DiscoveredDriver): number => {
+      if (!driver.monthlyValues || driver.monthlyValues.length === 0) return 0;
+      const recentValues = driver.monthlyValues
+        .filter(v => v > 0) // Only non-zero values
+        .slice(-3); // Last 3 values
+      if (recentValues.length === 0) return 0;
+      return recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
+    };
+    
+    const totalRevenue = revenueDrivers
+      .reduce((sum, d) => sum + getRecentAverage(d), 0);
+    
+    const totalExpenses = expenseDrivers
+      .reduce((sum, d) => sum + getRecentAverage(d), 0);
     
     const overallMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue) * 100 : 0;
     
@@ -462,13 +473,14 @@ class MarginAnalyzer implements InsightAnalyzer {
       });
     } else if (overallMargin < 20) {
       // Find largest expense categories for specific recommendations
-      const expenseDrivers = drivers.filter(d => d.category === 'expense');
       const topExpenses = expenseDrivers
-        .sort((a, b) => (b.baseValue || 0) - (a.baseValue || 0))
+        .map(d => ({ driver: d, avgValue: getRecentAverage(d) }))
+        .filter(item => item.avgValue > 0)
+        .sort((a, b) => b.avgValue - a.avgValue)
         .slice(0, 3);
       
       const expenseBreakdown = topExpenses.length > 0
-        ? `Top expenses: ${topExpenses.map(e => `${e.name} ($${(e.baseValue || 0).toLocaleString()})`).join(', ')}`
+        ? `Top expenses: ${topExpenses.map(e => `${e.driver.name} ($${Math.round(e.avgValue).toLocaleString()})`).join(', ')}`
         : 'Review all expense categories';
       
       const revenueVsExpenseAnalysis = totalRevenue > 0
