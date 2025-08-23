@@ -200,20 +200,65 @@ class DataQualityAnalyzer implements InsightAnalyzer {
       }
     }
     
-    // Check for data gaps (months with zero revenue)
+    // Smart data gap analysis (only check after business operations began)
     if (monthlyData?.revenue?.monthlyTotals) {
-      const zeroRevenueMonths = monthlyData.revenue.monthlyTotals.filter(m => m.value === 0);
+      const businessStartDate = this.detectBusinessStartDate(monthlyData);
       
-      if (zeroRevenueMonths.length > 0) {
+      if (businessStartDate) {
+        // Only check for gaps AFTER business started operating
+        const operationalPeriod = monthlyData.revenue.monthlyTotals.filter(m => 
+          m.date >= businessStartDate
+        );
+        const zeroRevenueMonths = operationalPeriod.filter(m => m.value === 0);
+        
+        const operationalMonths = this.getOperationalMonths(
+          businessStartDate, 
+          monthlyData.period.end
+        );
+        
+        // Smart thresholds based on business age
+        const isNewBusiness = operationalMonths <= 6;
+        const significantGaps = zeroRevenueMonths.length;
+        
+        // Only warn if there are meaningful gaps for established businesses
+        // or concerning patterns for new businesses
+        if (significantGaps > 0) {
+          const shouldWarn = isNewBusiness 
+            ? significantGaps >= 3 && significantGaps > operationalMonths * 0.5 // >50% of months for new business
+            : significantGaps >= 2; // Any gaps for established business
+            
+          if (shouldWarn) {
+            const businessAgeContext = isNewBusiness 
+              ? ` (${operationalMonths} month${operationalMonths === 1 ? '' : 's'} old business)`
+              : '';
+            
+            insights.push({
+              id: `data-quality-gaps-${Date.now()}`,
+              type: 'warning',
+              priority: significantGaps >= 5 ? 'high' : 'medium',
+              category: 'data_quality',
+              title: 'Revenue Gaps After Operations Began',
+              message: `${significantGaps} months with zero revenue since ${businessStartDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}${businessAgeContext}`,
+              detail: `Zero revenue months: ${zeroRevenueMonths.map(m => m.month).join(', ')}`,
+              action: isNewBusiness 
+                ? 'Normal for new businesses, but verify transactions are recorded correctly'
+                : 'Verify if this is accurate or if transactions are missing',
+              timeframe: 'historical',
+              score: 0
+            });
+          }
+        }
+      } else {
+        // No business activity detected at all
         insights.push({
-          id: `data-quality-gaps-${Date.now()}`,
+          id: `data-quality-no-activity-${Date.now()}`,
           type: 'warning',
-          priority: zeroRevenueMonths.length > 2 ? 'high' : 'medium',
+          priority: 'high',
           category: 'data_quality',
-          title: 'Missing Revenue Data',
-          message: `${zeroRevenueMonths.length} months with zero revenue`,
-          detail: `Months: ${zeroRevenueMonths.map(m => m.month).join(', ')}`,
-          action: 'Verify if this is accurate or if transactions are missing',
+          title: 'No Financial Activity Detected',
+          message: 'No revenue or expenses found in any month',
+          detail: 'Either the business has not started operations or no transactions have been recorded',
+          action: 'Verify QuickBooks data and ensure transactions are properly categorized',
           timeframe: 'historical',
           score: 0
         });
@@ -221,6 +266,36 @@ class DataQualityAnalyzer implements InsightAnalyzer {
     }
     
     return insights;
+  }
+
+  /**
+   * Detect when the business actually started operating
+   * Returns the first month with any revenue OR expenses > 0
+   */
+  private detectBusinessStartDate(monthlyData: ParsedProfitLoss): Date | null {
+    const allMonths = monthlyData.revenue.monthlyTotals.map(m => ({
+      date: m.date,
+      revenue: m.value,
+      expenses: monthlyData.expenses.monthlyTotals.find(e => 
+        e.date.getTime() === m.date.getTime()
+      )?.value || 0
+    }));
+    
+    // Find first month with any financial activity
+    const firstActiveMonth = allMonths.find(month => 
+      month.revenue > 0 || month.expenses > 0
+    );
+    
+    return firstActiveMonth?.date || null;
+  }
+
+  /**
+   * Count operational months since business started
+   */
+  private getOperationalMonths(startDate: Date, endDate: Date): number {
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days per month
+    return diffMonths;
   }
 }
 
