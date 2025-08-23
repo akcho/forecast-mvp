@@ -193,11 +193,32 @@ export class FinancialDataParser {
   }
   
   private parseMonthDate(monthStr: string): Date {
+    // Handle date ranges like "Aug 23-31, 2023" or "Aug 1-23, 2025"
+    if (monthStr.includes('-') && monthStr.includes(',')) {
+      const match = monthStr.match(/^(\w{3})\s+\d+-\d+,\s+(\d{4})$/);
+      if (match) {
+        const [, month, year] = match;
+        return new Date(`${month} 1, ${year}`);
+      }
+    }
+    
     // Handle formats like "May 2025", "Jun 2025"
     if (monthStr.includes(' ')) {
       const [month, year] = monthStr.split(' ');
       return new Date(`${month} 1, ${year}`);
     }
+    
+    // Handle other possible formats
+    if (monthStr.match(/^\w{3}\s*\d{4}$/)) {
+      // Format like "May2025" or "May 2025"
+      const match = monthStr.match(/^(\w{3})\s*(\d{4})$/);
+      if (match) {
+        return new Date(`${match[1]} 1, ${match[2]}`);
+      }
+    }
+    
+    // Log problematic month strings for debugging
+    console.warn('⚠️ Unable to parse month string:', monthStr, 'falling back to current date');
     
     // Fallback to current date
     return new Date();
@@ -206,7 +227,7 @@ export class FinancialDataParser {
   private calculateMonthlyTotals(
     lines: MonthlyFinancialLine[], 
     months: Date[],
-    type: 'revenue' | 'expense'
+    _type: 'revenue' | 'expense'
   ): MonthlyValue[] {
     const totals: MonthlyValue[] = [];
     
