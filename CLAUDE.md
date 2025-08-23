@@ -312,6 +312,34 @@ Include if: Score > 0.4 AND Materiality > 1% AND >= 6 months data
 - Smart data quality analysis that avoids false warnings for new businesses
 - Automatic date range parsing for complex QB formats
 - Real-time forecast updates with confidence scoring
+- **3-Insight Psychology Framework** - Optimized insight generation using cognitive psychology principles
+
+### 3-Insight Psychology Framework (August 2025)
+
+**Rationale:** Based on cognitive psychology research, users make better decisions with 3 focused insights rather than overwhelming lists.
+
+**Psychology Principles Applied:**
+- **Rule of Three**: Information processed optimally in groups of 3
+- **Cognitive Load Theory**: Working memory limits for actionable decisions
+- **Decision Fatigue**: Too many options decrease decision quality
+- **Paradox of Choice**: More options create anxiety and paralysis
+
+**Framework Structure:**
+1. **Primary Concern** (Warning/Risk) - Most urgent issue requiring attention
+2. **Validation** (Success/Strength) - Positive reinforcement of what's working
+3. **Opportunity** (Growth/Optimization) - Actionable improvement potential
+
+**Implementation (`InsightEngine.ts:310-340`):**
+- Generates 5+ insights internally using all analyzers
+- Applies `selectOptimal3Insights()` method for strategic selection
+- Prioritizes diversity of insight types and business impact
+- Ensures psychological balance of concern, validation, and opportunity
+
+**Business Impact:**
+- **Target Users**: Fractional CFOs and small business owners
+- **Decision Context**: Financial performance improvement strategies
+- **Cognitive Benefits**: Reduced overwhelm, focused action, better retention
+- **User Experience**: Clear priorities without information overload
 
 ### Sprint 2 Implementation Summary
 

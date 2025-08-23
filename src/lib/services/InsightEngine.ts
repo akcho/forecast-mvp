@@ -51,10 +51,13 @@ export class InsightEngine {
     // Score and rank insights
     const rankedInsights = this.rankInsights(allInsights);
     
-    // Categorize insights
-    const categorized = this.categorizeInsights(rankedInsights);
+    // Select optimal 3 insights using psychology-based approach
+    const selectedInsights = this.selectOptimal3Insights(rankedInsights);
     
-    console.log(`🎯 Generated ${categorized.all.length} total insights`);
+    // Categorize insights
+    const categorized = this.categorizeInsights(selectedInsights);
+    
+    console.log(`🎯 Generated ${selectedInsights.length} optimized insights from ${allInsights.length} total`);
     return categorized;
   }
 
@@ -157,6 +160,46 @@ export class InsightEngine {
     
     return Math.max(score, 0);
   }
+
+  /**
+   * Select optimal 3 insights using psychology-based approach
+   * Framework: Primary Concern + Validation + Opportunity
+   */
+  private selectOptimal3Insights(rankedInsights: Insight[]): Insight[] {
+    const selected: Insight[] = [];
+    
+    // 1. PRIMARY CONCERN: Highest priority warning/risk
+    const primaryConcern = rankedInsights.find(i => 
+      (i.type === 'warning') && (i.priority === 'high' || i.priority === 'medium')
+    );
+    if (primaryConcern) {
+      selected.push(primaryConcern);
+    }
+    
+    // 2. VALIDATION: Best success/strength (builds confidence)
+    const validation = rankedInsights.find(i => 
+      i.type === 'success' && !selected.some(s => s.id === i.id)
+    );
+    if (validation) {
+      selected.push(validation);
+    }
+    
+    // 3. OPPORTUNITY: Best growth/optimization potential
+    const opportunity = rankedInsights.find(i => 
+      i.type === 'opportunity' && !selected.some(s => s.id === i.id)
+    );
+    if (opportunity) {
+      selected.push(opportunity);
+    }
+    
+    // Fill remaining slots with highest scoring insights
+    const remaining = rankedInsights.filter(i => !selected.some(s => s.id === i.id));
+    while (selected.length < 3 && remaining.length > 0) {
+      selected.push(remaining.shift()!);
+    }
+    
+    return selected;
+  }
 }
 
 /**
@@ -173,11 +216,20 @@ class DataQualityAnalyzer implements InsightAnalyzer {
     );
     
     if (miscDriver) {
+      // Calculate total expenses from recent averages
+      const getRecentAverage = (driver: DiscoveredDriver): number => {
+        if (!driver.monthlyValues || driver.monthlyValues.length === 0) return 0;
+        const recentValues = driver.monthlyValues.filter(v => v > 0).slice(-3);
+        if (recentValues.length === 0) return 0;
+        return recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
+      };
+      
       const totalExpenses = drivers
         .filter(d => d.category === 'expense')
-        .reduce((sum, d) => sum + (d.baseValue || 0), 0);
+        .reduce((sum, d) => sum + getRecentAverage(d), 0);
       
-      const miscPercent = ((miscDriver.baseValue || 0) / totalExpenses) * 100;
+      const miscValue = getRecentAverage(miscDriver);
+      const miscPercent = (miscValue / totalExpenses) * 100;
       
       if (miscPercent > 10) {
         insights.push({
@@ -187,7 +239,7 @@ class DataQualityAnalyzer implements InsightAnalyzer {
           category: 'data_quality',
           title: 'Uncategorized Expenses',
           message: `${miscPercent.toFixed(0)}% of expenses are uncategorized`,
-          detail: `$${(miscDriver.baseValue || 0).toLocaleString()} in "${miscDriver.name}" limits forecast accuracy`,
+          detail: `$${Math.round(miscValue).toLocaleString()} in "${miscDriver.name}" limits forecast accuracy`,
           action: 'Categorize these transactions in QuickBooks for better insights',
           impact: {
             metric: 'forecast_confidence',
@@ -335,22 +387,30 @@ class AnomalyAnalyzer implements InsightAnalyzer {
         
         const anomaly = this.detectAnomaly(values);
         
-        if (anomaly.isAnomaly && anomaly.severity === 'extreme') {
+        if (anomaly.isAnomaly && anomaly.severity !== 'mild') {
           const anomalyIndex = values.length - 1; // Assume most recent
           const anomalyValue = values[anomalyIndex];
           
+          const isPositive = anomaly.direction === 'spike' && line.name.toLowerCase().includes('revenue');
+          const insightType = isPositive ? 'opportunity' : 'warning';
+          const priority = anomaly.severity === 'extreme' ? 'high' : 'medium';
+          
           insights.push({
             id: `anomaly-${line.name}-${Date.now()}`,
-            type: 'warning',
-            priority: 'high',
+            type: insightType,
+            priority: priority,
             category: 'anomaly',
-            title: `Unusual ${anomaly.direction === 'spike' ? 'Spike' : 'Drop'} Detected`,
+            title: isPositive 
+              ? 'Revenue Spike Detected' 
+              : `Unusual ${anomaly.direction === 'spike' ? 'Spike' : 'Drop'} Detected`,
             message: `${line.name} ${anomaly.direction === 'spike' ? 'spiked' : 'dropped'} to $${anomalyValue.toLocaleString()}`,
             detail: `${anomaly.standardDeviations.toFixed(1)} standard deviations from normal range`,
-            action: 'Verify if this is a one-time event or new recurring pattern',
+            action: isPositive
+              ? 'Investigate what drove this increase - replicate if possible'
+              : 'Verify if this is a one-time event or new recurring pattern',
             impact: {
-              metric: 'monthly_expense',
-              value: anomalyValue - anomaly.expectedRange.max,
+              metric: line.name.toLowerCase().includes('revenue') ? 'monthly_revenue' : 'monthly_expense',
+              value: Math.abs(anomalyValue - anomaly.expectedRange.max),
               unit: '$'
             },
             timeframe: 'recent',
@@ -397,8 +457,10 @@ class TrendAnalyzer implements InsightAnalyzer {
     
     // Find fastest growing revenue drivers
     const revenueDrivers = drivers.filter(d => d.category === 'revenue');
-    const growingDrivers = revenueDrivers.filter(d => d.growthRate > 0.1); // >10% annual growth
+    const growingDrivers = revenueDrivers.filter(d => d.growthRate > 0.05); // >5% annual growth
+    const decliningDrivers = revenueDrivers.filter(d => d.growthRate < -0.1); // <-10% decline
     
+    // Growth opportunities
     if (growingDrivers.length > 0) {
       const fastestGrowing = growingDrivers.reduce((top, driver) => 
         driver.growthRate > top.growthRate ? driver : top
@@ -409,9 +471,9 @@ class TrendAnalyzer implements InsightAnalyzer {
         type: 'opportunity',
         priority: 'medium',
         category: 'trend',
-        title: 'Strong Growth Trend',
+        title: 'Growth Opportunity',
         message: `${fastestGrowing.name} growing ${(fastestGrowing.growthRate * 100).toFixed(0)}% annually`,
-        detail: 'Consider investing more resources in this high-growth area',
+        detail: `Average monthly: $${Math.round(fastestGrowing.monthlyValues?.slice(-3).reduce((sum, val) => sum + val, 0) / 3 || 0).toLocaleString()}`,
         action: 'Increase marketing or capacity for this service',
         impact: {
           metric: 'annual_revenue_growth',
@@ -422,6 +484,34 @@ class TrendAnalyzer implements InsightAnalyzer {
         score: 0,
         metadata: {
           driverName: fastestGrowing.name
+        }
+      });
+    }
+    
+    // Declining trend warnings
+    if (decliningDrivers.length > 0) {
+      const fastestDeclining = decliningDrivers.reduce((worst, driver) => 
+        driver.growthRate < worst.growthRate ? driver : worst
+      );
+      
+      insights.push({
+        id: `trend-decline-${fastestDeclining.name}-${Date.now()}`,
+        type: 'warning',
+        priority: 'medium',
+        category: 'trend',
+        title: 'Revenue Decline Warning',
+        message: `${fastestDeclining.name} declining ${Math.abs(fastestDeclining.growthRate * 100).toFixed(0)}% annually`,
+        detail: `Average monthly: $${Math.round(fastestDeclining.monthlyValues?.slice(-3).reduce((sum, val) => sum + val, 0) / 3 || 0).toLocaleString()}`,
+        action: 'Investigate causes and develop recovery strategy',
+        impact: {
+          metric: 'annual_revenue_decline',
+          value: Math.abs(fastestDeclining.growthRate * 100),
+          unit: '%'
+        },
+        timeframe: 'recent',
+        score: 0,
+        metadata: {
+          driverName: fastestDeclining.name
         }
       });
     }
@@ -461,13 +551,28 @@ class MarginAnalyzer implements InsightAnalyzer {
     
     if (overallMargin > 50) {
       insights.push({
+        id: `margin-excellent-${Date.now()}`,
+        type: 'success',
+        priority: 'medium',
+        category: 'margin',
+        title: 'Excellent Profit Margins',
+        message: `Overall margin is ${overallMargin.toFixed(0)}% - well above industry average`,
+        detail: `Revenue: $${Math.round(totalRevenue).toLocaleString()}, Expenses: $${Math.round(totalExpenses).toLocaleString()}`,
+        action: 'Consider expanding capacity or premium service offerings',
+        timeframe: 'current',
+        score: 0
+      });
+    } else if (overallMargin >= 20 && overallMargin <= 50) {
+      // Healthy margin range - provide validation
+      insights.push({
         id: `margin-healthy-${Date.now()}`,
         type: 'success',
         priority: 'low',
         category: 'margin',
         title: 'Healthy Profit Margins',
-        message: `Overall margin is ${overallMargin.toFixed(0)}% - well above industry average`,
-        detail: 'Strong profitability indicates efficient operations',
+        message: `Overall margin is ${overallMargin.toFixed(0)}% - in recommended range`,
+        detail: `Revenue: $${Math.round(totalRevenue).toLocaleString()}, Expenses: $${Math.round(totalExpenses).toLocaleString()}`,
+        action: 'Monitor for opportunities to optimize further',
         timeframe: 'current',
         score: 0
       });
@@ -518,12 +623,26 @@ class ConcentrationAnalyzer implements InsightAnalyzer {
     
     if (revenueDrivers.length === 0) return insights;
     
-    // Calculate concentration (what % comes from top 2 drivers)
-    const sortedByRevenue = revenueDrivers
-      .sort((a, b) => (b.baseValue || 0) - (a.baseValue || 0));
+    // Calculate recent average for each driver
+    const getRecentAverage = (driver: DiscoveredDriver): number => {
+      if (!driver.monthlyValues || driver.monthlyValues.length === 0) return 0;
+      const recentValues = driver.monthlyValues
+        .filter(v => v > 0)
+        .slice(-3);
+      if (recentValues.length === 0) return 0;
+      return recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length;
+    };
     
-    const totalRevenue = revenueDrivers.reduce((sum, d) => sum + (d.baseValue || 0), 0);
-    const top2Revenue = sortedByRevenue.slice(0, 2).reduce((sum, d) => sum + (d.baseValue || 0), 0);
+    // Calculate concentration (what % comes from top 2 drivers)
+    const driversWithRevenue = revenueDrivers
+      .map(d => ({ driver: d, avgValue: getRecentAverage(d) }))
+      .filter(item => item.avgValue > 0);
+    
+    const sortedByRevenue = driversWithRevenue
+      .sort((a, b) => b.avgValue - a.avgValue);
+    
+    const totalRevenue = sortedByRevenue.reduce((sum, item) => sum + item.avgValue, 0);
+    const top2Revenue = sortedByRevenue.slice(0, 2).reduce((sum, item) => sum + item.avgValue, 0);
     const concentrationPercent = (top2Revenue / totalRevenue) * 100;
     
     if (concentrationPercent > 80) {
@@ -534,13 +653,27 @@ class ConcentrationAnalyzer implements InsightAnalyzer {
         category: 'concentration',
         title: 'High Revenue Concentration',
         message: `${concentrationPercent.toFixed(0)}% of revenue from just 2 services`,
-        detail: `Top services: ${sortedByRevenue.slice(0, 2).map(d => d.name).join(', ')}`,
+        detail: `Top services: ${sortedByRevenue.slice(0, 2).map(item => item.driver.name).join(', ')}`,
         action: 'Consider diversifying revenue streams to reduce risk',
         impact: {
           metric: 'revenue_concentration',
           value: concentrationPercent,
           unit: '%'
         },
+        timeframe: 'current',
+        score: 0
+      });
+    } else if (concentrationPercent < 60 && sortedByRevenue.length >= 3) {
+      // Well-diversified revenue streams
+      insights.push({
+        id: `concentration-diversified-${Date.now()}`,
+        type: 'success',
+        priority: 'low',
+        category: 'concentration',
+        title: 'Well-Diversified Revenue',
+        message: `Revenue spread across ${sortedByRevenue.length} services - reduced risk`,
+        detail: `Top 2 services represent only ${concentrationPercent.toFixed(0)}% of revenue`,
+        action: 'Continue maintaining diverse service offerings',
         timeframe: 'current',
         score: 0
       });
