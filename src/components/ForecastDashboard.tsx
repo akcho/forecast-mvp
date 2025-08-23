@@ -676,11 +676,20 @@ function DriverControl({
   }, [adjustment]);
 
   const currentValue = driver.monthlyValues[0] || 0;
-  const adjustedValue = currentValue * (1 + sliderValue / 100);
+  
+  // For contra-revenue accounts (negative values under revenue), invert slider behavior
+  const isContraRevenue = driver.category === 'revenue' && currentValue < 0;
+  const adjustmentMultiplier = isContraRevenue ? (1 - sliderValue / 100) : (1 + sliderValue / 100);
+  const adjustedValue = currentValue * adjustmentMultiplier;
 
   const handleSliderChange = (value: number) => {
     console.log('🎚️ Slider changed:', { driverName: driver.name, oldValue: sliderValue, newValue: value });
     setSliderValue(value);
+    // Don't trigger adjustment on every change - only on mouse/touch up
+  };
+
+  const handleSliderFinished = (value: number) => {
+    console.log('🎯 Slider finished:', { driverName: driver.name, finalValue: value });
     onAdjustment(value);
   };
 
@@ -691,10 +700,21 @@ function DriverControl({
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-gray-900 truncate">{driver.name}</h4>
             <p className="text-xs text-gray-500">
-              ${Math.round(currentValue).toLocaleString()}/mo
+              {isContraRevenue 
+                ? `$${Math.round(Math.abs(currentValue)).toLocaleString()}/mo discount`
+                : `$${Math.round(currentValue).toLocaleString()}/mo`
+              }
               {sliderValue !== 0 && (
                 <span className="ml-1 text-xs">
-                  → ${Math.round(adjustedValue).toLocaleString()}
+                  → {isContraRevenue 
+                      ? `$${Math.round(Math.abs(adjustedValue)).toLocaleString()}/mo discount`
+                      : `$${Math.round(adjustedValue).toLocaleString()}`
+                    }
+                  {isContraRevenue && (
+                    <span className={`ml-1 text-xs ${adjustedValue > currentValue ? 'text-red-600' : 'text-green-600'}`}>
+                      ({Math.abs(adjustedValue) > Math.abs(currentValue) ? 'worse for revenue' : 'better for revenue'})
+                    </span>
+                  )}
                 </span>
               )}
             </p>
@@ -726,6 +746,8 @@ function DriverControl({
               step="5"
               value={sliderValue}
               onChange={(e) => handleSliderChange(parseInt(e.target.value))}
+              onMouseUp={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
+              onTouchEnd={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
               className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
           </div>
@@ -750,10 +772,16 @@ function DriverControl({
         <div>
           <h4 className="font-medium text-gray-900">{driver.name}</h4>
           <p className="text-sm text-gray-500">
-            Current: ${currentValue.toLocaleString()}/mo
+            Current: {isContraRevenue 
+              ? `$${Math.abs(currentValue).toLocaleString()}/mo discount`
+              : `$${currentValue.toLocaleString()}/mo`
+            }
             {sliderValue !== 0 && (
               <span className="ml-2">
-                → ${adjustedValue.toLocaleString()}/mo
+                → {isContraRevenue 
+                    ? `$${Math.abs(adjustedValue).toLocaleString()}/mo discount`
+                    : `$${adjustedValue.toLocaleString()}/mo`
+                  }
               </span>
             )}
           </p>
@@ -779,6 +807,8 @@ function DriverControl({
             step="5"
             value={sliderValue}
             onChange={(e) => handleSliderChange(parseInt(e.target.value))}
+            onMouseUp={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
+            onTouchEnd={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
         </div>

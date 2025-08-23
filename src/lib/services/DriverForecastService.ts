@@ -511,8 +511,8 @@ export class DriverForecastService {
   private calculateRobustBaseline(monthlyValues: number[], driverName: string): number {
     console.log(`📊 Calculating robust baseline for "${driverName}"`);
     
-    // Filter out zero values for analysis
-    const nonZeroValues = monthlyValues.filter(val => val > 0);
+    // Filter out zero values for analysis (but keep negative values for contra-accounts)
+    const nonZeroValues = monthlyValues.filter(val => val !== 0);
     
     if (nonZeroValues.length === 0) {
       console.log(`⚠️ No non-zero values found for ${driverName}`);

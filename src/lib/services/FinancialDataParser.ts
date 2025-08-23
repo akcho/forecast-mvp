@@ -184,12 +184,16 @@ export class FinancialDataParser {
   private parseAmount(valueStr: string): number {
     if (!valueStr || valueStr === '-' || valueStr.trim() === '') return 0;
     
-    // Remove formatting and parse
-    const cleanStr = valueStr.replace(/[,$\s()]/g, '');
-    const isNegative = valueStr.includes('(') || valueStr.includes('-');
-    const amount = parseFloat(cleanStr) || 0;
+    // Handle parentheses notation (like QuickBooks uses for negative values)
+    if (valueStr.includes('(')) {
+      const cleanStr = valueStr.replace(/[,$\s()]/g, '');
+      const amount = parseFloat(cleanStr) || 0;
+      return -amount; // Parentheses always mean negative
+    }
     
-    return isNegative ? -amount : amount;
+    // For regular values (including minus sign), let parseFloat handle the sign
+    const cleanStr = valueStr.replace(/[,$\s]/g, ''); // Keep minus sign for parseFloat
+    return parseFloat(cleanStr) || 0;
   }
   
   private parseMonthDate(monthStr: string): Date {
