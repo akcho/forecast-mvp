@@ -399,8 +399,21 @@ export class DriverForecastService {
    */
   
   private mapDriverConfidence(driver: DiscoveredDriver): 'high' | 'medium' | 'low' {
-    const avgScore = (driver.predictability + driver.dataQuality) / 2;
-    return avgScore > 0.7 ? 'high' : avgScore > 0.4 ? 'medium' : 'low';
+    // Convert from 0-100 scale back to 0-1 scale for calculation
+    const predictability = driver.predictability / 100;
+    const dataQuality = driver.dataQuality / 100;
+    const avgScore = (predictability + dataQuality) / 2;
+    const result = avgScore > 0.7 ? 'high' : avgScore > 0.4 ? 'medium' : 'low';
+    
+    console.log(`🎯 ForecastService confidence mapping for ${driver.name}:`, {
+      predictability: predictability.toFixed(3),
+      dataQuality: dataQuality.toFixed(3),
+      avgScore: avgScore.toFixed(3),
+      originalConfidence: driver.confidence,
+      mappedResult: result
+    });
+    
+    return result;
   }
   
   private getMonthIndex(date: Date | string): number {

@@ -464,6 +464,15 @@ export class DriverDiscoveryService {
     
     const averageConfidence = factors.reduce((sum, f) => sum + f, 0) / factors.length;
     
+    console.log(`🎯 Confidence calculation for ${analysis.name}:`, {
+      predictability: analysis.predictability.toFixed(3),
+      dataQuality: analysis.dataQuality.toFixed(3),
+      materiality: Math.min(analysis.materiality * 2, 1).toFixed(3),
+      stabilityScore: (1 - analysis.variability).toFixed(3),
+      averageConfidence: averageConfidence.toFixed(3),
+      result: averageConfidence > 0.7 ? 'high' : averageConfidence > 0.4 ? 'medium' : 'low'
+    });
+    
     if (averageConfidence > 0.7) return 'high';
     if (averageConfidence > 0.4) return 'medium';
     return 'low';

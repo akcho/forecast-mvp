@@ -67,6 +67,14 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       setForecast(data.forecast);
       console.log('✅ Forecast loaded:', data.forecast.summary);
       
+      // Debug driver confidence values
+      console.log('🎯 Driver confidence values received:', 
+        data.forecast.drivers.map(d => ({ 
+          name: d.name, 
+          confidence: d.confidence 
+        }))
+      );
+      
     } catch (err) {
       console.error('❌ Error loading forecast:', err);
       setError(err instanceof Error ? err.message : 'Failed to load forecast');
