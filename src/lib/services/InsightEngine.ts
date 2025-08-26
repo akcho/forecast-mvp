@@ -8,8 +8,8 @@ import {
   InsightAnalyzer,
   DataQualityMetrics 
 } from '@/types/insightTypes';
-import { ParsedProfitLoss } from '../quickbooks/types';
-import { DiscoveredDriver } from '@/types/forecastTypes';
+import { ParsedProfitLoss } from '../types/financialModels';
+import { DiscoveredDriver } from '@/types/driverTypes';
 
 export class InsightEngine {
   private analyzers: InsightAnalyzer[] = [];
@@ -391,32 +391,32 @@ class AnomalyAnalyzer implements InsightAnalyzer {
           const anomalyIndex = values.length - 1; // Assume most recent
           const anomalyValue = values[anomalyIndex];
           
-          const isPositive = anomaly.direction === 'spike' && line.name.toLowerCase().includes('revenue');
+          const isPositive = anomaly.direction === 'spike' && line.accountName.toLowerCase().includes('revenue');
           const insightType = isPositive ? 'opportunity' : 'warning';
           const priority = anomaly.severity === 'extreme' ? 'high' : 'medium';
           
           insights.push({
-            id: `anomaly-${line.name}-${Date.now()}`,
+            id: `anomaly-${line.accountName}-${Date.now()}`,
             type: insightType,
             priority: priority,
             category: 'anomaly',
             title: isPositive 
               ? 'Revenue Spike Detected' 
               : `Unusual ${anomaly.direction === 'spike' ? 'Spike' : 'Drop'} Detected`,
-            message: `${line.name} ${anomaly.direction === 'spike' ? 'spiked' : 'dropped'} to $${anomalyValue.toLocaleString()}`,
+            message: `${line.accountName} ${anomaly.direction === 'spike' ? 'spiked' : 'dropped'} to $${anomalyValue.toLocaleString()}`,
             detail: `${anomaly.standardDeviations.toFixed(1)} standard deviations from normal range`,
             action: isPositive
               ? 'Investigate what drove this increase - replicate if possible'
               : 'Verify if this is a one-time event or new recurring pattern',
             impact: {
-              metric: line.name.toLowerCase().includes('revenue') ? 'monthly_revenue' : 'monthly_expense',
+              metric: line.accountName.toLowerCase().includes('revenue') ? 'monthly_revenue' : 'monthly_expense',
               value: Math.abs(anomalyValue - anomaly.expectedRange.max),
               unit: '$'
             },
             timeframe: 'recent',
             score: 0,
             metadata: {
-              driverName: line.name,
+              driverName: line.accountName,
               values: values.slice(-3)
             }
           });
