@@ -12,6 +12,7 @@ const openai = new OpenAI({
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 CHAT API: POST request received');
   try {
     const body = await request.json();
     const message = body.message;
@@ -27,7 +28,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Check authentication using session instead of headers
-    const session = await getServerSession(authOptions);
+    let session;
+    try {
+      session = await getServerSession(authOptions);
+    } catch (error) {
+      console.error('Session error:', error);
+      // If session is corrupted, treat as unauthenticated
+      session = null;
+    }
     
     if (!session?.user?.dbId) {
       return NextResponse.json({
@@ -127,7 +135,7 @@ FINANCIAL CONTEXT: ${financialContext}
         async start(controller) {
           try {
             const completion = await openai.chat.completions.create({
-              model: "gpt-4o-mini",
+              model: "gpt-5",
                     messages: [
         {
           role: "system",
@@ -138,8 +146,7 @@ FINANCIAL CONTEXT: ${financialContext}
                   content: prompt
                 }
               ],
-              temperature: 0.7,
-              max_tokens: 1000,
+              max_completion_tokens: 1000,
               stream: true,
             });
 
@@ -175,7 +182,7 @@ FINANCIAL CONTEXT: ${financialContext}
 
     // Non-streaming response (fallback)
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5",
       messages: [
         {
           role: "system",
@@ -186,8 +193,7 @@ FINANCIAL CONTEXT: ${financialContext}
           content: prompt
         }
       ],
-      temperature: 0.7,
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
     });
 
     // Return response with session ID

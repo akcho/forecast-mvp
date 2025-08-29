@@ -31,6 +31,7 @@ export default function ChatPanel({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialInput);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('analyzing...');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const streamingContentRef = useRef<string>(''); // Track streaming content
   const messageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
@@ -97,6 +98,47 @@ export default function ChatPanel({
     
     isProcessingRef.current = true;
     setLoading(true);
+    setLoadingMessage('analyzing...');
+
+    // Extensive library of creative loading messages like Claude Code
+    const progressMessages = [
+      'analyzing...',
+      'calculating...',
+      'reasoning...',
+      'thinking...',
+      'processing...',
+      'evaluating...',
+      'examining...',
+      'investigating...',
+      'computing...',
+      'synthesizing...',
+      'contemplating...',
+      'deliberating...',
+      'pondering...',
+      'reflecting...',
+      'strategizing...',
+      'optimizing...',
+      'forecasting...',
+      'modeling...',
+      'correlating...',
+      'cross-referencing...',
+      'triangulating...',
+      'benchmarking...',
+      'contextualizing...',
+      'crystallizing...',
+      'formulating...',
+      'orchestrating...',
+      'architecting...',
+      'assembling...',
+      'consolidating...',
+      'harmonizing...'
+    ];
+    
+    let messageIndex = 0;
+    const progressInterval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % progressMessages.length;
+      setLoadingMessage(progressMessages[messageIndex]);
+    }, 4000); // Change message every 4 seconds
 
     const newMessage: Message = {
       role: 'user',
@@ -178,6 +220,7 @@ export default function ChatPanel({
       } finally {
         setLoading(false);
         isProcessingRef.current = false;
+        clearInterval(progressInterval);
       }
     });
   };
@@ -293,7 +336,7 @@ export default function ChatPanel({
         <div className="flex-1 flex items-center justify-center">
           <LoadingState 
             type="ai" 
-            message="Waiting for financial data..." 
+            message={loadingMessage} 
             className="p-4"
           />
         </div>
@@ -343,7 +386,14 @@ export default function ChatPanel({
                     </div>
                   )}
                   {message.isStreaming && (
-                    <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                    <>
+                      <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                      {message.content === '' && (
+                        <div className="text-gray-500 italic mt-2">
+                          {loadingMessage}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -373,7 +423,7 @@ export default function ChatPanel({
               className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
               disabled={loading || !inputValue.trim()}
             >
-              {loading ? 'Sending...' : 'Send'}
+              {loading ? 'GPT-5 thinking...' : 'Send'}
             </Button>
           </form>
         </>
