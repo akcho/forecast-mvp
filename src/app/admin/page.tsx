@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { AppLayout } from '@/components/AppLayout';
 import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
 import { TeamManagement } from '@/components/TeamManagement';
 import { Title, Text } from '@tremor/react';
@@ -35,8 +34,7 @@ export default function AdminPage() {
   }, [session]);
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-8">
+    <div className="p-6 space-y-8">
         <div className="mb-6">
           <Title className="text-2xl font-bold text-gray-900">Admin Panel</Title>
           <Text className="text-gray-600 mt-1">
@@ -61,6 +59,5 @@ export default function AdminPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

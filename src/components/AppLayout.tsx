@@ -8,12 +8,14 @@ import { ChatBubbleLeftIcon, XMarkIcon, ChevronUpIcon, ChevronDownIcon } from '@
 import ChatPanel from './ChatPanel';
 import { PageHeader } from './PageHeader';
 import { PageHeaderProvider, usePageHeader } from './PageHeaderContext';
+import { useSession } from 'next-auth/react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 function AppLayoutInner({ children }: AppLayoutProps) {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const { headerConfig } = usePageHeader();
@@ -207,6 +209,24 @@ function AppLayoutInner({ children }: AppLayoutProps) {
     setCurrentPage(page);
     router.push(`/${page}`);
   };
+
+  // Authentication guard - only show authenticated UI for signed-in users
+  // Allow auth-related pages (/auth/*) to render without authentication
+  if (status === 'loading') {
+    // Show loading or nothing while checking authentication
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
+
+  if (status === 'unauthenticated' && !pathname?.startsWith('/auth/')) {
+    // Redirect to sign-in if not authenticated and not on an auth page
+    router.push('/auth/signin');
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
+
+  if (pathname?.startsWith('/auth/')) {
+    // Don't show app layout UI on auth pages - just render the children
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">

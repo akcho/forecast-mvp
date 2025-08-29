@@ -7,7 +7,6 @@ import { PnlTable } from '.';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
-import { AppLayout } from '@/components/AppLayout';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
@@ -200,8 +199,7 @@ function AnalysisContent() {
 
   // DESKTOP: Show full layout with sidebar and analysis panel
   return (
-    <AppLayout>
-      <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-white">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
@@ -332,7 +330,6 @@ function AnalysisContent() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }
 

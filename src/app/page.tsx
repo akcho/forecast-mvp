@@ -18,7 +18,7 @@ import { format, addMonths, startOfMonth } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
 import { quickBooksStore } from '@/lib/quickbooks/store';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
 import { MultiAdminConnectionManager } from '@/components/MultiAdminConnectionManager';
@@ -121,7 +121,8 @@ const DebugView = ({ data }: { data: any }) => {
 };
 
 function HomeContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [analysis, setAnalysis] = useState<RunwayAnalysis | null>(null);
   const [selectedOption, setSelectedOption] = useState<RunwayOption | null>(null);
   const [simulatedAnalysis, setSimulatedAnalysis] = useState<RunwayAnalysis | null>(null);
@@ -135,12 +136,16 @@ function HomeContent() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [projections, setProjections] = useState<any[]>([]);
 
-  // Redirect to forecast page
+  // Redirect based on authentication status
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/forecast';
+    if (status === 'loading') return; // Wait for auth to load
+    
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    } else if (status === 'authenticated') {
+      router.push('/forecast');
     }
-  }, []);
+  }, [status, router]);
 
   // Reset selectedMonth if it's out of bounds after filtering
   useEffect(() => {

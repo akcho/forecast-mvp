@@ -14,7 +14,7 @@ export default function SignIn() {
     // Check if user is already signed in
     getSession().then((session) => {
       if (session) {
-        router.push('/overview');
+        router.push('/forecast');
       }
     });
   }, [router]);
@@ -23,12 +23,12 @@ export default function SignIn() {
     setLoading(true);
     try {
       const result = await signIn('google', {
-        callbackUrl: '/overview',
+        callbackUrl: '/forecast',
         redirect: false,
       });
 
       if (result?.ok) {
-        router.push('/overview');
+        router.push('/forecast');
       } else if (result?.error) {
         console.error('Sign in error:', result.error);
         // Handle sign in error
