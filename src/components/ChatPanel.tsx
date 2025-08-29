@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { getSessionId, setSessionId } from '@/lib/session';
-import { quickBooksStore } from '@/lib/quickbooks/store';
-import { Title, Text, Button } from '@tremor/react';
+import { Text, Button } from '@tremor/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { LoadingState } from '@/components/LoadingSpinner';
@@ -123,14 +122,18 @@ export default function ChatPanel({
     // Make API call after state update using requestAnimationFrame to ensure state is committed
     requestAnimationFrame(async () => {
       try {
+        console.log('🔍 CLIENT: Making chat API request', {
+          message,
+          currentReports: currentReports ? 'provided' : 'missing',
+          timePeriod,
+          sessionId: getSessionId()
+        });
+        
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-Session-ID': getSessionId() || '',
-            'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
-            'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
-            'X-QB-Refresh-Token': quickBooksStore.getRefreshToken() || '',
           },
           body: JSON.stringify({
             message: message,
@@ -138,6 +141,11 @@ export default function ChatPanel({
             timePeriod: timePeriod,
             stream: true, // Re-enable streaming
           }),
+        });
+
+        console.log('🔍 CLIENT: Chat API response', {
+          status: response.status,
+          contentType: response.headers.get('content-type')
         });
 
         if (!response.ok) {

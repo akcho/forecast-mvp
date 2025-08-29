@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth/config';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -12,16 +14,10 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Request body:', body);
     const message = body.message;
     const currentReports = body.currentReports;
     const timePeriod = body.timePeriod || '3months';
-    const stream = body.stream || false; // New parameter to enable streaming
-    
-    console.log('Message:', message);
-    console.log('Time period:', timePeriod);
-    console.log('Streaming enabled:', stream);
-    console.log('Current reports available:', Object.keys(currentReports || {}));
+    const stream = body.stream || false;
 
     if (!message) {
       return NextResponse.json({
@@ -30,42 +26,77 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Get QuickBooks tokens from headers
-    const accessToken = request.headers.get('X-QB-Access-Token');
-    const realmId = request.headers.get('X-QB-Realm-ID');
-    const refreshToken = request.headers.get('X-QB-Refresh-Token');
-
-    if (!accessToken || !realmId || !refreshToken) {
+    // Check authentication using session instead of headers
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.dbId) {
       return NextResponse.json({
         type: 'auth_required',
-        message: "I notice you haven't connected your QuickBooks account yet. To get personalized financial insights, please:\n\n" +
-          '1. Go to the home page (click the logo in the top left)\n' +
-          '2. Click the "Connect QuickBooks" button\n' +
-          '3. Follow the authentication steps\n' +
-          '4. Once connected, come back here and ask me questions about your finances\n\n' +
+        message: "I notice you haven't signed in yet. To get personalized financial insights, please:\n\n" +
+          '1. Sign in with Google\n' +
+          '2. Connect your QuickBooks account\n' +
+          '3. Come back here and ask me questions about your finances\n\n' +
           'For now, I can only provide general financial advice. Would you like me to do that instead?'
       });
     }
 
-    // Set QuickBooks tokens in environment
-    process.env.NEXT_PUBLIC_QB_ACCESS_TOKEN = accessToken;
-    process.env.NEXT_PUBLIC_QB_REALM_ID = realmId;
-    process.env.NEXT_PUBLIC_QB_REFRESH_TOKEN = refreshToken;
+    // Check if user has QuickBooks connection
+    try {
+      const statusResponse = await fetch(`${request.nextUrl.origin}/api/quickbooks/status`, {
+        headers: {
+          'Cookie': request.headers.get('Cookie') || ''
+        }
+      });
+      
+      if (!statusResponse.ok) {
+        throw new Error(`Failed to check connection status: ${statusResponse.status} ${statusResponse.statusText}`);
+      }
+      
+      const connectionStatus = await statusResponse.json();
+      
+      // Check if user is authenticated and has a company connection
+      const hasConnection = connectionStatus.hasConnection && connectionStatus.companyConnection;
+      
+      if (!hasConnection) {
+        return NextResponse.json({
+          type: 'auth_required',
+          message: "I notice you haven't connected your QuickBooks account yet. To get personalized financial insights, please:\n\n" +
+            '1. Connect your QuickBooks account in the app\n' +
+            '2. Come back here and ask me questions about your finances\n\n' +
+            'For now, I can only provide general financial advice. Would you like me to do that instead?'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking connection status:', error);
+      return NextResponse.json({
+        type: 'auth_required',
+        message: "I'm having trouble accessing your QuickBooks connection. Please try refreshing the page or reconnecting your account."
+      });
+    }
+
+    // Authentication successful - user is logged in and has QuickBooks connection
 
     // Get or create session ID
     let sessionId = request.headers.get('X-Session-ID');
-    console.log('Session ID from header:', sessionId);
     if (!sessionId) {
       sessionId = uuidv4();
-      console.log('Generated new session ID:', sessionId);
     }
 
-    // Check if we have current reports data
-    if (!currentReports || (!currentReports.profitLoss && !currentReports.balanceSheet && !currentReports.cashFlow)) {
-      return NextResponse.json({
-        type: 'auth_required',
-        message: "I don't have access to your current financial data. Please make sure you're viewing a financial report in the analysis section, then try asking your question again."
+    // Fetch fresh financial data server-side instead of relying on currentReports
+    let financialContext = 'Limited financial data available.';
+    try {
+      // Fetch P&L data
+      const plResponse = await fetch(`${request.nextUrl.origin}/api/quickbooks/profit-loss?parsed=true`, {
+        headers: {
+          'Cookie': request.headers.get('Cookie') || ''
+        }
       });
+      
+      if (plResponse.ok) {
+        financialContext = `Recent P&L data shows revenue and expense trends. User has access to QuickBooks financial data for analysis.`;
+      }
+    } catch (error) {
+      // Use default context if data fetch fails
     }
 
     // Create a focused prompt for concise, actionable responses
@@ -85,17 +116,11 @@ ACTIONABLE INSIGHTS REQUIREMENTS:
 - Avoid generic advice like "monitor" or "evaluate" - give actual next steps
 - Examples: "Call your lender by Friday to discuss refinancing options" or "Set aside $500/month starting next month for vehicle maintenance"
 
-Financial data for ${timePeriod}:
-- P&L: ${JSON.stringify(currentReports.profitLoss, null, 2)}
-- Balance Sheet: ${JSON.stringify(currentReports.balanceSheet, null, 2)}
-- Cash Flow: ${JSON.stringify(currentReports.cashFlow, null, 2)}
+FINANCIAL CONTEXT: ${financialContext}
 `;
-
-    console.log('Generated prompt with raw data');
 
     // If streaming is requested, return a streaming response
     if (stream) {
-      console.log('Starting streaming response...');
       
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
@@ -149,7 +174,6 @@ Financial data for ${timePeriod}:
     }
 
     // Non-streaming response (fallback)
-    console.log('Calling OpenAI (non-streaming)...');
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -165,8 +189,6 @@ Financial data for ${timePeriod}:
       temperature: 0.7,
       max_tokens: 1000,
     });
-
-    console.log('OpenAI response:', completion.choices[0]?.message?.content);
 
     // Return response with session ID
     return NextResponse.json({ 
