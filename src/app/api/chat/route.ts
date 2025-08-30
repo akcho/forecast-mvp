@@ -3,6 +3,8 @@ import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth/config';
+import { ChatDataService } from '@/lib/services/ChatDataService';
+import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -100,20 +102,40 @@ export async function POST(request: NextRequest) {
       sessionId = uuidv4();
     }
 
-    // Fetch fresh financial data server-side instead of relying on currentReports
-    let financialContext = 'Limited financial data available.';
+    // Get comprehensive business context for AI
+    let businessContext = 'Limited financial data available.';
     try {
-      // Fetch P&L data
-      const plResponse = await fetch(`${request.nextUrl.origin}/api/quickbooks/profit-loss?parsed=true`, {
-        headers: {
-          'Cookie': request.headers.get('Cookie') || ''
-        }
-      });
+      // Get QuickBooks connection and fetch P&L data
+      const connection = await getValidConnection(session.user.dbId);
       
-      if (plResponse.ok) {
-        financialContext = `Recent P&L data shows revenue and expense trends. User has access to QuickBooks financial data for analysis.`;
+      // Fetch 24 months of P&L data
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 24);
+      const endDate = new Date();
+      
+      const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+      
+      const qbResponse = await fetch(qbUrl, {
+        headers: {
+          'Authorization': `Bearer ${connection.access_token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store' as RequestCache,
+      });
+
+      if (qbResponse.ok) {
+        const profitLossData = await qbResponse.json();
+        
+        // Use ChatDataService to get rich context
+        const chatDataService = new ChatDataService();
+        const chatContext = await chatDataService.getChatContext(profitLossData);
+        businessContext = chatDataService.formatForAI(chatContext);
+        
+        console.log('💰 Rich business context generated successfully');
       }
     } catch (error) {
+      console.error('Error generating business context:', error);
       // Use default context if data fetch fails
     }
 
@@ -147,7 +169,7 @@ NUMBER FORMATTING RULES:
 - Comparisons: Current → Prior → Change format
 - Dates: Month + Day for near term, Month + Year for long term
 
-FINANCIAL CONTEXT: ${financialContext}`
+FINANCIAL CONTEXT: ${businessContext}`
       },
       {
         role: "user" as const,
