@@ -281,47 +281,6 @@ function AppLayoutInner({ children }: AppLayoutProps) {
             />
           )}
           
-          {/* Panel Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
-            <div className="flex items-center space-x-2">
-              <ChatBubbleLeftIcon className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-900">Ask Netflo</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              {!isMobile && (
-                <button
-                  onClick={() => {
-                    const newWidth = aiWidth === 300 ? 500 : 300;
-                    setAiWidth(newWidth);
-                    if (isHydrated) {
-                      localStorage.setItem('ai-assistant-width', newWidth.toString());
-                    }
-                  }}
-                  className="p-1 hover:bg-gray-200 rounded text-gray-500"
-                  title={aiWidth === 300 ? 'Expand sidebar' : 'Minimize sidebar'}
-                >
-                  {aiWidth === 300 ? (
-                    <ChevronUpIcon className="h-4 w-4 rotate-90" />
-                  ) : (
-                    <ChevronDownIcon className="h-4 w-4 rotate-90" />
-                  )}
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  setShowAI(false);
-                  if (isHydrated) {
-                    localStorage.setItem('ai-assistant-visible', 'false');
-                  }
-                }}
-                className="p-1 hover:bg-gray-200 rounded text-gray-500"
-                title="Close AI assistant (Ctrl+`)"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
           {/* Panel Content */}
           <div className="flex-1 min-h-0">
             <ChatPanel 
