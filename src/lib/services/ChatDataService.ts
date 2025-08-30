@@ -15,6 +15,8 @@ export interface BusinessProfile {
   dataQuality: {
     monthsOfData: number;
     reliability: 'high' | 'medium' | 'low';
+    missingRecentData: boolean;
+    lastDataMonth: string;
   };
 }
 
@@ -91,9 +93,9 @@ export class ChatDataService {
       businessProfile,
       keyDrivers,
       insights: {
-        primary: insights.primary.message,
-        validation: insights.validation.message,
-        opportunity: insights.opportunity.message
+        primary: insights.primary?.message || insights.primary || 'No primary insight available',
+        validation: insights.validation?.message || insights.validation || 'No validation available', 
+        opportunity: insights.opportunity?.message || insights.opportunity || 'No opportunity identified'
       },
       recentTrends
     };
@@ -105,44 +107,94 @@ export class ChatDataService {
   formatForAI(context: ChatContext): string {
     const { businessProfile, keyDrivers, insights, recentTrends } = context;
     
-    return `BUSINESS PROFILE:
+    const dataFreshnessWarning = businessProfile.dataQuality.missingRecentData 
+      ? `\n🚨 DATA GAP: Recent months (Jun-Aug 2025) show no activity. Historical data available through May 2025.\n`
+      : '';
+    
+    // Debug logging for materiality percentages
+    console.log('🔍 DEBUG: keyDrivers before formatting:', keyDrivers);
+    keyDrivers.forEach(d => {
+      console.log(`  - ${d.name}: raw materiality = ${d.materiality}, formatted = ${d.materiality.toFixed(1)}% (no longer multiplying by 100)`);
+    });
+    
+    const formattedContext = `BUSINESS PROFILE:
 - Company: ${businessProfile.name} (${businessProfile.industry})
-- Monthly Revenue: $${(businessProfile.monthlyRevenue / 1000).toFixed(1)}K
-- Data Quality: ${businessProfile.dataQuality.reliability} (${businessProfile.dataQuality.monthsOfData} months)
+- Recent Monthly Revenue: $${(businessProfile.monthlyRevenue / 1000).toFixed(1)}K (last 3 months average)
+- Historical Data: ${businessProfile.dataQuality.monthsOfData} months of rich financial data
+- Data Quality: ${businessProfile.dataQuality.reliability}${dataFreshnessWarning}
 
-KEY BUSINESS DRIVERS:
-${keyDrivers.map(d => `- ${d.name}: ${(d.materiality * 100).toFixed(1)}% materiality (${d.confidence} confidence)`).join('\n')}
+KEY BUSINESS DRIVERS (from historical analysis):
+${keyDrivers.map(d => `- ${d.name}: ${d.materiality.toFixed(1)}% materiality (${d.confidence} confidence)`).join('\n')}
 
-CURRENT INSIGHTS:
+DRIVER DISCOVERY CALCULATION METHODOLOGY:
+Base materiality formula: materiality = lineItem.total / companyTotal across ${businessProfile.dataQuality.monthsOfData} months of data.
+
+COMPOSITE SCORING ALGORITHM:
+Each driver gets a composite score using this weighted formula:
+score = (materiality × 0.3) + (variability × 0.2) + (predictability × 0.2) + (growthImpact × 0.2) + (dataQuality × 0.1)
+
+DETAILED METRIC CALCULATIONS:
+• Materiality (30% weight): lineItem.total / companyTotal - measures relative business size
+• Variability (20% weight): coefficientOfVariation = stdDev(monthlyValues) / mean(monthlyValues), normalized 0-1 - measures volatility
+• Predictability (20% weight): R² correlation from linear regression on historical trend - measures forecastability
+• Growth Impact (20% weight): clamp(Math.abs(CAGR) × 5, 0, 1) - measures growth significance
+• Data Quality (10% weight): nonZeroMonths / totalMonths - measures data completeness
+
+SELECTION CRITERIA:
+Drivers must meet ALL requirements to be included:
+✓ Composite score > 0.4 (overall importance threshold)
+✓ Materiality > 1% (minimum business impact)
+✓ Data quality > 50% (at least 6 months of non-zero data)
+✓ Not highly correlated (>0.8) with already selected drivers
+
+For example: "Plants and Soil" at 26.0% materiality scored above 0.4 composite and represents 26% of your total ${businessProfile.dataQuality.monthsOfData}-month business activity.
+
+BUSINESS INSIGHTS:
 - Primary Concern: ${insights.primary}
 - Validation: ${insights.validation}
 - Opportunity: ${insights.opportunity}
 
-RECENT TRENDS:
+HISTORICAL TRENDS:
 - Revenue: ${recentTrends.revenue.trend} (${recentTrends.revenue.growth > 0 ? '+' : ''}${recentTrends.revenue.growth.toFixed(1)}%)
 - Expenses: ${recentTrends.expenses.trend} (${recentTrends.expenses.growth > 0 ? '+' : ''}${recentTrends.expenses.growth.toFixed(1)}%)`;
+    
+    console.log('📋 DEBUG: Full business context being sent to AI:');
+    console.log(formattedContext);
+    
+    return formattedContext;
   }
 
   private buildBusinessProfile(parsedData: any): BusinessProfile {
-    // Calculate average monthly revenue
-    const recentRevenue = parsedData.revenue.monthlyData.slice(-3);
-    const monthlyRevenue = recentRevenue.reduce((sum: number, month: any) => sum + month.amount, 0) / recentRevenue.length;
+    // Get ALL data - zeros are meaningful data points
+    const allRevenue = parsedData.revenue.monthlyTotals;
+    const lastThreeMonths = allRevenue.slice(-3);
+    const missingRecentData = lastThreeMonths.every((month: any) => month.value === 0);
+    
+    console.log('🔍 DEBUG: Last 3 months data:', lastThreeMonths);
+    console.log('🚨 DEBUG: Missing recent data?', missingRecentData);
+    
+    // Calculate average including zeros - they represent actual business state
+    const monthlyRevenue = lastThreeMonths.reduce((sum: number, month: any) => sum + month.value, 0) / lastThreeMonths.length;
+    
+    console.log('🔍 DEBUG: Calculated monthly revenue (including zeros):', monthlyRevenue);
     
     return {
       name: "Your Business", // Could be extracted from QB company info
       industry: "Service Business", // Could be detected from expense patterns
       monthlyRevenue,
       dataQuality: {
-        monthsOfData: parsedData.revenue.monthlyData.length,
-        reliability: parsedData.revenue.monthlyData.length >= 12 ? 'high' : 
-                   parsedData.revenue.monthlyData.length >= 6 ? 'medium' : 'low'
+        monthsOfData: parsedData.revenue.monthlyTotals.length,
+        reliability: parsedData.revenue.monthlyTotals.length >= 12 ? 'high' : 
+                   parsedData.revenue.monthlyTotals.length >= 6 ? 'medium' : 'low',
+        missingRecentData,
+        lastDataMonth: allRevenue.length > 0 ? allRevenue[allRevenue.length - 1].month : 'unknown'
       }
     };
   }
 
   private calculateRecentTrends(parsedData: any): any {
-    const revenueData = parsedData.revenue.monthlyData;
-    const expenseData = parsedData.expenses.monthlyData;
+    const revenueData = parsedData.revenue.monthlyTotals;
+    const expenseData = parsedData.expenses.monthlyTotals;
     
     if (revenueData.length < 2) {
       return {
@@ -151,23 +203,23 @@ RECENT TRENDS:
       };
     }
 
-    // Compare last 3 months to previous 3 months
+    // Use ALL data including zeros - they represent actual business performance
     const recent = revenueData.slice(-3);
     const previous = revenueData.slice(-6, -3);
     
-    const recentAvg = recent.reduce((sum: number, month: any) => sum + month.amount, 0) / recent.length;
+    const recentAvg = recent.reduce((sum: number, month: any) => sum + month.value, 0) / recent.length;
     const previousAvg = previous.length > 0 ? 
-      previous.reduce((sum: number, month: any) => sum + month.amount, 0) / previous.length : recentAvg;
+      previous.reduce((sum: number, month: any) => sum + month.value, 0) / previous.length : recentAvg;
     
     const revenueGrowth = previousAvg > 0 ? ((recentAvg - previousAvg) / previousAvg) * 100 : 0;
     
-    // Same for expenses
+    // Same for expenses - use ALL expense data
     const recentExpenses = expenseData.slice(-3);
     const previousExpenses = expenseData.slice(-6, -3);
     
-    const recentExpenseAvg = recentExpenses.reduce((sum: number, month: any) => sum + month.amount, 0) / recentExpenses.length;
+    const recentExpenseAvg = recentExpenses.reduce((sum: number, month: any) => sum + month.value, 0) / recentExpenses.length;
     const previousExpenseAvg = previousExpenses.length > 0 ?
-      previousExpenses.reduce((sum: number, month: any) => sum + month.amount, 0) / previousExpenses.length : recentExpenseAvg;
+      previousExpenses.reduce((sum: number, month: any) => sum + month.value, 0) / previousExpenses.length : recentExpenseAvg;
     
     const expenseGrowth = previousExpenseAvg > 0 ? ((recentExpenseAvg - previousExpenseAvg) / previousExpenseAvg) * 100 : 0;
 

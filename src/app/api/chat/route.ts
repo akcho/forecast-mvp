@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
 
       if (qbResponse.ok) {
         const profitLossData = await qbResponse.json();
+        console.log('📊 QB data fetched, processing with ChatDataService...');
         
         // Use ChatDataService to get rich context
         const chatDataService = new ChatDataService();
@@ -133,6 +134,9 @@ export async function POST(request: NextRequest) {
         businessContext = chatDataService.formatForAI(chatContext);
         
         console.log('💰 Rich business context generated successfully');
+        console.log('📋 Context preview:', businessContext.substring(0, 200) + '...');
+      } else {
+        console.log('❌ QB response not OK:', qbResponse.status, qbResponse.statusText);
       }
     } catch (error) {
       console.error('Error generating business context:', error);
@@ -151,13 +155,17 @@ PERSONALITY & TONE:
 - Be concise and professional, but never stiff or robotic
 - Always flag risks/opportunities before the owner asks
 
+CORE PRINCIPLE: You have rich financial data spanning 25 months. ALWAYS discuss and analyze the available data. Never refuse to provide information just because some recent months are missing - there's tons of valuable historical data to explore.
+
 RESPONSE STRUCTURE (follow exactly):
 
 1. **Direct Answer** (1-2 sentences)
    - Start with the punchline. Clear, simple, confident.
+   - Use specific numbers and data from the business context
    
 2. **Key Drivers** (2-3 bullets in plain English)
-   - Explain the "why" behind your answer
+   - Reference actual line items like "Plants and Soil", "Design income", etc.
+   - Use real percentages and materiality scores from the data
    
 3. **What's Next** (proactive advice)
    - Anticipate what's around the corner
