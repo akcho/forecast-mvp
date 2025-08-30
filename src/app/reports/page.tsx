@@ -217,79 +217,73 @@ function ReportsContent() {
     );
   }
 
-  // DESKTOP: Show full layout with sidebar and analysis panel
+  // DESKTOP: Show layout with natural height (no forced full screen)
   return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-gray-50">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
-          <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: 0, width: 0, flexGrow: 1 }}>
+          <div className="flex-1 flex flex-col min-w-0 flex-shrink-0" style={{ minWidth: 0, width: 0, flexGrow: 1 }}>
 
             {/* Statement Tabs */}
-            <div className="flex-1 min-h-0 p-6">
-              <TabGroup className="flex flex-col h-full min-h-0">
+            <div className="p-6">
+              <TabGroup>
                 <TabList className="flex-shrink-0">
                   <Tab onClick={() => setActiveStatement('profitLoss')}>Profit & Loss</Tab>
                   <Tab onClick={() => setActiveStatement('balanceSheet')}>Balance Sheet</Tab>
                   <Tab onClick={() => setActiveStatement('cashFlow')}>Cash Flow</Tab>
                 </TabList>
-                <TabPanels className="mt-4 flex-1 min-h-0 overflow-hidden">
-                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
-                      {loading['profitLoss'] ? (
+                <TabPanels className="mt-4">
+                  <TabPanel>
+                    {loading['profitLoss'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
-                      ) : error['profitLoss'] ? (
-                        <div className="p-4">
-                          <Text className="text-red-600">{error['profitLoss']}</Text>
-                        </div>
-                      ) : reports['profitLoss'] ? (
-                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
-                          <PnlTable report={reports['profitLoss']} />
-                        </div>
-                      ) : (
-                        <div className="p-4">
-                          <Text>No data available</Text>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : error['profitLoss'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text className="text-red-600">{error['profitLoss']}</Text>
+                      </div>
+                    ) : reports['profitLoss'] ? (
+                      <PnlTable report={reports['profitLoss']} />
+                    ) : (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text>No data available</Text>
+                      </div>
+                    )}
                   </TabPanel>
-                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
-                      {loading['balanceSheet'] ? (
+                  <TabPanel>
+                    {loading['balanceSheet'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
-                      ) : error['balanceSheet'] ? (
-                        <div className="p-4">
-                          <Text className="text-red-600">{error['balanceSheet']}</Text>
-                        </div>
-                      ) : reports['balanceSheet'] ? (
-                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
-                          <PnlTable report={reports['balanceSheet']} />
-                        </div>
-                      ) : (
-                        <div className="p-4">
-                          <Text>No data available</Text>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : error['balanceSheet'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text className="text-red-600">{error['balanceSheet']}</Text>
+                      </div>
+                    ) : reports['balanceSheet'] ? (
+                      <PnlTable report={reports['balanceSheet']} />
+                    ) : (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text>No data available</Text>
+                      </div>
+                    )}
                   </TabPanel>
-                  <TabPanel className="h-full min-h-0" style={{ minWidth: 0 }}>
-                    <div className="h-full min-h-0 border border-gray-200 bg-white flex flex-col" style={{ minWidth: 0 }}>
-                      {loading['cashFlow'] ? (
+                  <TabPanel>
+                    {loading['cashFlow'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
-                      ) : error['cashFlow'] ? (
-                        <div className="p-4">
-                          <Text className="text-red-600">{error['cashFlow']}</Text>
-                        </div>
-                      ) : reports['cashFlow'] ? (
-                        <div className="flex-1 min-h-0 overflow-auto" style={{ minWidth: 0 }}>
-                          <PnlTable report={reports['cashFlow']} />
-                        </div>
-                      ) : (
-                        <div className="p-4">
-                          <Text>No data available</Text>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : error['cashFlow'] ? (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text className="text-red-600">{error['cashFlow']}</Text>
+                      </div>
+                    ) : reports['cashFlow'] ? (
+                      <PnlTable report={reports['cashFlow']} />
+                    ) : (
+                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                        <Text>No data available</Text>
+                      </div>
+                    )}
                   </TabPanel>
                 </TabPanels>
               </TabGroup>
