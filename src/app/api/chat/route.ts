@@ -10,15 +10,25 @@ const openai = new OpenAI({
 });
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 120; // 2 minutes for GPT-5 responses
 
 export async function POST(request: NextRequest) {
   console.log('🚀 CHAT API: POST request received');
   try {
     const body = await request.json();
     const message = body.message;
+    const messages = body.messages || []; // Get conversation history
     const currentReports = body.currentReports;
     const timePeriod = body.timePeriod || '3months';
     const stream = body.stream || false;
+
+    console.log('📨 Request details:', {
+      messageLength: message?.length,
+      historyLength: messages?.length,
+      hasReports: !!currentReports,
+      timePeriod,
+      streaming: stream
+    });
 
     if (!message) {
       return NextResponse.json({
@@ -107,25 +117,21 @@ export async function POST(request: NextRequest) {
       // Use default context if data fetch fails
     }
 
-    // Create a focused prompt for concise, actionable responses
-    const prompt = `USER'S QUESTION: "${message}"
+    // Simple conversation messages for now - no history to debug timeout
+    const conversationMessages = [
+      {
+        role: "system" as const,
+        content: `You are a helpful financial analyst for a specific business. Answer the user's questions directly and clearly.
 
-ANALYSIS APPROACH:
-- Use clear, natural section headings.
-- Always answer the user's question directly first, referencing relevant numbers and business context.
-- If there are anomalies or data issues that directly impact the answer, mention them in a separate section.
-- Only call out unrelated anomalies if they are critical and require immediate attention.
-- Tie actionable insights and business context specifically to the user's question and the numbers discussed.
-- Keep responses concise, user-focused, and avoid generic advice.
+FINANCIAL CONTEXT: ${financialContext}`
+      },
+      {
+        role: "user" as const,
+        content: message
+      }
+    ];
 
-ACTIONABLE INSIGHTS REQUIREMENTS:
-- Provide specific, concrete steps the user can take immediately (this week/this month)
-- Include timeframes, amounts, and specific actions
-- Avoid generic advice like "monitor" or "evaluate" - give actual next steps
-- Examples: "Call your lender by Friday to discuss refinancing options" or "Set aside $500/month starting next month for vehicle maintenance"
-
-FINANCIAL CONTEXT: ${financialContext}
-`;
+    console.log(`💬 Chat context: Simple 2-message conversation (system + user)`);
 
     // If streaming is requested, return a streaming response
     if (stream) {
@@ -134,38 +140,54 @@ FINANCIAL CONTEXT: ${financialContext}
       const stream = new ReadableStream({
         async start(controller) {
           try {
+            console.log('🤖 Starting GPT-4o streaming completion...');
+            const startTime = Date.now();
+            
             const completion = await openai.chat.completions.create({
-              model: "gpt-5",
-                    messages: [
-        {
-          role: "system",
-          content: "You are a helpful financial analyst for a specific business. Your approach:\n1. ALWAYS answer the user's specific question first - this is your primary responsibility.\n2. Use clear, natural section headings to organize your response.\n3. Start with a direct answer to the user's question, referencing the relevant numbers and business context.\n4. If there are anomalies or data issues that directly impact the answer, mention them in a separate section.\n5. Only call out unrelated anomalies if they are critical and require immediate attention.\n6. Tie actionable insights and business context specifically to the user's question and the numbers discussed.\n7. Keep responses concise, user-focused, and avoid generic advice.\n8. ACTIONABLE INSIGHTS: Provide specific, concrete steps the user can take immediately (this week/this month) with timeframes, amounts, and specific actions. Avoid generic advice like 'monitor' or 'evaluate' - give actual next steps.\nLead with key numbers, use bullet points if helpful, and be direct. The user's question is your priority."
-        },
-                {
-                  role: "user",
-                  content: prompt
-                }
-              ],
-              max_completion_tokens: 1000,
+              model: "gpt-4o",
+              messages: conversationMessages,
+              max_tokens: 1000,
               stream: true,
             });
+            
+            console.log(`⚡ GPT-5 completion created in ${Date.now() - startTime}ms`);
 
             // Send session ID first
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ sessionId, type: 'session' })}\n\n`));
 
+            let chunkCount = 0;
+            const streamStartTime = Date.now();
+            
             for await (const chunk of completion) {
               const content = chunk.choices[0]?.delta?.content;
               if (content) {
+                chunkCount++;
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content, type: 'chunk' })}\n\n`));
               }
             }
+
+            const totalTime = Date.now() - startTime;
+            const streamTime = Date.now() - streamStartTime;
+            console.log(`✅ GPT-4o streaming complete: ${chunkCount} chunks, ${totalTime}ms total (${streamTime}ms streaming)`);
 
             // Send end signal
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'end' })}\n\n`));
             controller.close();
           } catch (error) {
-            console.error('Error in streaming:', error);
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Streaming error occurred', type: 'error' })}\n\n`));
+            console.error('❌ Error in streaming:', error);
+            
+            let errorMessage = 'Streaming error occurred';
+            if (error instanceof Error) {
+              if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+                errorMessage = 'GPT-5 response timed out - please try again with a shorter question';
+              } else if (error.message.includes('rate limit') || error.message.includes('429')) {
+                errorMessage = 'Rate limit exceeded - please wait a moment and try again';
+              } else {
+                errorMessage = `Error: ${error.message}`;
+              }
+            }
+            
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage, type: 'error' })}\n\n`));
             controller.close();
           }
         }
@@ -182,18 +204,9 @@ FINANCIAL CONTEXT: ${financialContext}
 
     // Non-streaming response (fallback)
     const completion = await openai.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        {
-          role: "system",
-          content: "You are a proactive financial analyst for a specific business. Your primary responsibilities:\n\n1. **ANOMALY DETECTION FIRST**: Always scan for unusual patterns, zeros, missing data, or inconsistencies before answering any question\n2. **DATA QUALITY**: Flag potential accounting errors, missing transactions, or timing issues\n3. **BUSINESS CONTEXT**: Reference the specific business type from the financial data\n4. **ACTIONABLE INSIGHTS**: Provide specific, actionable advice tailored to the business\n\nLead with key numbers, use bullet points, and be direct. If you detect anomalies, address them immediately before proceeding with the user's question."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      max_completion_tokens: 1000,
+      model: "gpt-4o",
+      messages: conversationMessages,
+      max_tokens: 1000,
     });
 
     // Return response with session ID

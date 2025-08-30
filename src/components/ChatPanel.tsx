@@ -179,6 +179,7 @@ export default function ChatPanel({
           },
           body: JSON.stringify({
             message: message,
+            messages: messages, // Send conversation history
             currentReports: currentReports,
             timePeriod: timePeriod,
             stream: true, // Re-enable streaming
@@ -226,6 +227,7 @@ export default function ChatPanel({
   };
 
   const handleStreamingResponse = async (response: Response, messageIndex: number) => {
+    console.log('🔄 Starting streaming response handler...');
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let sessionId: string | null = null;
@@ -262,16 +264,19 @@ export default function ChatPanel({
               const message = line.replace(/^data: /, "");
               if (message.trim() === '') continue;
               
+              console.log('📦 Received chunk:', message.substring(0, 100) + '...');
               const data = JSON.parse(message);
               
               switch (data.type) {
                 case 'session':
+                  console.log('🔑 Session ID received:', data.sessionId);
                   sessionId = data.sessionId;
                   if (sessionId) {
                     setSessionId(sessionId);
                   }
                   break;
                 case 'chunk':
+                  console.log('📝 Content chunk received, length:', data.content?.length);
                   // Direct accumulation - no queue needed since we're processing in order
                   accumulatedContent += data.content;
                   streamingContentRef.current = accumulatedContent;
@@ -280,10 +285,14 @@ export default function ChatPanel({
                   updateStreamingContent(messageIndex, accumulatedContent);
                   break;
                 case 'end':
+                  console.log('✅ Stream ended, final content length:', accumulatedContent.length);
                   finalizeMessage(messageIndex, accumulatedContent);
                   return;
                 case 'error':
-                  throw new Error(data.error || 'Streaming error');
+                  console.log('❌ Stream error:', data.error);
+                  // Display error in chat instead of throwing
+                  finalizeMessage(messageIndex, data.error || 'Streaming error occurred');
+                  return;
               }
             } catch (parseError) {
               console.error('Error parsing streaming data:', parseError, 'Line:', line);
@@ -423,7 +432,7 @@ export default function ChatPanel({
               className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
               disabled={loading || !inputValue.trim()}
             >
-              {loading ? 'GPT-5 thinking...' : 'Send'}
+              {loading ? 'Thinking...' : 'Send'}
             </Button>
           </form>
         </>
