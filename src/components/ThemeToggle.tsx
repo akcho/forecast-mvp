@@ -93,33 +93,26 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
         bg-white dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         rounded-md shadow-lg 
-        p-4 z-20 min-w-64
+        p-3 z-20 min-w-64
         ${className}
       `}>
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-              Settings
-            </h3>
-            
-            {/* User Info */}
-            {session?.user && (
-              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md">
-                <div className="flex items-center space-x-2">
-                  <UserIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {session.user.name || 'User'}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                      {session.user.email}
-                    </p>
-                  </div>
+        <div className="space-y-3">
+          {/* User Info - Compact */}
+          {session?.user && (
+            <div className="pb-3 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center space-x-2">
+                <UserIcon className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                    {session.user.email}
+                  </p>
                 </div>
               </div>
-            )}
-            
-            {/* Theme Toggle */}
+            </div>
+          )}
+          
+          {/* Theme Toggle */}
+          <div>
             <ThemeToggle />
           </div>
         </div>
