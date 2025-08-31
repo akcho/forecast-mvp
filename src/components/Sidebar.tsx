@@ -4,7 +4,7 @@ import { DocumentTextIcon, Cog6ToothIcon, HomeIcon, ArrowTrendingUpIcon, ArrowLe
 import { DocumentTextIcon as DocumentTextIconSolid, HomeIcon as HomeIconSolid, ArrowTrendingUpIcon as ArrowTrendingUpIconSolid, AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid } from '@heroicons/react/24/solid';
 import { signOut } from 'next-auth/react';
 import { CompanySwitcher } from './CompanySwitcher';
-import { SettingsDropdown } from './ThemeToggle';
+import { SettingsModal } from './ThemeToggle';
 import { useState } from 'react';
 
 interface SidebarProps {
@@ -109,7 +109,7 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                 Settings
               </button>
               
-              <SettingsDropdown 
+              <SettingsModal 
                 isOpen={showSettings}
                 onClose={() => setShowSettings(false)}
               />

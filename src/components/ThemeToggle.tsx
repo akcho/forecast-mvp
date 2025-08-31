@@ -67,13 +67,13 @@ export function ThemeToggle({ showLabel = true, className = '' }: ThemeTogglePro
   );
 }
 
-interface SettingsDropdownProps {
+interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   className?: string;
 }
 
-export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDropdownProps) {
+export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModalProps) {
   const { data: session } = useSession();
   
   if (!isOpen) return null;
@@ -82,43 +82,61 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 z-10" 
+        className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center" 
         onClick={onClose}
         aria-hidden="true"
-      />
-      
-      {/* Dropdown Panel */}
-      <div className={`
-        absolute bottom-0 left-full ml-2 
-        bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-md shadow-lg 
-        p-4 z-50 w-64
-        ${className}
-      `}>
-        <div className="space-y-2">
-          {/* User Info - Compact */}
-          {session?.user && (
-            <div className="pb-2 border-b border-gray-200 dark:border-gray-600">
-              <div className="flex items-center space-x-2">
-                <UserIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                    {session.user.email}
-                  </p>
+      >
+        {/* Modal */}
+        <div 
+          className={`
+            bg-white dark:bg-gray-800 
+            border border-gray-200 dark:border-gray-700 
+            rounded-lg shadow-xl 
+            p-6 z-50 w-96 max-w-md mx-4
+            ${className}
+          `}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Settings
+              </h2>
+              <button 
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* User Info */}
+            {session?.user && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <UserIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {session.user.name || 'User'}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                      {session.user.email}
+                    </p>
+                  </div>
                 </div>
               </div>
+            )}
+            
+            {/* Theme Section */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+                Appearance
+              </h3>
+              <ThemeToggle showLabel={false} />
             </div>
-          )}
-          
-          {/* Theme Toggle */}
-          <div>
-            <ThemeToggle />
           </div>
         </div>
-        
-        {/* Arrow pointing left */}
-        <div className="absolute left-0 top-6 -ml-1 w-2 h-2 bg-white dark:bg-gray-800 border-l border-b border-gray-200 dark:border-gray-700 rotate-45" />
       </div>
     </>
   );
