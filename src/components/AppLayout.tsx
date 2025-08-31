@@ -214,22 +214,22 @@ function AppLayoutInner({ children }: AppLayoutProps) {
   // Allow auth-related pages (/auth/*) to render without authentication
   if (status === 'loading') {
     // Show loading or nothing while checking authentication
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900">{children}</div>;
   }
 
   if (status === 'unauthenticated' && !pathname?.startsWith('/auth/')) {
     // Redirect to sign-in if not authenticated and not on an auth page
     router.push('/auth/signin');
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900">{children}</div>;
   }
 
   if (pathname?.startsWith('/auth/')) {
     // Don't show app layout UI on auth pages - just render the children
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900">{children}</div>;
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-50">
+    <div className="h-screen flex overflow-hidden bg-gray-50 dark:bg-gray-900">
       {/* Left Sidebar */}
       <Sidebar 
         currentPage={currentPage} 
@@ -264,7 +264,7 @@ function AppLayoutInner({ children }: AppLayoutProps) {
       {/* AI Assistant Right Sidebar */}
       {showAI && (
         <div 
-          className={`fixed top-0 right-0 h-full bg-white border-l border-gray-300 flex flex-col z-40 ${
+          className={`fixed top-0 right-0 h-full bg-white dark:bg-gray-900 border-l border-gray-300 dark:border-gray-700 flex flex-col z-40 ${
             isMobile ? 'w-full' : ''
           }`}
           style={{ 
@@ -274,8 +274,8 @@ function AppLayoutInner({ children }: AppLayoutProps) {
           {/* Resizer */}
           {!isMobile && (
             <div
-              className={`absolute left-0 top-0 w-1 h-full bg-gray-200 hover:bg-gray-300 cursor-col-resize ${
-                isResizing ? 'bg-blue-400' : ''
+              className={`absolute left-0 top-0 w-1 h-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-col-resize ${
+                isResizing ? 'bg-blue-400 dark:bg-blue-500' : ''
               }`}
               onMouseDown={handleMouseDown}
             />

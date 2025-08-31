@@ -73,7 +73,7 @@ export default function ForecastPage() {
   // Show loading state while checking connection
   if (!connectionChecked) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
         <LoadingState type="general" />
       </div>
     );

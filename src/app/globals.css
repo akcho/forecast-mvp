@@ -5,6 +5,41 @@
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  
+  /* Light theme colors */
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 249 250 251;
+  --color-bg-tertiary: 243 244 246;
+  --color-text-primary: 17 24 39;
+  --color-text-secondary: 75 85 99;
+  --color-text-tertiary: 156 163 175;
+  --color-border-primary: 229 231 235;
+  --color-border-secondary: 209 213 219;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 17, 24, 39;
+  
+  /* Dark theme colors */
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 249 250 251;
+  --color-text-secondary: 209 213 219;
+  --color-text-tertiary: 107 114 128;
+  --color-border-primary: 55 65 81;
+  --color-border-secondary: 75 85 99;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Prevent transition on initial load */
+.theme-transition {
+  transition: none !important;
 }
 
 html, body {
@@ -27,4 +62,58 @@ body {
   height: 100vh;
   min-height: 100vh;
   height: calc(100vh - 0px);
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgb(31 41 55);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Tremor component dark mode overrides */
+.dark .tremor-Select-root {
+  background-color: rgb(31 41 55) !important;
+  border-color: rgb(75 85 99) !important;
+  color: rgb(243 244 246) !important;
+}
+
+.dark .tremor-Select-root:hover {
+  border-color: rgb(107 114 128) !important;
+}
+
+.dark .tremor-Select-root:focus {
+  border-color: rgb(59 130 246) !important;
+  box-shadow: 0 0 0 1px rgb(59 130 246) !important;
+}
+
+.dark .tremor-SelectItem-root {
+  background-color: rgb(31 41 55) !important;
+  color: rgb(243 244 246) !important;
+}
+
+.dark .tremor-SelectItem-root:hover {
+  background-color: rgb(55 65 81) !important;
+}
+
+.dark .tremor-SelectItem-root[data-selected="true"] {
+  background-color: rgb(59 130 246) !important;
+  color: rgb(255 255 255) !important;
+}
+
+.dark .tremor-SelectList-root {
+  background-color: rgb(31 41 55) !important;
+  border-color: rgb(75 85 99) !important;
 }

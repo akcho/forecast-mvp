@@ -165,15 +165,15 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
         <div className="flex items-center space-x-3">
-          <ExclamationTriangleIcon className="h-6 w-6 text-red-500" />
+          <ExclamationTriangleIcon className="h-6 w-6 text-red-500 dark:text-red-400" />
           <div>
-            <h3 className="font-medium text-red-800">Unable to Load Forecast</h3>
-            <p className="text-red-700 mt-1">{error}</p>
+            <h3 className="font-medium text-red-800 dark:text-red-200">Unable to Load Forecast</h3>
+            <p className="text-red-700 dark:text-red-300 mt-1">{error}</p>
             <button 
               onClick={loadForecast}
-              className="mt-3 text-red-600 hover:text-red-800 font-medium"
+              className="mt-3 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 font-medium"
             >
               Try Again
             </button>
@@ -186,7 +186,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
   if (!forecast) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">No forecast data available</p>
+        <p className="text-gray-500 dark:text-gray-400">No forecast data available</p>
       </div>
     );
   }
@@ -259,18 +259,18 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
         {/* Chart and Controls Side by Side */}
         <div className="flex gap-6 h-full">
           {/* Main Chart */}
-          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h2 className="text-xl font-bold text-gray-900">Financial Projections</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Financial Projections</h2>
                 {updating && (
-                  <div className="flex items-center space-x-2 text-sm text-blue-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
                     <span>Updating...</span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-blue-500 rounded"></div>
                   <span>Revenue</span>
@@ -327,21 +327,21 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
 
           {/* Driver Controls Sidebar - Aligned with Chart */}
           <div className="w-96 transition-all duration-300 overflow-visible">
-            <div className="bg-white border border-gray-200 rounded-lg h-full">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-bold text-gray-900">Driver Controls</h2>
-                <p className="text-sm text-gray-600 mt-1">Adjust drivers to see impact on forecast</p>
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg h-full">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Driver Controls</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Adjust drivers to see impact on forecast</p>
               </div>
               
               {/* Tab Navigation */}
-              <div className="border-b border-gray-200">
+              <div className="border-b border-gray-200 dark:border-gray-700">
                 <nav className="flex space-x-8 px-6" aria-label="Tabs">
                   <button
                     onClick={() => setActiveTab('revenue')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === 'revenue'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     Revenue
@@ -350,8 +350,8 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
                     onClick={() => setActiveTab('expense')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === 'expense'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     Expenses
@@ -360,8 +360,8 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
                     onClick={() => setActiveTab('external')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === 'external'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     External
@@ -406,7 +406,7 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
                 )}
                 
                 {activeTab === 'external' && (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                     <p className="text-lg font-medium">External Factors</p>
                     <p className="text-sm mt-2">Coming soon - market conditions, economic indicators, and external drivers</p>
                   </div>
@@ -437,31 +437,31 @@ function EnhancedInsightsPanel({ insights }: { insights: any }) {
   const getInsightColors = (type: string, priority: string) => {
     if (type === 'warning' && priority === 'high') {
       return {
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        text: 'text-red-900',
-        icon: 'text-red-600'
+        bg: 'bg-red-50 dark:bg-red-900/20',
+        border: 'border-red-200 dark:border-red-800',
+        text: 'text-red-900 dark:text-red-200',
+        icon: 'text-red-600 dark:text-red-400'
       };
     } else if (type === 'warning') {
       return {
-        bg: 'bg-orange-50',
-        border: 'border-orange-200', 
-        text: 'text-orange-900',
-        icon: 'text-orange-600'
+        bg: 'bg-orange-50 dark:bg-orange-900/20',
+        border: 'border-orange-200 dark:border-orange-800', 
+        text: 'text-orange-900 dark:text-orange-200',
+        icon: 'text-orange-600 dark:text-orange-400'
       };
     } else if (type === 'opportunity') {
       return {
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        text: 'text-green-900', 
-        icon: 'text-green-600'
+        bg: 'bg-green-50 dark:bg-green-900/20',
+        border: 'border-green-200 dark:border-green-800',
+        text: 'text-green-900 dark:text-green-200', 
+        icon: 'text-green-600 dark:text-green-400'
       };
     } else {
       return {
-        bg: 'bg-blue-50',
-        border: 'border-blue-200',
-        text: 'text-blue-900',
-        icon: 'text-blue-600'
+        bg: 'bg-blue-50 dark:bg-blue-900/20',
+        border: 'border-blue-200 dark:border-blue-800',
+        text: 'text-blue-900 dark:text-blue-200',
+        icon: 'text-blue-600 dark:text-blue-400'
       };
     }
   };
@@ -471,13 +471,13 @@ function EnhancedInsightsPanel({ insights }: { insights: any }) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
-          <InformationCircleIcon className="h-6 w-6 text-gray-600" />
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+          <InformationCircleIcon className="h-6 w-6 text-gray-600 dark:text-gray-400" />
           <span>Key Insights</span>
         </h2>
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
           <div className="relative group cursor-help">
             <span className="flex items-center space-x-1">
               <span className={`w-3 h-3 rounded-full ${
@@ -552,7 +552,7 @@ function EnhancedInsightsPanel({ insights }: { insights: any }) {
                       {insight.title}
                     </h3>
                     {insight.priority === 'high' && (
-                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                      <span className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs font-medium px-2 py-0.5 rounded-full">
                         HIGH PRIORITY
                       </span>
                     )}
@@ -566,7 +566,7 @@ function EnhancedInsightsPanel({ insights }: { insights: any }) {
                     </p>
                   )}
                   {insight.action && (
-                    <div className={`${colors.bg.replace('50', '100')} rounded-md p-2 mt-2`}>
+                    <div className={`${colors.bg.replace('50', '100').replace('dark:bg-', 'dark:bg-').replace('900/20', '900/30')} rounded-md p-2 mt-2`}>
                       <p className={`${colors.text} text-xs font-medium`}>
                         💡 Recommended Action: {insight.action}
                       </p>
@@ -628,13 +628,13 @@ function MetricCard({ metric }: { metric: KeyMetricCard }) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-500">{metric.label}</h3>
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{metric.label}</h3>
       </div>
       
       <div className="mt-2">
-        <div className="text-2xl font-bold text-gray-900">
+        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           {formatValue(metric.value, metric.format)}
         </div>
         
@@ -703,11 +703,11 @@ function DriverControl({
 
   if (compact) {
     return (
-      <div className="border border-gray-200 rounded-md p-3">
+      <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-md p-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-gray-900 truncate">{driver.name}</h4>
-            <p className="text-xs text-gray-500">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{driver.name}</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {isContraRevenue 
                 ? `$${Math.round(Math.abs(currentValue)).toLocaleString()}/mo discount`
                 : `$${Math.round(currentValue).toLocaleString()}/mo`
@@ -735,17 +735,17 @@ function DriverControl({
             }`}>
               {driver.confidence === 'high' ? 'H' : driver.confidence === 'medium' ? 'M' : 'L'}
             </div>
-            <div className="absolute top-full right-0 mt-1 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+            <div className="absolute top-full right-0 mt-1 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white dark:text-gray-100 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
               {driver.confidence === 'high' ? 'High - Very reliable data' :
                driver.confidence === 'medium' ? 'Medium - Moderately reliable data' :
                'Low - Limited or inconsistent data'}
-              <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+              <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900 dark:border-b-gray-800"></div>
             </div>
           </div>
         </div>
         
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-500 w-8">-50%</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 w-8">-50%</span>
           <div className="flex-1">
             <input
               type="range"
@@ -756,10 +756,10 @@ function DriverControl({
               onChange={(e) => handleSliderChange(parseInt(e.target.value))}
               onMouseUp={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
               onTouchEnd={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
           </div>
-          <span className="text-xs text-gray-500 w-8">+50%</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 w-8">+50%</span>
           <div className="w-10 text-right">
             <span className={`text-xs font-medium ${
               sliderValue > 0 ? 'text-green-600' :
@@ -775,11 +775,11 @@ function DriverControl({
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4">
+    <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h4 className="font-medium text-gray-900">{driver.name}</h4>
-          <p className="text-sm text-gray-500">
+          <h4 className="font-medium text-gray-900 dark:text-gray-100">{driver.name}</h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Current: {isContraRevenue 
               ? `$${Math.abs(currentValue).toLocaleString()}/mo discount`
               : `$${currentValue.toLocaleString()}/mo`
@@ -805,7 +805,7 @@ function DriverControl({
       </div>
       
       <div className="flex items-center space-x-4">
-        <span className="text-sm text-gray-500 w-12">-50%</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400 w-12">-50%</span>
         
         <div className="flex-1">
           <input
@@ -817,11 +817,11 @@ function DriverControl({
             onChange={(e) => handleSliderChange(parseInt(e.target.value))}
             onMouseUp={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
             onTouchEnd={(e) => handleSliderFinished(parseInt((e.target as HTMLInputElement).value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
           />
         </div>
         
-        <span className="text-sm text-gray-500 w-12">+50%</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400 w-12">+50%</span>
         
         <div className="w-16 text-right">
           <span className={`text-sm font-medium ${

@@ -353,7 +353,7 @@ export default function ChatPanel({
         <>
           <div className={`h-full flex-1 overflow-y-auto p-4 min-h-0 ${messages.length === 0 ? 'flex items-center justify-center' : 'space-y-4'}`}>
             {messages.length === 0 && (
-              <Text className="text-gray-500 text-center">Ask a question about your financial data...</Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-center">Ask a question about your financial data...</Text>
             )}
             {messages.map((message, index) => (
               <div
@@ -366,8 +366,8 @@ export default function ChatPanel({
                 <div
                   className={`rounded-lg px-4 py-3 text-base font-normal ${
                     message.role === 'user'
-                      ? 'max-w-[80%] bg-blue-50 text-blue-800 border border-blue-100'
-                      : 'w-full bg-white text-gray-800'
+                      ? 'max-w-[80%] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border border-blue-100 dark:border-blue-800'
+                      : 'w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                   }`}
                 >
                   {message.role === 'user' ? (
@@ -377,17 +377,17 @@ export default function ChatPanel({
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 mb-3">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 mb-2">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-base font-bold text-gray-900 mb-2">{children}</h3>,
-                          p: ({children}) => <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>,
+                          h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                          p: ({children}) => <p className="mb-3 text-gray-700 dark:text-gray-300 leading-relaxed">{children}</p>,
                           ul: ({children}) => <ul className="list-disc list-outside mb-3 space-y-1 pl-5">{children}</ul>,
                           ol: ({children}) => <ol className="list-decimal list-outside mb-3 space-y-1 pl-5">{children}</ol>,
-                          li: ({children}) => <li className="text-gray-700 leading-relaxed mb-1">{children}</li>,
-                          strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                          em: ({children}) => <em className="italic text-gray-700">{children}</em>,
-                          code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
-                          blockquote: ({children}) => <blockquote className="border-l-4 border-blue-200 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
+                          li: ({children}) => <li className="text-gray-700 dark:text-gray-300 leading-relaxed mb-1">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                          em: ({children}) => <em className="italic text-gray-700 dark:text-gray-300">{children}</em>,
+                          code: ({children}) => <code className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-blue-200 dark:border-blue-600 pl-4 italic text-gray-600 dark:text-gray-400 mb-3">{children}</blockquote>,
                         }}
                       >
                         {message.content}
@@ -398,7 +398,7 @@ export default function ChatPanel({
                     <>
                       <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse"></span>
                       {message.content === '' && (
-                        <div className="text-gray-500 italic mt-2">
+                        <div className="text-gray-500 dark:text-gray-400 italic mt-2">
                           {loadingMessage}
                         </div>
                       )}
@@ -409,7 +409,7 @@ export default function ChatPanel({
             ))}
             <div ref={messagesEndRef} />
           </div>
-          <div className="flex-shrink-0 p-4 bg-white">
+          <div className="flex-shrink-0 p-4 bg-white dark:bg-gray-900">
             {/* Desktop: Clean input with inline send icon */}
             <form
               onSubmit={(e) => {
@@ -428,7 +428,7 @@ export default function ChatPanel({
                   onInputChange?.(e.target.value);
                 }}
                 placeholder={loading ? "Thinking..." : "Press Enter to send"}
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
+                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-300 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 text-sm"
                 disabled={loading}
               />
               {inputValue.trim() && !loading && (
@@ -466,7 +466,7 @@ export default function ChatPanel({
                   onInputChange?.(e.target.value);
                 }}
                 placeholder={loading ? "Thinking..." : "Ask about your finances..."}
-                className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
+                className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 px-4 py-3 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-300 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 text-sm"
                 disabled={loading}
               />
               <button

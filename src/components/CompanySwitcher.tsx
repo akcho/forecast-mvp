@@ -67,8 +67,8 @@ export function CompanySwitcher({
   if (loading) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-        <Text className="text-sm text-gray-500">Loading companies...</Text>
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
+        <Text className="text-sm text-gray-500 dark:text-gray-400">Loading companies...</Text>
       </div>
     );
   }
@@ -77,12 +77,12 @@ export function CompanySwitcher({
     return (
       <div className={`flex flex-col space-y-2 ${className}`}>
         <div className="flex items-center space-x-2">
-          <BuildingOffice2Icon className="h-4 w-4 text-gray-400" />
-          <Text className="text-sm text-gray-500">No companies connected</Text>
+          <BuildingOffice2Icon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+          <Text className="text-sm text-gray-500 dark:text-gray-400">No companies connected</Text>
         </div>
         <button
           onClick={handleAddCompany}
-          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 hover:border-blue-300 transition-colors"
+          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
         >
           <PlusIcon className="h-3 w-3 mr-1" />
           Connect Company
@@ -97,7 +97,7 @@ export function CompanySwitcher({
     <div className={`flex flex-col space-y-2 ${className}`}>
       {/* Company Selector */}
       <div className="flex items-center space-x-2">
-        <BuildingOffice2Icon className="h-4 w-4 text-gray-600 flex-shrink-0" />
+        <BuildingOffice2Icon className="h-4 w-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
         <Select
           value={selectedCompanyId}
           onValueChange={handleCompanyChange}
@@ -110,7 +110,7 @@ export function CompanySwitcher({
             >
               <div className="flex items-center justify-between w-full">
                 <span className="truncate">{companyRole.company.name}</span>
-                <span className="ml-2 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                <span className="ml-2 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300">
                   {companyRole.role}
                 </span>
               </div>
@@ -123,7 +123,7 @@ export function CompanySwitcher({
       {companies.length > 0 && (
         <button
           onClick={handleAddCompany}
-          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 hover:border-blue-300 transition-colors"
+          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
         >
           <PlusIcon className="h-3 w-3 mr-1" />
           Add Company

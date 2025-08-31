@@ -6,6 +6,7 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './node_modules/@tremor/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     transparent: 'transparent',
     current: 'currentColor',
@@ -41,12 +42,46 @@ module.exports = {
             inverted: '#ffffff', // white
           },
         },
+        // dark mode
+        'dark-tremor': {
+          brand: {
+            faint: '#0B1229', // custom
+            muted: '#172554', // blue-900
+            subtle: '#1e40af', // blue-800
+            DEFAULT: '#3b82f6', // blue-500
+            emphasis: '#60a5fa', // blue-400
+            inverted: '#030712', // gray-950
+          },
+          background: {
+            muted: '#131A2B', // custom
+            subtle: '#1f2937', // gray-800
+            DEFAULT: '#111827', // gray-900
+            emphasis: '#d1d5db', // gray-300
+          },
+          border: {
+            DEFAULT: '#374151', // gray-700
+          },
+          ring: {
+            DEFAULT: '#374151', // gray-700
+          },
+          content: {
+            subtle: '#4b5563', // gray-600
+            DEFAULT: '#6b7280', // gray-500
+            emphasis: '#d1d5db', // gray-300
+            strong: '#f9fafb', // gray-50
+            inverted: '#000000', // black
+          },
+        },
       },
       boxShadow: {
         // light
         'tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         'tremor-card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
         'tremor-dropdown': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        // dark
+        'dark-tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.7)',
+        'dark-tremor-card': '0 1px 3px 0 rgb(0 0 0 / 0.7), 0 1px 2px -1px rgb(0 0 0 / 0.8)',
+        'dark-tremor-dropdown': '0 4px 6px -1px rgb(0 0 0 / 0.7), 0 2px 4px -2px rgb(0 0 0 / 0.8)',
       },
       borderRadius: {
         'tremor-small': '0.375rem',

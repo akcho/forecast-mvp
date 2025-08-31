@@ -22,17 +22,17 @@ export function PageHeader({
   loadingData = false 
 }: PageHeaderProps) {
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
       <div className="flex items-center justify-between">
         {/* Left: Title and Description */}
         <div className="flex items-center space-x-3">
           {icon && <span className="text-2xl">{icon}</span>}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {title}
             </h1>
             {description && (
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 {description}
               </p>
             )}
@@ -53,19 +53,19 @@ export function PageHeader({
             onClick={onAIToggle}
             className={`p-2 rounded-md transition-colors ${
               showAI
-                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/30'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
             }`}
             title="Toggle AI Chat (Ctrl+`)"
           >
             <ChatBubbleLeftIcon 
               className={`h-5 w-5 ${
-                showAI ? 'text-blue-700' : 'text-gray-500'
+                showAI ? 'text-blue-700 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
               }`} 
             />
             {loadingData && (
               <div className="absolute -top-1 -right-1">
-                <div className="w-3 h-3 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div className="w-3 h-3 border-2 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
               </div>
             )}
           </button>

@@ -4,6 +4,8 @@ import { DocumentTextIcon, Cog6ToothIcon, HomeIcon, ArrowTrendingUpIcon, ArrowLe
 import { DocumentTextIcon as DocumentTextIconSolid, HomeIcon as HomeIconSolid, ArrowTrendingUpIcon as ArrowTrendingUpIconSolid, AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid } from '@heroicons/react/24/solid';
 import { signOut } from 'next-auth/react';
 import { CompanySwitcher } from './CompanySwitcher';
+import { SettingsDropdown } from './ThemeToggle';
+import { useState } from 'react';
 
 interface SidebarProps {
   currentPage: 'reports' | 'forecast' | 'drivers';
@@ -11,6 +13,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
+  const [showSettings, setShowSettings] = useState(false);
+
   const handleLogout = async () => {
     try {
       // Clear local storage
@@ -53,14 +57,14 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
   return (
     <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-      <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 overflow-y-auto">
+      <div className="flex flex-col flex-grow pt-5 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
         {/* Logo */}
         <div className="flex items-center flex-shrink-0 px-4">
-          <h1 className="text-xl font-bold text-gray-900">Netflo</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Netflo</h1>
         </div>
 
         {/* Company Switcher */}
-        <div className="mt-4 px-4 pb-4 border-b border-gray-200">
+        <div className="mt-4 px-4 pb-4 border-b border-gray-200 dark:border-gray-700">
           <CompanySwitcher />
         </div>
 
@@ -77,16 +81,16 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                   onClick={() => onPageChange(item.id)}
                   className={`group w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-r-2 border-blue-700 dark:border-blue-400'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
                   }`}
                 >
                   <Icon
                     className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                      isActive ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'
+                      isActive ? 'text-blue-700 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400'
                     }`}
                   />
-                  <div className={isActive ? 'text-blue-700' : 'text-gray-900'}>
+                  <div className={isActive ? 'text-blue-700 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}>
                     {item.name}
                   </div>
                 </button>
@@ -96,15 +100,26 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
           {/* Actions */}
           <div className="flex-shrink-0 px-2 pb-4 space-y-1">
-            <button className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900">
-              <Cog6ToothIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-              Settings
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowSettings(!showSettings)}
+                className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+              >
+                <Cog6ToothIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400" />
+                Settings
+              </button>
+              
+              <SettingsDropdown 
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+              />
+            </div>
+            
             <button 
               onClick={handleLogout}
-              className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+              className="group w-full flex items-center px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
             >
-              <ArrowLeftOnRectangleIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+              <ArrowLeftOnRectangleIcon className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400" />
               Logout
             </button>
           </div>
