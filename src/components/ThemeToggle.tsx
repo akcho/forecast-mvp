@@ -93,7 +93,7 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
         bg-white dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         rounded-md shadow-lg 
-        p-3 z-50 w-64
+        p-3 z-50 w-72
         ${className}
       `}>
         <div className="space-y-2">
