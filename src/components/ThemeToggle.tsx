@@ -82,7 +82,7 @@ export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModal
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center" 
+        className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center" 
         onClick={onClose}
         aria-hidden="true"
       >
@@ -92,7 +92,7 @@ export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModal
             bg-white dark:bg-gray-800 
             border border-gray-200 dark:border-gray-700 
             rounded-lg shadow-xl 
-            p-6 z-50 w-96 max-w-md mx-4
+            p-6 z-[10000] w-96 max-w-md mx-4
             ${className}
           `}
           onClick={(e) => e.stopPropagation()}
