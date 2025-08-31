@@ -219,7 +219,7 @@ function ReportsContent() {
 
   // DESKTOP: Show layout with natural height (no forced full screen)
   return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex h-full bg-gray-50 overflow-auto">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}

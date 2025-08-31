@@ -87,7 +87,7 @@ export default function ForecastPage() {
 
   // Show forecast page content when connected
   return (
-      <div className="p-8">
+      <div className="h-screen p-8 overflow-auto">
         <ForecastDashboard forecastPeriod={forecastPeriod} />
       </div>
   );

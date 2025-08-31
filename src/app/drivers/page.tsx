@@ -77,6 +77,8 @@ export default function DriversPage() {
 
   // Show drivers page content when connected
   return (
-      <DriverDiscoveryUI />
+      <div className="h-screen overflow-auto">
+        <DriverDiscoveryUI />
+      </div>
   );
 }
