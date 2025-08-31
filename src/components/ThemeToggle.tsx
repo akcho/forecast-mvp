@@ -79,10 +79,10 @@ export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModal
   if (!isOpen) return null;
 
   return (
-    <>
+    <div className="fixed inset-0 z-[999999]">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center" 
+        className="absolute inset-0 bg-black/50 flex items-center justify-center" 
         onClick={onClose}
         aria-hidden="true"
       >
@@ -92,7 +92,7 @@ export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModal
             bg-white dark:bg-gray-800 
             border border-gray-200 dark:border-gray-700 
             rounded-lg shadow-xl 
-            p-6 z-[10000] w-96 max-w-md mx-4
+            p-6 w-96 max-w-md mx-4 relative
             ${className}
           `}
           onClick={(e) => e.stopPropagation()}
@@ -138,6 +138,6 @@ export function SettingsModal({ isOpen, onClose, className = '' }: SettingsModal
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
