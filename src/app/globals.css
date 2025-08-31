@@ -117,3 +117,25 @@ body {
   background-color: rgb(31 41 55) !important;
   border-color: rgb(75 85 99) !important;
 }
+
+/* Tremor Tab dark mode fixes */
+.dark .tremor-TabList-root {
+  border-color: rgb(75 85 99) !important;
+}
+
+.dark .tremor-Tab-root {
+  color: rgb(156 163 175) !important;
+}
+
+.dark .tremor-Tab-root:hover {
+  color: rgb(209 213 219) !important;
+}
+
+.dark .tremor-Tab-root[aria-selected="true"] {
+  color: rgb(59 130 246) !important;
+  border-bottom-color: rgb(59 130 246) !important;
+}
+
+.dark .tremor-TabPanel-root {
+  color: rgb(243 244 246) !important;
+}

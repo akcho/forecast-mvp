@@ -198,8 +198,8 @@ function ReportsContent() {
   if (isMobile) {
     const reportsLoaded = reports['profitLoss'] && reports['balanceSheet'] && reports['cashFlow'];
     return (
-      <div className="fixed inset-0 bg-white z-50 flex flex-col">
-        <div className="flex-shrink-0 p-4 border-b text-lg font-bold">AI Assistant</div>
+      <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex flex-col">
+        <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700 text-lg font-bold text-gray-900 dark:text-gray-100">AI Assistant</div>
         <div className="flex-1 overflow-y-auto">
           {!reportsLoaded ? (
             <FinancialDataLoading loadingStates={loading} />
@@ -219,7 +219,7 @@ function ReportsContent() {
 
   // DESKTOP: Show layout with natural height (no forced full screen)
   return (
-      <div className="flex h-full bg-gray-50 overflow-auto">
+      <div className="flex h-full bg-gray-50 dark:bg-gray-900 overflow-auto">
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Financial Statements Panel */}
@@ -236,52 +236,52 @@ function ReportsContent() {
                 <TabPanels className="mt-4">
                   <TabPanel>
                     {loading['profitLoss'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
                       </div>
                     ) : error['profitLoss'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text className="text-red-600">{error['profitLoss']}</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-red-600 dark:text-red-400">{error['profitLoss']}</Text>
                       </div>
                     ) : reports['profitLoss'] ? (
                       <PnlTable report={reports['profitLoss']} />
                     ) : (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text>No data available</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-gray-600 dark:text-gray-400">No data available</Text>
                       </div>
                     )}
                   </TabPanel>
                   <TabPanel>
                     {loading['balanceSheet'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
                       </div>
                     ) : error['balanceSheet'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text className="text-red-600">{error['balanceSheet']}</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-red-600 dark:text-red-400">{error['balanceSheet']}</Text>
                       </div>
                     ) : reports['balanceSheet'] ? (
                       <PnlTable report={reports['balanceSheet']} />
                     ) : (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text>No data available</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-gray-600 dark:text-gray-400">No data available</Text>
                       </div>
                     )}
                   </TabPanel>
                   <TabPanel>
                     {loading['cashFlow'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
                         <LoadingState type="general" className="p-8" />
                       </div>
                     ) : error['cashFlow'] ? (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text className="text-red-600">{error['cashFlow']}</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-red-600 dark:text-red-400">{error['cashFlow']}</Text>
                       </div>
                     ) : reports['cashFlow'] ? (
                       <PnlTable report={reports['cashFlow']} />
                     ) : (
-                      <div className="h-96 border border-gray-200 bg-white flex items-center justify-center">
-                        <Text>No data available</Text>
+                      <div className="h-96 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        <Text className="text-gray-600 dark:text-gray-400">No data available</Text>
                       </div>
                     )}
                   </TabPanel>
