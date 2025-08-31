@@ -89,11 +89,11 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
       
       {/* Dropdown Panel */}
       <div className={`
-        absolute bottom-full mb-2 left-0 
+        fixed bottom-20 left-2 
         bg-white dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         rounded-md shadow-lg 
-        p-3 z-20 w-64
+        p-3 z-50 w-64
         ${className}
       `}>
         <div className="space-y-2">
