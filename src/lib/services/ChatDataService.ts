@@ -78,13 +78,16 @@ export class ChatDataService {
     // Calculate business profile
     const businessProfile = this.buildBusinessProfile(parsedData);
     
-    // Extract key drivers for chat
-    const keyDrivers = driverResult.drivers.slice(0, 5).map(driver => ({
-      name: driver.name,
-      category: driver.category,
-      materiality: driver.materiality,
-      confidence: driver.confidence
-    }));
+    // Extract key drivers for chat (exclude balance sheet items)
+    const keyDrivers = driverResult.drivers
+      .filter(driver => driver.category === 'revenue' || driver.category === 'expense')
+      .slice(0, 5)
+      .map(driver => ({
+        name: driver.name,
+        category: driver.category as 'revenue' | 'expense',
+        materiality: driver.materiality,
+        confidence: driver.confidence
+      }));
 
     // Calculate trends
     const recentTrends = this.calculateRecentTrends(parsedData);
