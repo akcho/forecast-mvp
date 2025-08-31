@@ -96,9 +96,9 @@ export class ChatDataService {
       businessProfile,
       keyDrivers,
       insights: {
-        primary: insights.primary?.message || insights.primary || 'No primary insight available',
-        validation: insights.validation?.message || insights.validation || 'No validation available', 
-        opportunity: insights.opportunity?.message || insights.opportunity || 'No opportunity identified'
+        primary: insights.critical[0]?.message || 'No critical insights available',
+        validation: insights.opportunities[0]?.message || 'No opportunities identified', 
+        opportunity: insights.warnings[0]?.message || 'No warnings available'
       },
       recentTrends
     };
