@@ -1,8 +1,9 @@
 'use client';
 
 import { useTheme } from '@/contexts/ThemeContext';
-import { SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
+import { SunIcon, MoonIcon, ComputerDesktopIcon, UserIcon } from '@heroicons/react/24/outline';
 import { Fragment } from 'react';
+import { useSession } from 'next-auth/react';
 
 interface ThemeToggleProps {
   showLabel?: boolean;
@@ -73,6 +74,8 @@ interface SettingsDropdownProps {
 }
 
 export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDropdownProps) {
+  const { data: session } = useSession();
+  
   if (!isOpen) return null;
 
   return (
@@ -90,7 +93,7 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
         bg-white dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         rounded-md shadow-lg 
-        p-4 z-20
+        p-4 z-20 min-w-64
         ${className}
       `}>
         <div className="space-y-4">
@@ -98,6 +101,23 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
               Settings
             </h3>
+            
+            {/* User Info */}
+            {session?.user && (
+              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <UserIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {session.user.name || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                      {session.user.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Theme Toggle */}
             <ThemeToggle />
