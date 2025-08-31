@@ -89,11 +89,11 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
       
       {/* Dropdown Panel */}
       <div className={`
-        fixed bottom-20 left-2 
+        absolute bottom-0 left-full ml-2 
         bg-white dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         rounded-md shadow-lg 
-        p-3 z-50 w-72
+        p-4 z-50 w-64
         ${className}
       `}>
         <div className="space-y-2">
@@ -117,8 +117,8 @@ export function SettingsDropdown({ isOpen, onClose, className = '' }: SettingsDr
           </div>
         </div>
         
-        {/* Arrow pointing down */}
-        <div className="absolute -bottom-1 left-4 w-2 h-2 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700 rotate-45" />
+        {/* Arrow pointing left */}
+        <div className="absolute left-0 top-6 -ml-1 w-2 h-2 bg-white dark:bg-gray-800 border-l border-b border-gray-200 dark:border-gray-700 rotate-45" />
       </div>
     </>
   );
