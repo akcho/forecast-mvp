@@ -176,23 +176,23 @@ export async function getCompanyConnection(companyId: string, useServiceKey = fa
     .select('*')
     .eq('company_id', companyId)
     .eq('is_active', true)
-    .single();
+    .order('created_at', { ascending: false })
+    .limit(1);
     
+  const connection = data && data.length > 0 ? data[0] : null;
+  
   console.log('Company connection query result:', {
     hasData: !!data,
     hasError: !!error,
     errorMessage: error?.message,
     errorCode: error?.code,
-    connectionId: data?.id,
-    isActive: data?.is_active,
-    realmId: data?.realm_id
+    dataLength: data?.length || 0,
+    connectionId: connection?.id,
+    isActive: connection?.is_active,
+    realmId: connection?.realm_id
   });
     
   if (error) {
-    if (error.code === 'PGRST116') { // No rows returned
-      console.log('✅ No connection found for company (normal case)');
-      return null;
-    }
     console.error('❌ ERROR FETCHING COMPANY CONNECTION:', error);
     console.error('Error details:', {
       message: error.message,
@@ -203,16 +203,21 @@ export async function getCompanyConnection(companyId: string, useServiceKey = fa
     throw new Error('Failed to fetch company connection');
   }
   
+  if (!connection) {
+    console.log('✅ No connection found for company (normal case)');
+    return null;
+  }
+  
   console.log('✅ Company connection found:', {
-    id: data.id,
-    company_id: data.company_id,
-    realm_id: data.realm_id,
-    company_name: data.company_name,
-    is_active: data.is_active,
-    connected_at: data.connected_at
+    id: connection.id,
+    company_id: connection.company_id,
+    realm_id: connection.realm_id,
+    company_name: connection.company_name,
+    is_active: connection.is_active,
+    connected_at: connection.connected_at
   });
   
-  return data;
+  return connection;
 }
 
 // Get connection status for a user (their companies and active connection)
@@ -332,51 +337,50 @@ export async function saveCompanyConnection(
     hasRefreshToken: !!refreshToken 
   });
   
-  // Check if connection already exists for this company OR this realm ID
-  console.log('Checking for existing connection for company:', companyId);
-  console.log('Also checking for existing connection for realm ID:', realmId);
+  // Check if connection already exists for this realm_id (regardless of company_id or active status)
+  console.log('Checking for existing connection for realm ID:', realmId);
+  console.log('Also checking for existing connection for company:', companyId);
   
   let existingConnection;
   try {
-    // First check by company_id
-    existingConnection = await getCompanyConnection(companyId);
-    console.log('Existing connection check by company_id result:', {
-      found: !!existingConnection,
-      connectionId: existingConnection?.id,
-      isActive: existingConnection?.is_active
+    // Check by realm_id first (this is the unique constraint that's failing)
+    const { data: realmConnections, error: realmError } = await supabase
+      .from('quickbooks_connections')
+      .select('*')
+      .eq('realm_id', realmId)
+      .order('created_at', { ascending: false }); // Get the most recent first
+        
+    console.log('Existing connection check by realm_id result:', {
+      hasData: !!realmConnections,
+      hasError: !!realmError,
+      errorCode: realmError?.code,
+      connectionsFound: realmConnections?.length || 0,
+      connections: realmConnections?.map(c => ({ 
+        id: c.id, 
+        company_id: c.company_id, 
+        is_active: c.is_active,
+        created_at: c.created_at 
+      }))
     });
-  } catch (connectionCheckError) {
-    console.error('Error checking existing connection by company_id:', connectionCheckError);
-    existingConnection = null;
-  }
-  
-  // If no connection found by company_id, check by realm_id to handle constraint violation
-  if (!existingConnection) {
-    console.log('No connection found by company_id, checking by realm_id...');
-    try {
-      const { data: realmConnection, error: realmError } = await supabase
-        .from('quickbooks_connections')
-        .select('*')
-        .eq('realm_id', realmId)
-        .eq('is_active', true)
-        .single();
         
-      console.log('Existing connection check by realm_id result:', {
-        hasData: !!realmConnection,
-        hasError: !!realmError,
-        errorCode: realmError?.code,
-        connectionId: realmConnection?.id,
-        existingCompanyId: realmConnection?.company_id
+    if (realmError) {
+      console.error('Error checking existing connections by realm_id:', realmError);
+    } else if (realmConnections && realmConnections.length > 0) {
+      // Use the most recent connection (first in the ordered list)
+      existingConnection = realmConnections[0];
+      console.log('Found existing connection for this realm_id:', {
+        connectionId: existingConnection.id,
+        existingCompanyId: existingConnection.company_id,
+        newCompanyId: companyId,
+        isActive: existingConnection.is_active,
+        needsCompanyUpdate: existingConnection.company_id !== companyId
       });
-        
-      if (realmConnection) {
-        console.log('⚠️ Found existing connection for this realm_id with different company_id');
-        console.log('This will be updated to the new company_id:', companyId);
-        existingConnection = realmConnection;
-      }
-    } catch (realmCheckError) {
-      console.error('Error checking existing connection by realm_id:', realmCheckError);
+    } else {
+      console.log('No existing connection found for realm_id:', realmId);
     }
+  } catch (realmCheckError) {
+    console.error('Exception checking existing connection by realm_id:', realmCheckError);
+    existingConnection = null;
   }
   
   const timestamp = new Date().toISOString();

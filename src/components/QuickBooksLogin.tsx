@@ -26,6 +26,7 @@ interface QuickBooksLoginProps {
 
 export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
   const [connecting, setConnecting] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const { data: session, status } = useSession();
@@ -156,6 +157,34 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
     window.location.href = '/api/quickbooks/auth';
   };
 
+  const handleDisconnect = async () => {
+    if (!connectionStatus?.activeCompanyId) return;
+    
+    setDisconnecting(true);
+    try {
+      const response = await fetch('/api/quickbooks/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyId: connectionStatus.activeCompanyId
+        })
+      });
+
+      if (response.ok) {
+        // Refresh connection status to show disconnected state
+        await checkConnectionStatus();
+      } else {
+        console.error('Failed to disconnect');
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -190,6 +219,18 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
               <Badge color="green" className="mb-6">
                 Active Connection
               </Badge>
+
+              <div className="space-y-3 mb-6">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleDisconnect}
+                  loading={disconnecting}
+                  className="w-full"
+                >
+                  Disconnect QuickBooks
+                </Button>
+              </div>
 
               <Text className="text-xs text-gray-500">
                 You have access to {connectionStatus.userCompaniesCount} company.
@@ -251,12 +292,24 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
               You're part of {connectionStatus.userCompaniesCount} company, but QuickBooks isn't connected yet.
             </Text>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <Text className="text-sm text-yellow-800 font-medium mb-2">
-                Contact your company admin
+            <Button
+              size="lg"
+              onClick={handleQuickBooksConnect}
+              loading={connecting}
+              className="w-full mb-6 group"
+            >
+              <span className="flex items-center justify-center">
+                Connect QuickBooks
+                <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Button>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <Text className="text-sm text-blue-800 font-medium mb-2">
+                Admin Access Required
               </Text>
-              <Text className="text-xs text-yellow-700">
-                Only QuickBooks admins can connect the account. Ask your admin to set up the QuickBooks connection.
+              <Text className="text-xs text-blue-700">
+                Only QuickBooks company admins can authorize the connection. If you're not an admin, ask your admin to connect.
               </Text>
             </div>
           </div>

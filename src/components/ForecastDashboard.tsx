@@ -57,6 +57,16 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       setLoading(true);
       setError(null);
       
+      // Check connection status first
+      const statusResponse = await fetch('/api/quickbooks/status');
+      const statusData = await statusResponse.json();
+      
+      if (!statusData.hasConnection || !statusData.companyConnection) {
+        setError('QuickBooks connection required');
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch('/api/quickbooks/generate-forecast');
       const data: ForecastResponse = await response.json();
       

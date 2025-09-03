@@ -31,13 +31,13 @@ export async function GET(request: Request) {
     if (error) {
       console.error('QuickBooks authorization error:', error);
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL(`/overview?quickbooks=error&error=${encodeURIComponent(error)}`, baseUrl));
+      return NextResponse.redirect(new URL(`/forecast?quickbooks=error&error=${encodeURIComponent(error)}`, baseUrl));
     }
 
     if (!code || !realmId) {
       console.error('Missing required parameters');
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Missing required parameters', baseUrl));
+      return NextResponse.redirect(new URL('/forecast?quickbooks=error&error=Missing required parameters', baseUrl));
     }
 
     // Check if user is authenticated
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
       console.error('=== AUTHENTICATION FAILED ===');
       console.error('No authenticated user found or missing dbId');
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Not authenticated', baseUrl));
+      return NextResponse.redirect(new URL('/forecast?quickbooks=error&error=Not authenticated', baseUrl));
     }
 
     console.log('✅ User authenticated successfully');
@@ -177,7 +177,7 @@ export async function GET(request: Request) {
       console.error('❌ COMPANY CREATION FAILED');
       console.error('createCompany returned null/undefined');
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL('/overview?quickbooks=error&error=Failed to create company', baseUrl));
+      return NextResponse.redirect(new URL('/forecast?quickbooks=error&error=Failed to create company', baseUrl));
     }
     
     console.log('✅ Company created/retrieved successfully:', {
@@ -207,9 +207,9 @@ export async function GET(request: Request) {
         session.user.dbId // Track who connected for audit
       );
       
-      // Redirect to overview with success
+      // Redirect to forecast with success
       const baseUrl = new URL(request.url).origin;
-      const redirectUrl = new URL('/overview', baseUrl);
+      const redirectUrl = new URL('/forecast', baseUrl);
       redirectUrl.searchParams.set('quickbooks', 'connected');
       redirectUrl.searchParams.set('company_id', company.id);
       
@@ -236,13 +236,13 @@ export async function GET(request: Request) {
         realmId
       });
       const baseUrl = new URL(request.url).origin;
-      return NextResponse.redirect(new URL(`/overview?quickbooks=error&error=Failed to save connection: ${encodeURIComponent(saveError?.message || 'Unknown error')}`, baseUrl));
+      return NextResponse.redirect(new URL(`/forecast?quickbooks=error&error=Failed to save connection: ${encodeURIComponent(saveError?.message || 'Unknown error')}`, baseUrl));
     }
   } catch (error) {
     console.error('QuickBooks callback error:', error);
     const baseUrl = new URL(request.url).origin;
     return NextResponse.redirect(
-      new URL(`/overview?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, baseUrl)
+      new URL(`/forecast?quickbooks=error&error=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`, baseUrl)
     );
   }
 } 

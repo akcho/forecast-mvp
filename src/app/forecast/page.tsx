@@ -37,6 +37,17 @@ export default function ForecastPage() {
   }, [setHeaderConfig, forecastPeriod]);
 
   useEffect(() => {
+    // Check for QuickBooks OAuth success
+    const urlParams = new URLSearchParams(window.location.search);
+    const quickbooksParam = urlParams.get('quickbooks');
+    
+    if (quickbooksParam === 'connected') {
+      console.log('✅ QuickBooks OAuth completed successfully, rechecking connection...');
+      // Clear the URL params
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+    
     // Check connection status on client side
     const checkConnection = async () => {
       if (!session?.user?.dbId) {
@@ -47,11 +58,12 @@ export default function ForecastPage() {
       try {
         const response = await fetch('/api/quickbooks/status');
         const connectionStatus = await response.json();
+        console.log('📊 Connection status response:', connectionStatus);
         if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
-          console.log('Found company connection');
+          console.log('✅ Found company connection');
           setIsConnected(true);
         } else {
-          console.log('No company connection found');
+          console.log('❌ No company connection found - hasConnection:', connectionStatus.hasConnection, 'companyConnection:', !!connectionStatus.companyConnection);
           setIsConnected(false);
         }
       } catch (error) {
@@ -81,11 +93,15 @@ export default function ForecastPage() {
 
   // Show login screen if not authenticated or not connected
   if (!session?.user || !isConnected) {
-    console.log('Not connected, showing login screen');
-    return <QuickBooksLogin onConnectionChange={() => setIsConnected(true)} />;
+    console.log('Not connected, showing login screen. Session:', !!session?.user, 'IsConnected:', isConnected);
+    return <QuickBooksLogin onConnectionChange={(connection) => {
+      console.log('🔄 Connection changed:', !!connection);
+      setIsConnected(!!connection);
+    }} />;
   }
 
   // Show forecast page content when connected
+  console.log('✅ Showing forecast dashboard. Session:', !!session?.user, 'IsConnected:', isConnected);
   return (
       <div className="h-screen p-8 overflow-auto">
         <ForecastDashboard forecastPeriod={forecastPeriod} />
