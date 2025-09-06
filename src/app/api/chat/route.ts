@@ -104,43 +104,63 @@ export async function POST(request: NextRequest) {
 
     // Get comprehensive business context for AI
     let businessContext = 'Limited financial data available.';
+    let useEnhancedContext = false;
+    
     try {
-      // Get QuickBooks connection and fetch P&L data
-      const connection = await getValidConnection(session.user.dbId);
+      console.log('🚀 Fetching comprehensive QuickBooks data...');
       
-      // Fetch 24 months of P&L data
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 24);
-      const endDate = new Date();
+      // Use enhanced ChatDataService for comprehensive data
+      const chatDataService = new ChatDataService();
+      const enhancedContext = await chatDataService.getEnhancedChatContext(session.user.dbId);
+      businessContext = chatDataService.formatEnhancedForAI(enhancedContext);
+      useEnhancedContext = true;
       
-      const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+      console.log('💰 Enhanced business context generated successfully');
+      console.log('📊 Data sources used:', enhancedContext.businessProfile.dataQuality.availableDataSources.join(', '));
+      console.log('👥 Customer insights:', enhancedContext.customerInsights.length);
+      console.log('🏢 Vendor insights:', enhancedContext.vendorInsights.length);
+      console.log('📦 Inventory insights:', enhancedContext.inventoryInsights.length);
+      console.log('⚠️  Risk alerts:', enhancedContext.riskAlerts.length);
+      console.log('🎯 Opportunities:', enhancedContext.opportunities.length);
+      console.log('📋 Context preview:', businessContext.substring(0, 300) + '...');
       
-      const qbResponse = await fetch(qbUrl, {
-        headers: {
-          'Authorization': `Bearer ${connection.access_token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store' as RequestCache,
-      });
-
-      if (qbResponse.ok) {
-        const profitLossData = await qbResponse.json();
-        console.log('📊 QB data fetched, processing with ChatDataService...');
-        
-        // Use ChatDataService to get rich context
-        const chatDataService = new ChatDataService();
-        const chatContext = await chatDataService.getChatContext(profitLossData);
-        businessContext = chatDataService.formatForAI(chatContext);
-        
-        console.log('💰 Rich business context generated successfully');
-        console.log('📋 Context preview:', businessContext.substring(0, 200) + '...');
-      } else {
-        console.log('❌ QB response not OK:', qbResponse.status, qbResponse.statusText);
-      }
     } catch (error) {
-      console.error('Error generating business context:', error);
-      // Use default context if data fetch fails
+      console.error('Enhanced context generation failed, falling back to P&L only:', error);
+      
+      // Fallback to original P&L-only approach
+      try {
+        const connection = await getValidConnection(session.user.dbId);
+        
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 24);
+        const endDate = new Date();
+        
+        const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+        
+        const qbResponse = await fetch(qbUrl, {
+          headers: {
+            'Authorization': `Bearer ${connection.access_token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store' as RequestCache,
+        });
+
+        if (qbResponse.ok) {
+          const profitLossData = await qbResponse.json();
+          console.log('📊 Fallback: P&L data fetched, processing with basic ChatDataService...');
+          
+          const chatDataService = new ChatDataService();
+          const chatContext = await chatDataService.getChatContext(profitLossData);
+          businessContext = chatDataService.formatForAI(chatContext);
+          
+          console.log('💰 Fallback: Basic business context generated successfully');
+        } else {
+          console.log('❌ Fallback QB response not OK:', qbResponse.status, qbResponse.statusText);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback context generation also failed:', fallbackError);
+      }
     }
 
     // Build conversation messages with AI CFO style guide
@@ -155,7 +175,7 @@ PERSONALITY & TONE:
 - Be concise and professional, but never stiff or robotic
 - Always flag risks/opportunities before the owner asks
 
-CORE PRINCIPLE: You have rich financial data spanning 25 months. ALWAYS discuss and analyze the available data. Never refuse to provide information just because some recent months are missing - there's tons of valuable historical data to explore.
+CORE PRINCIPLE: You have comprehensive business intelligence spanning multiple data sources ${useEnhancedContext ? '(P&L, Balance Sheet, Cash Flow, Customer/Vendor details, Inventory, Transactions)' : '(primarily P&L data)'}. ALWAYS discuss and analyze the available data. Never refuse to provide information just because some recent months are missing - there's tons of valuable data to explore.
 
 RESPONSE STRUCTURE (follow exactly):
 
