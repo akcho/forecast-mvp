@@ -737,10 +737,10 @@ HISTORICAL TRENDS:
             return Math.floor((paymentDate.getTime() - invoiceDate.getTime()) / (24 * 60 * 60 * 1000));
           }
           return null;
-        }).filter(days => days !== null && days >= 0 && days <= 120);
+        }).filter((days: number | null): days is number => days !== null && days >= 0 && days <= 120);
         
         if (paymentDays.length > 0) {
-          averagePaymentDays = Math.round(paymentDays.reduce((sum, days) => sum + days, 0) / paymentDays.length);
+          averagePaymentDays = Math.round(paymentDays.reduce((sum: number, days: number) => sum + days, 0) / paymentDays.length);
         }
       }
       
@@ -781,8 +781,8 @@ HISTORICAL TRENDS:
       };
       
       return customerInfo;
-    }).filter(c => c.totalInvoiced > 0 || c.currentBalance > 0) // Include customers with any financial activity
-      .sort((a, b) => b.totalInvoiced - a.totalInvoiced);
+    }).filter((c: CustomerInsight) => c.totalInvoiced > 0 || c.currentBalance > 0) // Include customers with any financial activity
+      .sort((a: CustomerInsight, b: CustomerInsight) => b.totalInvoiced - a.totalInvoiced);
     
     console.log(`📈 Customer analysis complete: ${customerAnalysis.length} active customers found`);
     return customerAnalysis;
@@ -829,10 +829,10 @@ HISTORICAL TRENDS:
             return Math.floor((paymentDate.getTime() - billDate.getTime()) / (24 * 60 * 60 * 1000));
           }
           return null;
-        }).filter(days => days !== null && days >= 0 && days <= 120);
+        }).filter((days: number | null): days is number => days !== null && days >= 0 && days <= 120);
         
         if (paymentDays.length > 0) {
-          averagePaymentDays = Math.round(paymentDays.reduce((sum, days) => sum + days, 0) / paymentDays.length);
+          averagePaymentDays = Math.round(paymentDays.reduce((sum: number, days: number) => sum + days, 0) / paymentDays.length);
         }
       }
       
@@ -886,8 +886,8 @@ HISTORICAL TRENDS:
       };
       
       return vendorInfo;
-    }).filter(v => v.totalBilled > 0 || v.currentBalance > 0) // Include vendors with any financial activity
-      .sort((a, b) => b.totalBilled - a.totalBilled);
+    }).filter((v: VendorInsight) => v.totalBilled > 0 || v.currentBalance > 0) // Include vendors with any financial activity
+      .sort((a: VendorInsight, b: VendorInsight) => b.totalBilled - a.totalBilled);
     
     console.log(`📈 Vendor analysis complete: ${vendorAnalysis.length} active vendors found`);
     return vendorAnalysis;
@@ -921,7 +921,7 @@ HISTORICAL TRENDS:
         monthsOfSupply,
         recommendation
       };
-    }).sort((a, b) => b.totalValue - a.totalValue);
+    }).sort((a: InventoryInsight, b: InventoryInsight) => b.totalValue - a.totalValue);
   }
 
   private analyzeCashFlow(data: ComprehensiveQuickBooksData): {
