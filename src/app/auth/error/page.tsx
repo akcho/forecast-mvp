@@ -44,22 +44,22 @@ function AuthErrorContent() {
   const errorInfo = error ? errorMessages[error] || errorMessages.default : errorMessages.default;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <Card className="max-w-lg w-full mx-4">
         <div className="text-center">
           {/* Error Icon */}
-          <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
-            <ExclamationTriangleIcon className="w-10 h-10 text-red-600" />
+          <div className="mx-auto w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-6">
+            <ExclamationTriangleIcon className="w-10 h-10 text-red-600 dark:text-red-400" />
           </div>
 
           {/* Title */}
-          <Title className="text-2xl mb-2 text-red-900">Sign In Error</Title>
-          <Text className="text-gray-800 mb-4 font-medium">
+          <Title className="text-2xl mb-2 text-red-900 dark:text-red-400">Sign In Error</Title>
+          <Text className="text-gray-800 dark:text-gray-200 mb-4 font-medium">
             {errorInfo.message}
           </Text>
           
           {errorInfo.details && (
-            <Text className="text-gray-600 mb-8 text-sm">
+            <Text className="text-gray-600 dark:text-gray-300 mb-8 text-sm">
               {errorInfo.details}
             </Text>
           )}
@@ -73,9 +73,9 @@ function AuthErrorContent() {
 
           {/* Configuration Help */}
           {error === 'Configuration' && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg text-left">
-              <Text className="text-xs text-gray-700 font-medium mb-2">Setup Instructions:</Text>
-              <Text className="text-xs text-gray-600">
+            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-left">
+              <Text className="text-xs text-gray-700 dark:text-gray-300 font-medium mb-2">Setup Instructions:</Text>
+              <Text className="text-xs text-gray-600 dark:text-gray-400">
                 1. Go to https://console.cloud.google.com/<br/>
                 2. Create or select a Google Cloud project<br/>
                 3. Enable the Google+ API<br/>
@@ -86,7 +86,7 @@ function AuthErrorContent() {
           )}
 
           {/* Support */}
-          <Text className="text-xs text-gray-500 mt-4">
+          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-4">
             If this problem persists, please contact support.
           </Text>
         </div>
@@ -98,13 +98,13 @@ function AuthErrorContent() {
 export default function AuthError() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <Card className="max-w-lg w-full mx-4">
           <div className="text-center">
-            <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
-              <ExclamationTriangleIcon className="w-10 h-10 text-red-600" />
+            <div className="mx-auto w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-6">
+              <ExclamationTriangleIcon className="w-10 h-10 text-red-600 dark:text-red-400" />
             </div>
-            <Title className="text-2xl mb-2 text-red-900">Loading...</Title>
+            <Title className="text-2xl mb-2 text-red-900 dark:text-red-400">Loading...</Title>
           </div>
         </Card>
       </div>

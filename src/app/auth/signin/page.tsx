@@ -41,17 +41,17 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <Card className="max-w-md w-full mx-4">
         <div className="text-center">
           {/* Logo/Icon */}
-          <div className="mx-auto w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-            <BuildingLibraryIcon className="w-10 h-10 text-blue-600" />
+          <div className="mx-auto w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-6">
+            <BuildingLibraryIcon className="w-10 h-10 text-blue-600 dark:text-blue-400" />
           </div>
 
           {/* Title */}
           <Title className="text-2xl mb-2">Welcome to Netflo</Title>
-          <Text className="text-gray-600 mb-8">
+          <Text className="text-gray-600 dark:text-gray-300 mb-8">
             Sign in with Google to access your financial forecasting dashboard.
           </Text>
 
@@ -66,7 +66,7 @@ export default function SignIn() {
           </Button>
 
           {/* Security Note */}
-          <Text className="text-xs text-gray-500">
+          <Text className="text-xs text-gray-500 dark:text-gray-400">
             Your data is encrypted and secure. We use enterprise-grade security to protect your information.
           </Text>
         </div>

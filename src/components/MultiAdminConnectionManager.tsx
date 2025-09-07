@@ -94,30 +94,32 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
 
       {message && (
         <div className={`mb-4 p-3 rounded-lg ${
-          message.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+          message.includes('Error') 
+            ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' 
+            : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
         }`}>
           <Text className="text-sm">{message}</Text>
         </div>
       )}
 
       {connectionStatus?.error && (
-        <div className="mb-4 p-3 bg-red-50 rounded-lg">
-          <Text className="text-sm text-red-700">{connectionStatus.error}</Text>
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <Text className="text-sm text-red-700 dark:text-red-400">{connectionStatus.error}</Text>
         </div>
       )}
 
       {!connectionStatus?.companyConnection ? (
         <div className="text-center py-12">
           <div className="mb-6">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <Text className="text-lg font-medium text-gray-900 mb-2">
+            <Text className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               No QuickBooks connections yet
             </Text>
-            <Text className="text-gray-500 mb-6">
+            <Text className="text-gray-500 dark:text-gray-400 mb-6">
               Connect your QuickBooks account to start analyzing your financial data
             </Text>
           </div>
@@ -131,7 +133,7 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
+          <div className="p-4 border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -141,11 +143,11 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
                   <Badge color="green">Connected</Badge>
                 </div>
                 
-                <div className="text-sm text-gray-600 space-y-1">
+                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                   <div><span className="font-medium">Company:</span> {connectionStatus.companyConnection.company_name || 'QuickBooks Company'}</div>
                   <div><span className="font-medium">Connected:</span> {formatDate(connectionStatus.companyConnection.created_at)}</div>
                   <div><span className="font-medium">Last used:</span> {formatDate(connectionStatus.companyConnection.last_used_at)}</div>
-                  <div className="text-xs text-gray-500">Realm ID: {connectionStatus.companyConnection.realm_id}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Realm ID: {connectionStatus.companyConnection.realm_id}</div>
                 </div>
               </div>
 
@@ -166,9 +168,9 @@ export function MultiAdminConnectionManager({ onConnectionChange }: ConnectionMa
               <Text className="font-medium mb-2">Your Companies:</Text>
               <div className="space-y-2">
                 {connectionStatus.userCompanies.map((company) => (
-                  <div key={company.id} className="p-3 bg-gray-50 rounded border">
+                  <div key={company.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded border dark:border-gray-700">
                     <Text className="font-medium">{company.company?.name || 'Unnamed Company'}</Text>
-                    <Text className="text-sm text-gray-600">Role: {company.role}</Text>
+                    <Text className="text-sm text-gray-600 dark:text-gray-300">Role: {company.role}</Text>
                   </div>
                 ))}
               </div>

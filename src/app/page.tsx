@@ -101,12 +101,12 @@ const DebugView = ({ data }: { data: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
   return (
-    <div className="mt-8 p-4 border rounded-lg bg-gray-50">
+    <div className="mt-8 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Debug View</h3>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+          className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
         >
           {isExpanded ? 'Collapse' : 'Expand'}
         </button>
@@ -816,7 +816,7 @@ function HomeContent() {
 
   if (connectionStatus === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
         <MultiAdminConnectionManager />
       </div>
     );
@@ -824,7 +824,7 @@ function HomeContent() {
 
   if (connectionStatus === 'idle') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
         <MultiAdminConnectionManager />
       </div>
     );
@@ -832,7 +832,7 @@ function HomeContent() {
 
   if (!analysis || !financialData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
         <MultiAdminConnectionManager />
       </div>
     );
@@ -906,7 +906,7 @@ function HomeContent() {
                 className={`px-2 py-1 text-sm rounded ${
                   selectedMonth === index
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {point.date}

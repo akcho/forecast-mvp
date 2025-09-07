@@ -36,22 +36,22 @@ export default function AdminPage() {
   return (
     <div className="p-6 space-y-8">
         <div className="mb-6">
-          <Title className="text-2xl font-bold text-gray-900">Admin Panel</Title>
-          <Text className="text-gray-600 mt-1">
+          <Title className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Panel</Title>
+          <Text className="text-gray-600 dark:text-gray-300 mt-1">
             Manage QuickBooks connections and team access
           </Text>
         </div>
         
         {/* QuickBooks Connection Management */}
         <div>
-          <Title className="text-lg font-semibold text-gray-900 mb-4">QuickBooks Connections</Title>
+          <Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">QuickBooks Connections</Title>
           <MultiAdminConnectionManager />
         </div>
 
         {/* Team Management */}
         {activeCompany && (
           <div>
-            <Title className="text-lg font-semibold text-gray-900 mb-4">Team Management</Title>
+            <Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Team Management</Title>
             <TeamManagement 
               companyId={activeCompany.id} 
               companyName={activeCompany.name} 

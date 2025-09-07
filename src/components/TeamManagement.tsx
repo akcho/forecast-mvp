@@ -141,14 +141,14 @@ export function TeamManagement({ companyId, companyName }: TeamManagementProps) 
         <Text className="mt-2">Manage who has access to {companyName}</Text>
         
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <Text className="text-red-800">{error}</Text>
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+            <Text className="text-red-800 dark:text-red-400">{error}</Text>
           </div>
         )}
         
         {success && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <Text className="text-green-800">{success}</Text>
+          <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+            <Text className="text-green-800 dark:text-green-400">{success}</Text>
           </div>
         )}
 
@@ -168,7 +168,7 @@ export function TeamManagement({ companyId, companyName }: TeamManagementProps) 
               <select
                 value={newUserRole}
                 onChange={(e) => setNewUserRole(e.target.value as 'admin' | 'viewer')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="viewer">Viewer</option>
                 <option value="admin">Admin</option>
@@ -191,8 +191,8 @@ export function TeamManagement({ companyId, companyName }: TeamManagementProps) 
           
           {users.length === 0 ? (
             <div className="text-center py-8">
-              <UserIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <Text className="text-gray-500">No team members yet</Text>
+              <UserIcon className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <Text className="text-gray-500 dark:text-gray-400">No team members yet</Text>
             </div>
           ) : (
             <Table className="mt-4">
@@ -216,14 +216,14 @@ export function TeamManagement({ companyId, companyName }: TeamManagementProps) 
                             className="w-8 h-8 rounded-full"
                           />
                         ) : (
-                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <UserIcon className="w-4 h-4 text-gray-500" />
+                          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                            <UserIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                           </div>
                         )}
                         <div>
                           <Text className="font-medium">{user.name || user.email}</Text>
                           {user.name && (
-                            <Text className="text-sm text-gray-500">{user.email}</Text>
+                            <Text className="text-sm text-gray-500 dark:text-gray-400">{user.email}</Text>
                           )}
                         </div>
                       </div>
@@ -256,8 +256,8 @@ export function TeamManagement({ companyId, companyName }: TeamManagementProps) 
           )}
         </div>
 
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <Text className="text-sm text-blue-800">
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+          <Text className="text-sm text-blue-800 dark:text-blue-400">
             <strong>How it works:</strong> Users must first sign up with Google OAuth before you can add them. 
             Share their email address and ask them to visit the site first, then add them here.
           </Text>
