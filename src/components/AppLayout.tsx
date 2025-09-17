@@ -9,6 +9,7 @@ import ChatPanel from './ChatPanel';
 import { PageHeader } from './PageHeader';
 import { PageHeaderProvider, usePageHeader } from './PageHeaderContext';
 import { useSession } from 'next-auth/react';
+import { CompanyProvider } from '@/lib/context/CompanyContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -298,9 +299,11 @@ function AppLayoutInner({ children }: AppLayoutProps) {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <PageHeaderProvider>
-      <AppLayoutInner>
-        {children}
-      </AppLayoutInner>
+      <CompanyProvider>
+        <AppLayoutInner>
+          {children}
+        </AppLayoutInner>
+      </CompanyProvider>
     </PageHeaderProvider>
   );
 }

@@ -8,6 +8,7 @@ import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
 import { usePageHeader } from '@/components/PageHeaderContext';
+import { useCompany } from '@/lib/context/CompanyContext';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
@@ -21,6 +22,7 @@ function useIsMobile() {
 }
 
 function ReportsContent() {
+  const { selectedCompanyId } = useCompany();
   const [timePeriod, setTimePeriod] = useState('3months');
   const [activeStatement, setActiveStatement] = useState<'profitLoss' | 'balanceSheet' | 'cashFlow'>('profitLoss');
   const { setHeaderConfig } = usePageHeader();
@@ -29,7 +31,6 @@ function ReportsContent() {
   const [error, setError] = useState<{ [key: string]: string | null }>({});
   const [isConnected, setIsConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
-  const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const { data: session } = useSession();
 
@@ -52,26 +53,25 @@ function ReportsContent() {
     return () => setHeaderConfig(null);
   }, [setHeaderConfig, timePeriod]);
 
-  // Check connection status when user is authenticated
+  // Check connection status when user is authenticated and company is selected
   useEffect(() => {
-    if (session?.user?.dbId) {
+    if (session?.user?.dbId && selectedCompanyId) {
       checkConnectionStatus();
     } else if (session === null) {
       // Session loaded but user not authenticated
       setConnectionChecked(true);
     }
-  }, [session]);
+  }, [session, selectedCompanyId]);
 
   const checkConnectionStatus = async () => {
-    if (!session?.user?.dbId) return;
-    
+    if (!session?.user?.dbId || !selectedCompanyId) return;
+
     try {
-      const response = await fetch('/api/quickbooks/status');
+      const response = await fetch(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
       const connectionStatus = await response.json();
       
       if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
         setIsConnected(true);
-        setActiveCompanyId(connectionStatus.activeCompanyId!);
         console.log('Found valid company connection:', connectionStatus.companyConnection.id);
       } else {
         setIsConnected(false);
@@ -86,14 +86,14 @@ function ReportsContent() {
   };
 
   useEffect(() => {
-    if (!isConnected || !activeCompanyId) return;
+    if (!isConnected || !selectedCompanyId) return;
 
     const fetchAllReports = async () => {
       setLoading({ profitLoss: true, balanceSheet: true, cashFlow: true });
       setError({ profitLoss: null, balanceSheet: null, cashFlow: null });
-      
+
       // Check that we have required session and company data
-      if (!session?.user?.dbId || !activeCompanyId) {
+      if (!session?.user?.dbId || !selectedCompanyId) {
         setError({ profitLoss: 'Authentication required', balanceSheet: 'Authentication required', cashFlow: 'Authentication required' });
         setLoading({ profitLoss: false, balanceSheet: false, cashFlow: false });
         return;
@@ -115,15 +115,15 @@ function ReportsContent() {
 
         // Use API routes that handle authentication internally with monthly breakdown
         const [profitLossData, balanceSheetData, cashFlowData] = await Promise.allSettled([
-          fetch(`/api/quickbooks/profit-loss?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+          fetch(`/api/quickbooks/profit-loss?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month&company_id=${selectedCompanyId}`).then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             return res.json();
           }),
-          fetch(`/api/quickbooks/balance-sheet?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+          fetch(`/api/quickbooks/balance-sheet?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month&company_id=${selectedCompanyId}`).then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             return res.json();
           }),
-          fetch(`/api/quickbooks/cash-flow?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`).then(res => {
+          fetch(`/api/quickbooks/cash-flow?start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month&company_id=${selectedCompanyId}`).then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             return res.json();
           })
@@ -176,9 +176,9 @@ function ReportsContent() {
     };
 
     fetchAllReports();
-  }, [isConnected, activeCompanyId, timePeriod, session]);
+  }, [isConnected, selectedCompanyId, timePeriod, session]);
 
-  console.log('Reports page state:', { isConnected, connectionChecked, activeCompanyId });
+  console.log('Reports page state:', { isConnected, connectionChecked, selectedCompanyId });
 
   if (!connectionChecked) {
     return <LoadingState type="general" className="p-8" />;

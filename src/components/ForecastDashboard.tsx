@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useCompany } from '@/lib/context/CompanyContext';
 import { 
   LineChart, 
   Line, 
@@ -39,6 +40,7 @@ interface ForecastDashboardProps {
 }
 
 export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
+  const { selectedCompanyId } = useCompany();
   const [forecast, setForecast] = useState<BaseForecast | AdjustedForecast | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false); // Separate state for slider updates
@@ -46,28 +48,40 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
   const [adjustments, setAdjustments] = useState<DriverAdjustment[]>([]);
   const [activeTab, setActiveTab] = useState<'revenue' | 'expense' | 'external'>('revenue');
   // Driver controls are always visible - no toggle needed
-  
-  // Load initial forecast
+
+  // Load initial forecast when company changes
   useEffect(() => {
-    loadForecast();
-  }, []);
+    if (selectedCompanyId) {
+      loadForecast();
+    }
+  }, [selectedCompanyId]);
 
   const loadForecast = async () => {
+    if (!selectedCompanyId) {
+      setError('No company selected');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      
+
       // Check connection status first
-      const statusResponse = await fetch('/api/quickbooks/status');
+      const statusResponse = await fetch(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
       const statusData = await statusResponse.json();
-      
+
       if (!statusData.hasConnection || !statusData.companyConnection) {
         setError('QuickBooks connection required');
         setLoading(false);
         return;
       }
-      
-      const response = await fetch('/api/quickbooks/generate-forecast');
+
+      const response = await fetch('/api/quickbooks/generate-forecast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId: selectedCompanyId })
+      });
       const data: ForecastResponse = await response.json();
       
       if (!data.success || !data.forecast) {
@@ -94,14 +108,19 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
   };
 
   const updateForecast = async (newAdjustments: DriverAdjustment[]) => {
+    if (!selectedCompanyId) return;
+
     try {
       setUpdating(true);
-      
+
       if (newAdjustments.length > 0) {
         const response = await fetch('/api/quickbooks/generate-forecast', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ adjustments: newAdjustments })
+          body: JSON.stringify({
+            adjustments: newAdjustments,
+            companyId: selectedCompanyId
+          })
         });
         
         const data: ForecastResponse = await response.json();

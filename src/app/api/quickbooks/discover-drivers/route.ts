@@ -24,14 +24,16 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Get valid QuickBooks connection
-    const connection = await getValidConnection(session.user.dbId);
-    const accessToken = connection.access_token;
-    const realmId = connection.realm_id;
-    
     // Extract query parameters
     const url = new URL(request.url);
+    const companyId = url.searchParams.get('company_id');
     const debugMode = url.searchParams.get('debug') === 'true';
+
+    // Get valid QuickBooks connection
+    // Pass company_id to use selected company instead of defaulting to first
+    const connection = await getValidConnection(session.user.dbId, companyId || undefined);
+    const accessToken = connection.access_token;
+    const realmId = connection.realm_id;
     
     // Fetch QuickBooks P&L data (24 months)
     console.log('📊 Fetching QuickBooks P&L data...');

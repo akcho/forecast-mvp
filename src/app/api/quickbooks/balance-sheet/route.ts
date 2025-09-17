@@ -16,16 +16,18 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Get valid connection (handles token refresh automatically)
-    const connection = await getValidConnection(session.user.dbId);
-    const accessToken = connection.access_token;
-    const realmId = connection.realm_id;
-
     // Get query parameters from the request
     const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get('company_id');
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
     const summarizeColumnBy = searchParams.get('summarize_column_by');
+
+    // Get valid connection (handles token refresh automatically)
+    // Pass company_id to use selected company instead of defaulting to first
+    const connection = await getValidConnection(session.user.dbId, companyId || undefined);
+    const accessToken = connection.access_token;
+    const realmId = connection.realm_id;
 
     // Build the QuickBooks API URL with parameters
     let url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/BalanceSheet?minorversion=65`;

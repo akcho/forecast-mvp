@@ -165,6 +165,7 @@ export interface ForecastRequest {
   includeConfidenceBands?: boolean; // Default true
   scenarios?: Scenario[];        // Optional scenario definitions
   adjustments?: DriverAdjustment[]; // Quick adjustments without full scenario
+  companyId?: string;           // Optional company selection for multi-company support
 }
 
 export interface ForecastResponse {

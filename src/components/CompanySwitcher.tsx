@@ -1,34 +1,26 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { Button, Text } from '@tremor/react';
+import { useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { Text } from '@tremor/react';
 import { BuildingOffice2Icon, PlusIcon, ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { getUserCompanies, UserCompanyRole } from '@/lib/auth/companies';
+import { useCompany } from '@/lib/context/CompanyContext';
 
 interface CompanySwitcherProps {
-  currentCompanyId?: string;
-  onCompanyChange?: (companyId: string) => void;
   className?: string;
 }
 
-export function CompanySwitcher({ 
-  currentCompanyId, 
-  onCompanyChange, 
-  className = '' 
-}: CompanySwitcherProps) {
-  const { data: session } = useSession();
-  const [companies, setCompanies] = useState<UserCompanyRole[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCompanyId, setSelectedCompanyId] = useState(currentCompanyId || '');
+export function CompanySwitcher({ className = '' }: CompanySwitcherProps) {
+  const {
+    selectedCompanyId,
+    companies,
+    setSelectedCompany,
+    loading,
+    error
+  } = useCompany();
+
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (session?.user?.dbId) {
-      fetchUserCompanies();
-    }
-  }, [session]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,36 +34,13 @@ export function CompanySwitcher({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchUserCompanies = async () => {
+  const handleCompanyChange = async (companyId: string) => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/companies');
-      const data = await response.json();
-      
-      if (data.success) {
-        setCompanies(data.companies);
-        
-        // If no current company selected, select the first one
-        if (!selectedCompanyId && data.companies.length > 0) {
-          const firstCompanyId = data.companies[0].company_id;
-          setSelectedCompanyId(firstCompanyId);
-          onCompanyChange?.(firstCompanyId);
-        }
-      }
+      await setSelectedCompany(companyId);
+      setIsOpen(false);
     } catch (error) {
-      console.error('Error fetching user companies:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error switching company:', error);
     }
-  };
-
-  const handleCompanyChange = (companyId: string) => {
-    setSelectedCompanyId(companyId);
-    onCompanyChange?.(companyId);
-    setIsOpen(false);
-
-    // Store selected company in localStorage for persistence
-    localStorage.setItem('selected_company_id', companyId);
   };
 
   const handleAddCompany = () => {
@@ -84,6 +53,17 @@ export function CompanySwitcher({
       <div className={`flex items-center space-x-2 ${className}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
         <Text className="text-sm text-gray-500 dark:text-gray-400">Loading companies...</Text>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`flex flex-col space-y-2 ${className}`}>
+        <div className="flex items-center space-x-2">
+          <BuildingOffice2Icon className="h-4 w-4 text-red-400" />
+          <Text className="text-sm text-red-500">Error loading companies</Text>
+        </div>
       </div>
     );
   }
@@ -123,9 +103,9 @@ export function CompanySwitcher({
                 <div className="flex items-center space-x-2">
                   <span
                     className="text-gray-900 dark:text-gray-100 font-medium truncate"
-                    title={currentCompany.company.name}
+                    title={currentCompany.company_name}
                   >
-                    {currentCompany.company.name}
+                    {currentCompany.company_name}
                   </span>
                   <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300 flex-shrink-0">
                     {currentCompany.role}
@@ -146,25 +126,25 @@ export function CompanySwitcher({
         {/* Dropdown Menu */}
         {isOpen && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-            {companies.map((companyRole) => (
+            {companies.map((company) => (
               <button
-                key={companyRole.company_id}
-                onClick={() => handleCompanyChange(companyRole.company_id)}
+                key={company.company_id}
+                onClick={() => handleCompanyChange(company.company_id)}
                 className="w-full px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between group transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div
                     className="text-gray-900 dark:text-gray-100 font-medium leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                    title={companyRole.company.name}
+                    title={company.company_name}
                   >
-                    {companyRole.company.name}
+                    {company.company_name}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Role: {companyRole.role}
+                    Role: {company.role}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 ml-2">
-                  {companyRole.company_id === selectedCompanyId && (
+                  {company.company_id === selectedCompanyId && (
                     <CheckIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   )}
                 </div>

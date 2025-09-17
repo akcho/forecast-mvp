@@ -35,14 +35,16 @@ export async function POST(request: NextRequest) {
       monthsToProject = 3,
       includeConfidenceBands = true,
       scenarios = [],
-      adjustments = []
+      adjustments = [],
+      companyId
     } = body;
 
     console.log(`🔮 Generating forecast for user ${session.user.dbId}`);
     console.log(`📊 Parameters: ${monthsToProject} months, ${scenarios.length} scenarios, ${adjustments.length} adjustments`);
 
     // Get valid QuickBooks connection
-    const connection = await getValidConnection(session.user.dbId);
+    // Pass company_id to use selected company instead of defaulting to first
+    const connection = await getValidConnection(session.user.dbId, companyId || undefined);
 
     // Initialize services
     const parser = new FinancialDataParser();

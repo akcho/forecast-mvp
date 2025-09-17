@@ -7,27 +7,38 @@
 
 import { useState, useEffect } from 'react';
 import { DiscoveredDriver, DriverDiscoveryResult } from '@/types/driverTypes';
+import { useCompany } from '@/lib/context/CompanyContext';
 
 interface DriverDiscoveryUIProps {
   // Optional props for configuration
 }
 
 export function DriverDiscoveryUI({}: DriverDiscoveryUIProps) {
+  const { selectedCompanyId } = useCompany();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [driverData, setDriverData] = useState<DriverDiscoveryResult | null>(null);
 
   useEffect(() => {
-    fetchDriverData();
-  }, []);
+    if (selectedCompanyId) {
+      fetchDriverData();
+    }
+  }, [selectedCompanyId]);
 
   const fetchDriverData = async () => {
+    if (!selectedCompanyId) {
+      setError('No company selected');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      console.log('🔍 Fetching driver discovery data...');
-      const response = await fetch('/api/quickbooks/discover-drivers');
+      console.log('🔍 Fetching driver discovery data for company:', selectedCompanyId);
+      const url = `/api/quickbooks/discover-drivers?company_id=${selectedCompanyId}`;
+      const response = await fetch(url);
       const data = await response.json();
       
       if (!response.ok) {
