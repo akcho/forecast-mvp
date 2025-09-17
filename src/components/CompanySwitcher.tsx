@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { Select, SelectItem, Button, Text } from '@tremor/react';
-import { BuildingOffice2Icon, PlusIcon } from '@heroicons/react/24/outline';
+import { Button, Text } from '@tremor/react';
+import { BuildingOffice2Icon, PlusIcon, ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { getUserCompanies, UserCompanyRole } from '@/lib/auth/companies';
 
 interface CompanySwitcherProps {
@@ -21,12 +21,26 @@ export function CompanySwitcher({
   const [companies, setCompanies] = useState<UserCompanyRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompanyId, setSelectedCompanyId] = useState(currentCompanyId || '');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (session?.user?.dbId) {
       fetchUserCompanies();
     }
   }, [session]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchUserCompanies = async () => {
     try {
@@ -54,7 +68,8 @@ export function CompanySwitcher({
   const handleCompanyChange = (companyId: string) => {
     setSelectedCompanyId(companyId);
     onCompanyChange?.(companyId);
-    
+    setIsOpen(false);
+
     // Store selected company in localStorage for persistence
     localStorage.setItem('selected_company_id', companyId);
   };
@@ -95,40 +110,83 @@ export function CompanySwitcher({
 
   return (
     <div className={`flex flex-col space-y-2 ${className}`}>
-      {/* Company Selector */}
-      <div className="flex items-center space-x-2">
-        <BuildingOffice2Icon className="h-4 w-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
-        <Select
-          value={selectedCompanyId}
-          onValueChange={handleCompanyChange}
-          className="flex-1"
-        >
-          {companies.map((companyRole) => (
-            <SelectItem
-              key={companyRole.company_id}
-              value={companyRole.company_id}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="truncate">{companyRole.company.name}</span>
-                <span className="ml-2 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300">
-                  {companyRole.role}
-                </span>
-              </div>
-            </SelectItem>
-          ))}
-        </Select>
-      </div>
-
-      {/* Add Company Button */}
-      {companies.length > 0 && (
+      {/* Custom Company Dropdown */}
+      <div className="relative" ref={dropdownRef}>
         <button
-          onClick={handleAddCompany}
-          className="flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         >
-          <PlusIcon className="h-3 w-3 mr-1" />
-          Add Company
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <BuildingOffice2Icon className="h-4 w-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              {currentCompany ? (
+                <div className="flex items-center space-x-2">
+                  <span
+                    className="text-gray-900 dark:text-gray-100 font-medium truncate"
+                    title={currentCompany.company.name}
+                  >
+                    {currentCompany.company.name}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300 flex-shrink-0">
+                    {currentCompany.role}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-gray-500 dark:text-gray-400">Select company</span>
+              )}
+            </div>
+          </div>
+          <ChevronDownIcon
+            className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+              isOpen ? 'transform rotate-180' : ''
+            }`}
+          />
         </button>
-      )}
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+            {companies.map((companyRole) => (
+              <button
+                key={companyRole.company_id}
+                onClick={() => handleCompanyChange(companyRole.company_id)}
+                className="w-full px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between group transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="text-gray-900 dark:text-gray-100 font-medium leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                    title={companyRole.company.name}
+                  >
+                    {companyRole.company.name}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Role: {companyRole.role}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 ml-2">
+                  {companyRole.company_id === selectedCompanyId && (
+                    <CheckIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  )}
+                </div>
+              </button>
+            ))}
+
+            {/* Add Company Option */}
+            <div className="border-t border-gray-200 dark:border-gray-600">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  handleAddCompany();
+                }}
+                className="w-full px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-medium transition-colors"
+              >
+                <PlusIcon className="h-4 w-4" />
+                <span>Add Company</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
