@@ -17,7 +17,7 @@ import {
 import { format, addMonths, startOfMonth } from 'date-fns';
 import { CalculationBreakdown } from '../components/CalculationBreakdown';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { quickBooksStore } from '@/lib/quickbooks/store';
+import { databaseClient } from '@/lib/quickbooks/databaseClient';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CalculationJob } from '@/lib/services/calculationJob';
 import { FinancialCalculationService } from '@/lib/services/financialCalculations';
@@ -158,11 +158,8 @@ function HomeContent() {
     console.log('Home component mounted');
     const status = searchParams.get('quickbooks');
     const connectionId = searchParams.get('connection_id');
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    const realmId = searchParams.get('realm_id');
 
-    console.log('URL parameters:', { status, connectionId, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, hasRealmId: !!realmId });
+    console.log('URL parameters:', { status, connectionId });
 
     // Check for new connection from OAuth callback - redirect to check fresh status
     if (status === 'connected' && connectionId) {
@@ -170,19 +167,6 @@ function HomeContent() {
       if (session?.user?.dbId) {
         checkForExistingConnections();
       }
-      return;
-    }
-
-    // Fallback to old token-based system for backward compatibility
-    if (status === 'connected' && accessToken && refreshToken) {
-      console.log('Setting up QuickBooks connection from URL parameters (legacy)...');
-      const client = new QuickBooksClient();
-      quickBooksStore.setTokens(accessToken, refreshToken);
-      if (realmId) {
-        client.setRealmId(realmId);
-      }
-      setConnectionStatus('connected');
-      fetchFinancialData();
       return;
     }
 

@@ -5,7 +5,6 @@ import { Card, Title, Text, LineChart, Badge } from '@tremor/react';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
 import { useSession } from 'next-auth/react';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { quickBooksStore } from '@/lib/quickbooks/store';
 
 interface ScenarioData {
   week: string;

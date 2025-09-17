@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
-import { quickBooksStore } from '@/lib/quickbooks/store';
+import { databaseClient } from '@/lib/quickbooks/databaseClient';
 import { Text } from '@tremor/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 
@@ -17,10 +17,9 @@ function DashboardContent() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check for tokens in URL parameters (from callback)
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    const realmId = searchParams.get('realm_id');
+    // Check for connection from OAuth callback
+    const quickbooks = searchParams.get('quickbooks');
+    const connectionId = searchParams.get('connection_id');
     const error = searchParams.get('error');
 
     if (error) {
@@ -28,39 +27,49 @@ function DashboardContent() {
       return;
     }
 
-    if (accessToken && refreshToken) {
-      console.log('Storing tokens from URL parameters');
-      quickBooksStore.setTokens(accessToken, refreshToken);
-      if (realmId) {
-        quickBooksStore.setRealmId(realmId);
-      }
-      setConnectionStatus('connected');
-      setIsAdmin(true);
-      handleTestConnection();
+    if (quickbooks === 'connected' && connectionId) {
+      console.log('New connection established, checking connection status...');
+      checkConnectionStatus();
     } else {
-      // Check for existing tokens in store
-      const storedAccessToken = quickBooksStore.getAccessToken();
-      const storedRefreshToken = quickBooksStore.getRefreshToken();
-      const storedRealmId = quickBooksStore.getRealmId();
+      // Check for existing connections in database
+      checkConnectionStatus();
+    }
+  }, [searchParams]);
 
-      if (storedAccessToken && storedRefreshToken && storedRealmId) {
+  const checkConnectionStatus = async () => {
+    try {
+      const connectionStatus = await databaseClient.getConnectionStatus();
+
+      if (connectionStatus.isAuthenticated && connectionStatus.hasConnection) {
         setConnectionStatus('connected');
         setIsAdmin(true);
         handleTestConnection();
-      } else {
-        // No tokens found - user is a team member
+      } else if (connectionStatus.isAuthenticated) {
+        // User is authenticated but no connection - team member
         setConnectionStatus('team-member');
         setIsAdmin(false);
+      } else {
+        // Not authenticated
+        setConnectionStatus('disconnected');
+        setIsAdmin(false);
       }
+    } catch (error) {
+      console.error('Error checking connection status:', error);
+      setConnectionStatus('disconnected');
+      setIsAdmin(false);
     }
-  }, [searchParams]);
+  };
 
   const handleTestConnection = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const client = new QuickBooksClient();
-      const info = await client.getCompanyInfo();
+      // Use API route that handles authentication internally
+      const response = await fetch('/api/quickbooks/company-info');
+      if (!response.ok) {
+        throw new Error('Failed to fetch company info');
+      }
+      const info = await response.json();
       setCompanyInfo(info);
       setConnectionStatus('connected');
     } catch (error) {
@@ -76,8 +85,12 @@ function DashboardContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const client = new QuickBooksClient();
-      const report = await client.getBalanceSheet();
+      // Use API route that handles authentication internally
+      const response = await fetch('/api/quickbooks/balance-sheet');
+      if (!response.ok) {
+        throw new Error('Failed to fetch balance sheet');
+      }
+      const report = await response.json();
       setBalanceSheet(report);
     } catch (error) {
       console.error('Error fetching balance sheet:', error);

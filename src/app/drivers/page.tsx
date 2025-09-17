@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
-import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 import { DriverDiscoveryUI } from '@/components/DriverDiscoveryUI';

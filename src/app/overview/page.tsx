@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Title, Text } from '@tremor/react';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
-import { quickBooksStore } from '@/lib/quickbooks/store';
 import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 

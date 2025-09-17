@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getSessionId, setSessionId } from '@/lib/session';
-import { quickBooksStore } from '@/lib/quickbooks/store';
+import { databaseClient } from '@/lib/quickbooks/databaseClient';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -57,9 +57,6 @@ export default function Chat({ initialInput = '', onInputChange }: ChatProps) {
         headers: {
           'Content-Type': 'application/json',
           'X-Session-ID': getSessionId() || '',
-          'X-QB-Access-Token': quickBooksStore.getAccessToken() || '',
-          'X-QB-Realm-ID': quickBooksStore.getRealmId() || '',
-          'X-QB-Refresh-Token': quickBooksStore.getRefreshToken() || '',
         },
         body: JSON.stringify({
           message: message,
