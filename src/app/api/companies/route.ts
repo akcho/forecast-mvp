@@ -26,8 +26,16 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    const companies = await getUserCompanies(session.user.dbId);
-    
+    const rawCompanies = await getUserCompanies(session.user.dbId);
+
+    // Transform the data structure to match what CompanySwitcher expects
+    const companies = rawCompanies.map(item => ({
+      company_id: item.company_id,
+      company_name: item.company.name,
+      role: item.role,
+      quickbooks_realm_id: item.company.quickbooks_realm_id
+    }));
+
     return NextResponse.json({
       success: true,
       companies
