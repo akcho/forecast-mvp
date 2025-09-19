@@ -1,4 +1,5 @@
 import { quickBooksStore } from './store';
+import { getOAuthEnvironmentParam } from '@/lib/quickbooks/config';
 
 interface QuickBooksTokens {
   access_token: string;
@@ -113,34 +114,34 @@ export class QuickBooksClient {
     if (!this.clientId) {
       throw new Error('QuickBooks Client ID is not configured');
     }
-    
+
     // Use QuickBooks Online scope with OpenID Connect to get user profile info
     const scope = 'com.intuit.quickbooks.accounting openid';
-    
+
     const state = Math.random().toString(36).substring(2);
-    
-    // Use sandbox authorization endpoint
+
+    // Use dynamic environment parameter
+    const environmentParam = getOAuthEnvironmentParam();
     return `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
            `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
-           `&scope=${encodeURIComponent(scope)}&state=${state}` +
-           `&environment=sandbox`;
+           `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`;
   }
 
   getAlternativeAuthorizationUrl(): string {
     if (!this.clientId) {
       throw new Error('QuickBooks Client ID is not configured');
     }
-    
+
     // Use QuickBooks Online scope with OpenID Connect to get user profile info
     const scope = 'com.intuit.quickbooks.accounting openid';
-    
+
     const state = Math.random().toString(36).substring(2);
-    
+
     // Alternative OAuth endpoint that might work better for standard users
+    const environmentParam = getOAuthEnvironmentParam();
     return `https://oauth.platform.intuit.com/oauth2/v1/authorize?client_id=${this.clientId}` +
            `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
-           `&scope=${encodeURIComponent(scope)}&state=${state}` +
-           `&environment=sandbox`;
+           `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`;
   }
 
   async exchangeCodeForTokens(code: string): Promise<QuickBooksTokens> {
@@ -157,8 +158,7 @@ export class QuickBooksClient {
       body: new URLSearchParams({
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': this.redirectUri,
-        'environment': 'sandbox'
+        'redirect_uri': this.redirectUri
       }).toString(),
     });
 
