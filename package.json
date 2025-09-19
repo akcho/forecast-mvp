@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:sandbox": "QB_ENVIRONMENT=sandbox next dev",
+    "dev:production": "QB_ENVIRONMENT=production next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
