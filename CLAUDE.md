@@ -111,11 +111,27 @@ quickbooks_connections: company_id, access_token, refresh_token, ...
 
 ## Environment Variables
 
+### QuickBooks Hybrid Credential Configuration
+
+**Production Integration Status**: ✅ LIVE - Dynamic credential selection implemented
+
+**Architecture**: Environment-based credential selection for security and flexibility
+- **Local Development**: Uses development credentials + localhost redirect
+- **Deployed Environments**: Uses production credentials + HTTPS redirects
+- **Automatic Detection**: Based on `VERCEL_URL` and `NODE_ENV` environment variables
+
 ```bash
-# QuickBooks Integration
-QB_CLIENT_ID=your_app_id
-QB_CLIENT_SECRET=your_app_secret
-QB_REDIRECT_URI=http://localhost:3000/api/quickbooks/callback
+# QuickBooks Development Credentials (for localhost environments)
+QB_CLIENT_ID=your_dev_app_id
+QB_CLIENT_SECRET=your_dev_app_secret
+
+# QuickBooks Production Credentials (for deployed environments)
+PRODUCTION_QB_CLIENT_ID=your_production_app_id
+PRODUCTION_QB_CLIENT_SECRET=your_production_app_secret
+
+# Environment-specific redirect URIs
+DEVELOPMENT_REDIRECT_URI=http://localhost:3000/api/quickbooks/callback
+PRODUCTION_REDIRECT_URI=https://app.netflo.ai/api/quickbooks/callback
 
 # Supabase Database
 NEXT_PUBLIC_SUPABASE_URL=your_project_url
@@ -131,6 +147,20 @@ NEXTAUTH_SECRET=your_nextauth_secret
 # AI Features (Optional)
 OPENAI_API_KEY=your_openai_key
 ```
+
+### QuickBooks Environment Detection Logic
+
+```typescript
+// QuickBooksClient constructor automatically detects environment
+const isLocalhost = process.env.VERCEL_URL === undefined &&
+                   process.env.NODE_ENV !== 'production';
+
+// Credentials selected based on environment
+localhost: development credentials + localhost redirect
+deployed: production credentials + HTTPS redirect
+```
+
+**Important**: Production credentials can only be tested on deployed HTTPS environments due to QuickBooks security restrictions. Localhost testing uses development credentials only.
 
 ## Current Status (September 2025)
 
@@ -153,6 +183,13 @@ OPENAI_API_KEY=your_openai_key
 - Business age detection for context-appropriate insights
 - Smart analytics (materiality, variability, growth rate analysis)
 - AI chat integration for detailed financial exploration
+
+**QuickBooks Production Integration**:
+- Hybrid credential system with automatic environment detection
+- Development credentials for localhost environments (security isolation)
+- Production credentials for deployed environments (real business data access)
+- Dynamic redirect URI selection based on deployment context
+- Production credentials only accessible via HTTPS deployment (QuickBooks security restriction)
 
 ### 🎯 Current User Experience
 

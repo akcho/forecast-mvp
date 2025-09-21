@@ -1,5 +1,5 @@
 import { quickBooksStore } from './store';
-import { getOAuthEnvironmentParam } from '@/lib/quickbooks/config';
+import { getOAuthEnvironmentParam, getUserInfoEndpoint, getEnvironmentName, getQuickBooksConfig } from '@/lib/quickbooks/config';
 
 interface QuickBooksTokens {
   access_token: string;
@@ -91,14 +91,30 @@ export class QuickBooksClient {
 
   constructor() {
     console.log('Initializing QuickBooks client');
-    this.clientId = process.env.NEXT_PUBLIC_QB_CLIENT_ID || '';
-    this.clientSecret = process.env.NEXT_PUBLIC_QB_CLIENT_SECRET || '';
-    this.redirectUri = process.env.NEXT_PUBLIC_QB_REDIRECT_URI || '';
-    
+
+    // Detect environment: localhost vs deployed
+    const isLocalhost = process.env.VERCEL_URL === undefined &&
+                       process.env.NODE_ENV !== 'production';
+
+    // Use development credentials for localhost, production credentials for deployed
+    this.clientId = isLocalhost
+      ? process.env.QB_CLIENT_ID || ''
+      : process.env.PRODUCTION_QB_CLIENT_ID || '';
+    this.clientSecret = isLocalhost
+      ? process.env.QB_CLIENT_SECRET || ''
+      : process.env.PRODUCTION_QB_CLIENT_SECRET || '';
+
+    // Select appropriate redirect URI
+    this.redirectUri = isLocalhost
+      ? process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/callback'
+      : process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/callback';
+
     console.log('QuickBooks client initialized:', {
+      environment: isLocalhost ? 'development' : 'production',
       hasClientId: !!this.clientId,
       hasClientSecret: !!this.clientSecret,
-      hasRedirectUri: !!this.redirectUri
+      hasRedirectUri: !!this.redirectUri,
+      redirectUri: this.redirectUri
     });
   }
 
@@ -118,12 +134,32 @@ export class QuickBooksClient {
     // Use QuickBooks Online scope with OpenID Connect to get user profile info
     const scope = 'com.intuit.quickbooks.accounting openid';
 
-    const state = Math.random().toString(36).substring(2);
+    // Encode environment in state parameter for callback detection
+    const config = getQuickBooksConfig();
+    const randomState = Math.random().toString(36).substring(2);
+    const state = `${config.environment}_${randomState}`;
 
     // Use dynamic environment parameter
     const environmentParam = getOAuthEnvironmentParam();
     return `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
            `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
+           `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`;
+  }
+
+  getAuthorizationUrlWithRedirectUri(redirectUri: string): string {
+    if (!this.clientId) {
+      throw new Error('QuickBooks Client ID is not configured');
+    }
+
+    // Use QuickBooks Online scope with OpenID Connect to get user profile info
+    const scope = 'com.intuit.quickbooks.accounting openid';
+
+    const state = Math.random().toString(36).substring(2);
+
+    // Use dynamic environment parameter
+    const environmentParam = getOAuthEnvironmentParam();
+    return `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
+           `&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}` +
            `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`;
   }
 
@@ -180,7 +216,7 @@ export class QuickBooksClient {
   }
 
   async getUserInfo(accessToken: string): Promise<QuickBooksUserInfo> {
-    const response = await fetch('https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo', {
+    const response = await fetch(getUserInfoEndpoint(), {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json'
@@ -211,7 +247,7 @@ export class QuickBooksClient {
       method: 'POST',
       headers: {
         'X-QB-Refresh-Token': refreshToken,
-        'X-QB-Environment': 'sandbox'
+        'X-QB-Environment': getEnvironmentName()
       },
     });
 
