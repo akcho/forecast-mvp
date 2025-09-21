@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // URL encode the query to handle special characters
     const encodedQuery = encodeURIComponent(query);
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=${encodedQuery}`;
+    const url = `${getQuickBooksApiUrl(realmId, 'query')}?query=${encodedQuery}`;
 
     const response = await fetch(url, {
       method: 'GET',

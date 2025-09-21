@@ -2,6 +2,7 @@
  * Server-side QuickBooks client for direct API calls
  * Used within API routes to fetch data directly from QuickBooks
  */
+import { getQuickBooksConfig } from '@/lib/quickbooks/config';
 
 interface QuickBooksReport {
   Header: {
@@ -54,7 +55,8 @@ export class QuickBooksServerAPI {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.realmId = realmId;
-    this.baseUrl = 'https://sandbox-quickbooks.api.intuit.com/v3';
+    const config = getQuickBooksConfig();
+    this.baseUrl = config.baseUrl;
   }
 
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {

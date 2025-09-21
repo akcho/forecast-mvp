@@ -8,20 +8,20 @@ export async function GET(request: NextRequest) {
   console.log('Request URL:', request.url);
   console.log('Request headers:', Object.fromEntries(request.headers.entries()));
   console.log('Request method:', request.method);
-  
+
   try {
     console.log('Creating QuickBooks client...');
     const client = new QuickBooksClient();
-    
+
     console.log('Generating authorization URL...');
     const authUrl = client.getAuthorizationUrl();
-    
+
     console.log('Generated authorization URL:', authUrl);
     console.log('OAuth URL components:', {
       baseUrl: authUrl.split('?')[0],
       params: new URLSearchParams(authUrl.split('?')[1] || '').toString()
     });
-    
+
     // Redirect the user to Intuit's OAuth authorization page
     console.log('Redirecting user to QuickBooks OAuth...');
     return NextResponse.redirect(authUrl);

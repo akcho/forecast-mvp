@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     else if (type === 'profit-loss') reportType = 'ProfitAndLoss';
     else return NextResponse.json({ error: 'Invalid report type' }, { status: 400 });
 
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/${reportType}?minorversion=65`;
+    const url = `${getQuickBooksApiUrl(realmId, `reports/${reportType}`)}?minorversion=65`;
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,

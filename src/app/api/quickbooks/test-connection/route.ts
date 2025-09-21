@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Test the connection by calling QuickBooks API
     const testResponse = await fetch(
-      `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}`,
+      getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`),
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,

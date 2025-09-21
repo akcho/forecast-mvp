@@ -8,6 +8,7 @@ import { InsightEngine } from './InsightEngine';
 import { FinancialDataParser } from './FinancialDataParser';
 import { DriverForecastService } from './DriverForecastService';
 import { getValidConnection } from '../quickbooks/connectionManager';
+import { getQuickBooksConfig } from '../quickbooks/config';
 
 export interface ComprehensiveQuickBooksData {
   profitLoss: any;
@@ -186,8 +187,9 @@ export class ChatDataService {
    */
   async fetchComprehensiveData(userId: string): Promise<ComprehensiveQuickBooksData> {
     const connection = await getValidConnection(userId);
-    
-    const baseUrl = 'https://sandbox-quickbooks.api.intuit.com/v3';
+
+    const config = getQuickBooksConfig();
+    const baseUrl = config.baseUrl;
     const headers = {
       'Authorization': `Bearer ${connection.access_token}`,
       'Accept': 'application/json',
@@ -210,42 +212,42 @@ export class ChatDataService {
       fetch(`${baseUrl}/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDateStr}&end_date=${endDateStr}&summarize_column_by=Month`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Balance Sheet
       fetch(`${baseUrl}/company/${connection.realm_id}/reports/BalanceSheet?minorversion=65&accounting_method=Accrual`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Cash Flow
       fetch(`${baseUrl}/company/${connection.realm_id}/reports/CashFlow?minorversion=65&accounting_method=Accrual&start_date=${startDateStr}&end_date=${endDateStr}`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // All Transactions (Bills, Invoices, Payments, etc.)
       fetch(`${baseUrl}/company/${connection.realm_id}/query?query=SELECT * FROM Transaction WHERE TxnDate >= '${startDateStr}' AND TxnDate <= '${endDateStr}' ORDERBY TxnDate DESC MAXRESULTS 1000`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Customers
       fetch(`${baseUrl}/company/${connection.realm_id}/query?query=SELECT * FROM Customer WHERE Active IN (true, false) MAXRESULTS 1000`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Vendors
       fetch(`${baseUrl}/company/${connection.realm_id}/query?query=SELECT * FROM Vendor WHERE Active IN (true, false) MAXRESULTS 1000`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Accounts
       fetch(`${baseUrl}/company/${connection.realm_id}/query?query=SELECT * FROM Account MAXRESULTS 1000`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Items
       fetch(`${baseUrl}/company/${connection.realm_id}/query?query=SELECT * FROM Item MAXRESULTS 1000`, {
         headers, cache: 'no-store' as RequestCache
       }).then(r => r.json()),
-      
+
       // Company Info
       fetch(`${baseUrl}/company/${connection.realm_id}/companyinfo/${connection.realm_id}?minorversion=65`, {
         headers, cache: 'no-store' as RequestCache

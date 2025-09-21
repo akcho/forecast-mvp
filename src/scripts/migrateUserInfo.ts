@@ -1,6 +1,14 @@
 #!/usr/bin/env tsx
 
 import { createClient } from '@supabase/supabase-js';
+// Import config for environment-based URLs
+const QB_ENVIRONMENT = process.env.QB_ENVIRONMENT || 'sandbox';
+const QB_BASE_URL = QB_ENVIRONMENT === 'production'
+  ? 'https://quickbooks.api.intuit.com/v3'
+  : 'https://sandbox-quickbooks.api.intuit.com/v3';
+const QB_ACCOUNTS_BASE = QB_ENVIRONMENT === 'production'
+  ? 'https://accounts.platform.intuit.com'
+  : 'https://sandbox-accounts.platform.intuit.com';
 
 // Script to migrate existing QuickBooks connections to include user information
 
@@ -81,7 +89,7 @@ function getSupabaseClient() {
 
 async function fetchUserInfo(accessToken: string): Promise<QuickBooksUserInfo | null> {
   try {
-    const response = await fetch('https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo', {
+    const response = await fetch(`${QB_ACCOUNTS_BASE}/v1/openid_connect/userinfo`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json'
@@ -103,7 +111,7 @@ async function fetchUserInfo(accessToken: string): Promise<QuickBooksUserInfo | 
 
 async function fetchCompanyInfo(accessToken: string, realmId: string): Promise<string | null> {
   try {
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+    const url = `${QB_BASE_URL}/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,

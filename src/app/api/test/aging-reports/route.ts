@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/config";
 import { getValidConnection } from "@/lib/quickbooks/connectionManager";
 import { QuickBooksServerAPI } from "@/lib/quickbooks/quickbooksServerAPI";
+import { getQuickBooksApiUrl } from "@/lib/quickbooks/config";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
         console.log(`🔍 Testing ${endpoint}...`);
 
         // Use private makeRequest method via reflection to test endpoints
-        const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/${endpoint}`;
+        const url = getQuickBooksApiUrl(connection.realm_id, endpoint);
 
         const response = await fetch(url, {
           headers: {
@@ -127,7 +128,7 @@ export async function GET(request: NextRequest) {
       try {
         console.log(`🔍 Testing ${testQuery.name}...`);
 
-        const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/query`;
+        const url = getQuickBooksApiUrl(connection.realm_id, 'query');
         const queryUrl = `${url}?query=${encodeURIComponent(testQuery.query)}`;
 
         const response = await fetch(queryUrl, {
@@ -179,7 +180,7 @@ export async function GET(request: NextRequest) {
     // Test 3: Company Information (for reference)
     console.log("🏢 Testing company info for context...");
     try {
-      const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}`;
+      const url = getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`);
 
       const response = await fetch(url, {
         headers: {

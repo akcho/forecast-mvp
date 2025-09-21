@@ -11,6 +11,7 @@ import { DriverDiscoveryService } from '@/lib/services/DriverDiscoveryService';
 import { DriverForecastService } from '@/lib/services/DriverForecastService';
 import { FinancialDataParser } from '@/lib/services/FinancialDataParser';
 import { InsightEngine } from '@/lib/services/InsightEngine';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 import { 
   ForecastRequest, 
   ForecastResponse, 
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
     startDate.setMonth(startDate.getMonth() - 24);
     const endDate = new Date();
     
-    const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
     
     const qbResponse = await fetch(qbUrl, {
       headers: {
@@ -208,7 +209,7 @@ export async function GET(request: NextRequest) {
     startDate.setMonth(startDate.getMonth() - 24);
     const endDate = new Date();
     
-    const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
     
     const qbResponse = await fetch(qbUrl, {
       headers: {

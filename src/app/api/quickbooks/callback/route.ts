@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { createCompany } from '@/lib/auth/companies';
 import { saveCompanyConnection } from '@/lib/quickbooks/connectionManager';
+import { getQuickBooksApiUrl, getEnvironmentFromState, getQuickBooksApiUrlForEnvironment } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +21,15 @@ export async function GET(request: Request) {
     const realmId = searchParams.get('realmId');
     const error = searchParams.get('error');
 
+    // Extract environment from state parameter
+    const oauthEnvironment = getEnvironmentFromState(state || '');
+
     console.log('QuickBooks callback parameters:', {
       code: code ? `${code.substring(0, 20)}...` : null,
       state: state ? `${state.substring(0, 20)}...` : null,
       realmId,
       error,
+      oauthEnvironment: oauthEnvironment || 'not found in state',
       fullUrl: request.url
     });
 
@@ -84,8 +89,12 @@ export async function GET(request: Request) {
     
     try {
       console.log('Making direct QuickBooks CompanyInfo API call...');
-      const companyInfoUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+      // Use environment from OAuth state parameter instead of current server environment
+      const companyInfoUrl = oauthEnvironment
+        ? `${getQuickBooksApiUrlForEnvironment(realmId, `companyinfo/${realmId}`, oauthEnvironment)}?minorversion=65`
+        : `${getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`)}?minorversion=65`;
       console.log('API URL:', companyInfoUrl);
+      console.log('Using OAuth environment:', oauthEnvironment || 'fallback to current server environment');
       console.log('Access token length:', tokens.access_token?.length || 0);
       console.log('Access token first 20 chars:', tokens.access_token?.substring(0, 20) + '...');
       

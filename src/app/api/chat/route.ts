@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth/config';
 import { ChatDataService } from '@/lib/services/ChatDataService';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
         startDate.setMonth(startDate.getMonth() - 24);
         const endDate = new Date();
         
-        const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+        const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
         
         const qbResponse = await fetch(qbUrl, {
           headers: {

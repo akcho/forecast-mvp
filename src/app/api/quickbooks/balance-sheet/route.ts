@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
     const realmId = connection.realm_id;
 
     // Build the QuickBooks API URL with parameters
-    let url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/BalanceSheet?minorversion=65`;
+    let url = `${getQuickBooksApiUrl(realmId, 'reports/BalanceSheet')}?minorversion=65`;
     
     if (startDate) {
       url += `&start_date=${startDate}`;

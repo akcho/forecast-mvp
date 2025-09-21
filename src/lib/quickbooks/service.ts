@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { QuickBooks } from 'node-quickbooks';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 // Remove the module-level Supabase client initialization
 // const supabase = createClient(
@@ -152,7 +153,7 @@ export class QuickBooksService {
 
       console.log('Fetching company info with:', { accessToken: accessToken.substring(0, 10) + '...', realmId });
       const response = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}`,
+        getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`),
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -186,7 +187,7 @@ export class QuickBooksService {
       }
 
       const response = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/BalanceSheet`,
+        getQuickBooksApiUrl(realmId, 'reports/BalanceSheet'),
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -217,7 +218,7 @@ export class QuickBooksService {
       }
 
       const response = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/ProfitAndLoss`,
+        getQuickBooksApiUrl(realmId, 'reports/ProfitAndLoss'),
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -248,7 +249,7 @@ export class QuickBooksService {
       }
 
       const response = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/CashFlow`,
+        getQuickBooksApiUrl(realmId, 'reports/CashFlow'),
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -279,28 +280,28 @@ export class QuickBooksService {
       
       // Get all transaction types
       const [billsResponse, invoicesResponse, paymentsResponse, purchasesResponse] = await Promise.all([
-        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Bill`, {
+        fetch(`${getQuickBooksApiUrl(realmId, 'query')}?query=SELECT * FROM Bill`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
         }),
-        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Invoice`, {
+        fetch(`${getQuickBooksApiUrl(realmId, 'query')}?query=SELECT * FROM Invoice`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
         }),
-        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Payment`, {
+        fetch(`${getQuickBooksApiUrl(realmId, 'query')}?query=SELECT * FROM Payment`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
         }),
-        fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Purchase`, {
+        fetch(`${getQuickBooksApiUrl(realmId, 'query')}?query=SELECT * FROM Purchase`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
@@ -365,7 +366,7 @@ export class QuickBooksService {
 
       console.log('Fetching lists with:', { accessToken: accessToken.substring(0, 10) + '...', realmId });
       const response = await fetch(
-        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=SELECT * FROM Account`,
+        `${getQuickBooksApiUrl(realmId, 'query')}?query=SELECT * FROM Account`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,

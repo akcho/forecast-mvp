@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { QuickBooksClient } from '@/lib/quickbooks/client';
+import { getQuickBooksConfig, getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 interface QuickBooksConnection {
   id: number;
@@ -44,7 +45,11 @@ function getSupabaseClient() {
 
 async function fetchUserInfo(accessToken: string): Promise<QuickBooksUserInfo | null> {
   try {
-    const response = await fetch('https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo', {
+    const config = getQuickBooksConfig();
+    const accountsBaseUrl = config.isSandbox
+      ? 'https://sandbox-accounts.platform.intuit.com'
+      : 'https://accounts.platform.intuit.com';
+    const response = await fetch(`${accountsBaseUrl}/v1/openid_connect/userinfo`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/json'
@@ -66,7 +71,7 @@ async function fetchUserInfo(accessToken: string): Promise<QuickBooksUserInfo | 
 
 async function fetchCompanyInfo(accessToken: string, realmId: string): Promise<string | null> {
   try {
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/companyinfo/${realmId}?minorversion=65`;
+    const url = `${getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`)}?minorversion=65`;
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,

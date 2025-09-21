@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
         
         // Try to get company info from QuickBooks API
         try {
-          const companyInfoResponse = await fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}?minorversion=65`, {
+          const companyInfoResponse = await fetch(`${getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`)}?minorversion=65`, {
             headers: {
               'Authorization': `Bearer ${connection.access_token}`,
               'Accept': 'application/json',

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 // Updated interface for company-owned connections
 export interface QuickBooksConnection {
@@ -521,7 +522,7 @@ export async function getValidConnection(
   
   // Test the connection by making a simple QuickBooks API call (CompanyInfo)
   try {
-    const testUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}`;
+    const testUrl = getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`);
     const testResponse = await fetch(testUrl, {
       method: 'GET',
       headers: {

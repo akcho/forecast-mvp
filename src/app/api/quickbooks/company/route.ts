@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withCompanyValidation, getValidatedQBConnection } from '@/lib/auth/middleware';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export const GET = withCompanyValidation(async (request: NextRequest, context) =
 
     const { connection } = connectionResult;
     
-    const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${connection.realm_id}/companyinfo/${connection.realm_id}?minorversion=65`;
+    const url = `${getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`)}?minorversion=65`;
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${connection.access_token}`,

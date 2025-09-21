@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 const ACCESS_TOKEN_KEY = 'X-QB-Access-Token';
 const REFRESH_TOKEN_KEY = 'X-QB-Refresh-Token';
@@ -33,7 +34,7 @@ class QuickBooksServerStore {
     }
 
     try {
-      const response = await fetch('https://sandbox-quickbooks.api.intuit.com/v3/company/' + realmId + '/companyinfo/' + realmId, {
+      const response = await fetch(getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`), {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Accept': 'application/json',

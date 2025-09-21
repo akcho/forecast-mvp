@@ -8,6 +8,7 @@ import { DriverDiscoveryService } from '@/lib/services/DriverDiscoveryService';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getValidConnection } from '@/lib/quickbooks/connectionManager';
+import { getQuickBooksApiUrl } from '@/lib/quickbooks/config';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
     const startDate = getPastDate(24);
     const endDate = new Date().toISOString().split('T')[0];
     
-    const qbUrl = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/reports/ProfitAndLoss?minorversion=65&accounting_method=Accrual&start_date=${startDate}&end_date=${endDate}&summarize_column_by=Month`;
+    const qbUrl = `${getQuickBooksApiUrl(realmId, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate}&end_date=${endDate}&summarize_column_by=Month`;
     
     const response = await fetch(qbUrl, {
       headers: {
