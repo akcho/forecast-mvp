@@ -127,3 +127,46 @@ This fix ensures the environment switching system works correctly on both local 
 - **Production**: `app.netflo.ai/forecast` for production companies
 
 The credential selection now properly respects the explicit environment parameter regardless of deployment status.
+
+## Additional Debugging (September 21, Evening)
+
+### Issue Persistence
+Despite fixing the OAuth environment handling, production OAuth is still failing with Intuit error screen showing:
+```
+AppConnection flow landed on Error screen
+Cannot read properties of undefined (reading 'node')
+```
+
+### Debug Endpoint Results
+Production debug endpoint shows correct configuration:
+```json
+{
+  "credentials": {
+    "hasProductionCredentials": true,
+    "productionClientIdLength": 51
+  },
+  "oauthUrl": {
+    "clientId": "ABKdm2ZbOn...",
+    "redirectUri": "https://app.netflo.ai/api/quickbooks/callback",
+    "environment": "not specified"
+  }
+}
+```
+
+### Troubleshooting Steps Taken
+1. **Redirect URI Added**: Added `https://app.netflo.ai/api/quickbooks/callback` to QuickBooks app configuration
+2. **Debug Endpoint Created**: `/api/quickbooks/debug` confirms correct credential and URL configuration
+3. **Test Callback Added**: Created `/api/quickbooks/test-callback` to verify if callbacks reach the app
+
+### Next Steps for Investigation
+1. Test if `https://app.netflo.ai/api/quickbooks/test-callback` is reachable
+2. Temporarily change redirect URI in QB app to test callback endpoint
+3. Check production logs for OAuth URL generation in `/api/quickbooks/auth`
+4. Verify QuickBooks app status (published vs development mode)
+5. Test with different QuickBooks companies to rule out company-specific restrictions
+
+### Current Status
+- Code changes are correct and deployed
+- Configuration appears correct in debug output
+- Issue likely lies in QuickBooks app setup or Intuit platform connectivity
+- Need to verify redirect URI configuration took effect and app is properly published
