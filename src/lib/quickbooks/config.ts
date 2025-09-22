@@ -12,42 +12,54 @@ export interface QuickBooksConfig {
 }
 
 /**
- * Get QuickBooks configuration based on environment variable
+ * Get QuickBooks configuration based on environment parameter or URL detection
  */
-export function getQuickBooksConfig(): QuickBooksConfig {
-  const environment = (process.env.QB_ENVIRONMENT || 'sandbox') as 'sandbox' | 'production';
+export function getQuickBooksConfig(environment?: 'sandbox' | 'production'): QuickBooksConfig {
+  // Use provided environment or detect from URL
+  const env = environment || detectEnvironmentFromUrl();
 
-  const baseUrl = environment === 'production'
+  const baseUrl = env === 'production'
     ? 'https://quickbooks.api.intuit.com'
     : 'https://sandbox-quickbooks.api.intuit.com';
 
-  const discoveryDocumentUrl = environment === 'production'
+  const discoveryDocumentUrl = env === 'production'
     ? 'https://appcenter.intuit.com/api/v1/connection/oauth2'
     : 'https://appcenter.intuit.com/api/v1/connection/oauth2';
 
   return {
-    environment,
+    environment: env,
     baseUrl,
     discoveryDocumentUrl,
-    isProduction: environment === 'production',
-    isSandbox: environment === 'sandbox'
+    isProduction: env === 'production',
+    isSandbox: env === 'sandbox'
   };
+}
+
+/**
+ * Detect environment from current URL (client-side)
+ */
+function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+  }
+  return 'production'; // Default for SSR
 }
 
 /**
  * Generate QuickBooks API URL for a specific endpoint
  */
-export function getQuickBooksApiUrl(realmId: string, endpoint: string): string {
-  const config = getQuickBooksConfig();
+export function getQuickBooksApiUrl(realmId: string, endpoint: string, environment?: 'sandbox' | 'production'): string {
+  const config = getQuickBooksConfig(environment);
   return `${config.baseUrl}/v3/company/${realmId}/${endpoint}`;
 }
 
 /**
  * Generate OAuth authorization URL with proper environment
  */
-export function getOAuthEnvironmentParam(): string {
-  const config = getQuickBooksConfig();
-  return config.isProduction ? '' : '&environment=sandbox';
+export function getOAuthEnvironmentParam(environment?: 'sandbox' | 'production'): string {
+  const env = environment || detectEnvironmentFromUrl();
+  return env === 'sandbox' ? '&environment=sandbox' : '';
 }
 
 /**
@@ -60,9 +72,9 @@ export function getTokenEndpoint(): string {
 /**
  * Get environment-appropriate UserInfo endpoint
  */
-export function getUserInfoEndpoint(): string {
-  const config = getQuickBooksConfig();
-  return config.isProduction
+export function getUserInfoEndpoint(environment?: 'sandbox' | 'production'): string {
+  const env = environment || detectEnvironmentFromUrl();
+  return env === 'production'
     ? 'https://accounts.platform.intuit.com/v1/openid_connect/userinfo'
     : 'https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo';
 }
@@ -70,9 +82,8 @@ export function getUserInfoEndpoint(): string {
 /**
  * Get current environment name for API headers
  */
-export function getEnvironmentName(): string {
-  const config = getQuickBooksConfig();
-  return config.environment;
+export function getEnvironmentName(environment?: 'sandbox' | 'production'): string {
+  return environment || detectEnvironmentFromUrl();
 }
 
 /**

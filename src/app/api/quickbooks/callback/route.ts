@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { createCompany } from '@/lib/auth/companies';
 import { saveCompanyConnection } from '@/lib/quickbooks/connectionManager';
-import { getQuickBooksApiUrl, getEnvironmentFromState, getQuickBooksApiUrlForEnvironment } from '@/lib/quickbooks/config';
+import { getEnvironmentFromState, getQuickBooksApiUrlForEnvironment } from '@/lib/quickbooks/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,7 +68,8 @@ export async function GET(request: Request) {
     console.log('Processing new QuickBooks connection for user:', session.user.dbId);
 
     console.log('Creating QuickBooks client...');
-    const client = new QuickBooksClient();
+    // Create client with environment from OAuth state
+    const client = new QuickBooksClient(request.url);
     
     console.log('Exchanging authorization code for tokens...');
     const tokens = await client.exchangeCodeForTokens(code);
@@ -89,10 +90,9 @@ export async function GET(request: Request) {
     
     try {
       console.log('Making direct QuickBooks CompanyInfo API call...');
-      // Use environment from OAuth state parameter instead of current server environment
-      const companyInfoUrl = oauthEnvironment
-        ? `${getQuickBooksApiUrlForEnvironment(realmId, `companyinfo/${realmId}`, oauthEnvironment)}?minorversion=65`
-        : `${getQuickBooksApiUrl(realmId, `companyinfo/${realmId}`)}?minorversion=65`;
+      // Use environment from OAuth state parameter
+      const environment = oauthEnvironment || 'production';
+      const companyInfoUrl = `${getQuickBooksApiUrlForEnvironment(realmId, `companyinfo/${realmId}`, environment)}?minorversion=65`;
       console.log('API URL:', companyInfoUrl);
       console.log('Using OAuth environment:', oauthEnvironment || 'fallback to current server environment');
       console.log('Access token length:', tokens.access_token?.length || 0);
@@ -216,11 +216,16 @@ export async function GET(request: Request) {
         session.user.dbId // Track who connected for audit
       );
       
-      // Redirect to forecast with success
+      // Redirect to forecast with success - preserve environment if it was sandbox
       const baseUrl = new URL(request.url).origin;
       const redirectUrl = new URL('/forecast', baseUrl);
       redirectUrl.searchParams.set('quickbooks', 'connected');
       redirectUrl.searchParams.set('company_id', company.id);
+
+      // Preserve environment parameter if this was a sandbox OAuth flow
+      if (oauthEnvironment === 'sandbox') {
+        redirectUrl.searchParams.set('env', 'sandbox');
+      }
       
       console.log('✅ QUICKBOOKS OAUTH SUCCESS - REDIRECTING');
       console.log('Redirect URL:', redirectUrl.toString());

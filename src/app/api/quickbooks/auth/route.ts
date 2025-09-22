@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('Creating QuickBooks client...');
-    const client = new QuickBooksClient();
+    // Pass request URL to client for environment detection
+    const client = new QuickBooksClient(request.url);
 
     console.log('Generating authorization URL...');
     const authUrl = client.getAuthorizationUrl();

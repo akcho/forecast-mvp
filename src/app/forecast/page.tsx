@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { LoadingState } from '@/components/LoadingSpinner';
 import { usePageHeader } from '@/components/PageHeaderContext';
 import { Select, SelectItem } from '@tremor/react';
+import { autoRedirectToSandbox, detectEnvironment } from '@/lib/utils/environmentDetection';
 
 export default function ForecastPage() {
   const [isConnected, setIsConnected] = useState(false);
@@ -36,14 +37,23 @@ export default function ForecastPage() {
   }, [setHeaderConfig, forecastPeriod]);
 
   useEffect(() => {
+    // Auto-redirect to sandbox if on localhost and in production mode
+    // This prevents the frustrating experience of trying to connect production companies from localhost
+    if (autoRedirectToSandbox()) {
+      return; // Exit early if redirecting
+    }
+
     // Check for QuickBooks OAuth success
     const urlParams = new URLSearchParams(window.location.search);
     const quickbooksParam = urlParams.get('quickbooks');
-    
+
     if (quickbooksParam === 'connected') {
       console.log('✅ QuickBooks OAuth completed successfully, rechecking connection...');
-      // Clear the URL params
-      const newUrl = window.location.pathname;
+      // Clear the URL params but preserve environment parameter
+      const envInfo = detectEnvironment();
+      const newUrl = envInfo.environment === 'sandbox'
+        ? `${window.location.pathname}?env=sandbox`
+        : window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
     

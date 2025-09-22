@@ -88,34 +88,78 @@ export class QuickBooksClient {
   private clientId: string;
   private clientSecret: string;
   private redirectUri: string;
+  private environment: 'sandbox' | 'production';
 
-  constructor() {
+  constructor(requestUrl?: string) {
     console.log('Initializing QuickBooks client');
 
-    // Detect environment: localhost vs deployed
-    const isLocalhost = process.env.VERCEL_URL === undefined &&
-                       process.env.NODE_ENV !== 'production';
+    // Detect environment from URL parameter
+    this.environment = this.detectEnvironment(requestUrl);
 
-    // Use development credentials for localhost, production credentials for deployed
-    this.clientId = isLocalhost
-      ? process.env.QB_CLIENT_ID || ''
-      : process.env.PRODUCTION_QB_CLIENT_ID || '';
-    this.clientSecret = isLocalhost
-      ? process.env.QB_CLIENT_SECRET || ''
-      : process.env.PRODUCTION_QB_CLIENT_SECRET || '';
+    // Detect deployment status
+    const isDeployed = process.env.VERCEL_URL !== undefined ||
+                      process.env.NODE_ENV === 'production';
 
-    // Select appropriate redirect URI
-    this.redirectUri = isLocalhost
-      ? process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/callback'
-      : process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/callback';
+    // Select credentials based on environment and deployment
+    const credentials = this.getCredentials(this.environment, isDeployed);
+    this.clientId = credentials.clientId;
+    this.clientSecret = credentials.clientSecret;
+
+    // Select redirect URI based on deployment only
+    this.redirectUri = this.getRedirectUri(isDeployed);
 
     console.log('QuickBooks client initialized:', {
-      environment: isLocalhost ? 'development' : 'production',
+      environment: this.environment,
+      isDeployed,
       hasClientId: !!this.clientId,
       hasClientSecret: !!this.clientSecret,
       hasRedirectUri: !!this.redirectUri,
       redirectUri: this.redirectUri
     });
+  }
+
+  private detectEnvironment(requestUrl?: string): 'sandbox' | 'production' {
+    // Server-side: use provided request URL
+    if (requestUrl) {
+      try {
+        const url = new URL(requestUrl);
+        const envParam = url.searchParams.get('env');
+        return envParam === 'sandbox' ? 'sandbox' : 'production';
+      } catch (error) {
+        return 'production'; // Default if URL parsing fails
+      }
+    }
+
+    // Client-side: use window.location
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const envParam = urlParams.get('env');
+      return envParam === 'sandbox' ? 'sandbox' : 'production';
+    }
+
+    // Default for SSR
+    return 'production';
+  }
+
+  private getCredentials(environment: 'sandbox' | 'production', isDeployed: boolean) {
+    // Use production credentials for production environment OR when deployed
+    const useProductionCredentials = environment === 'production' || isDeployed;
+
+    return {
+      clientId: useProductionCredentials
+        ? process.env.PRODUCTION_QB_CLIENT_ID || ''
+        : process.env.QB_CLIENT_ID || '',
+      clientSecret: useProductionCredentials
+        ? process.env.PRODUCTION_QB_CLIENT_SECRET || ''
+        : process.env.QB_CLIENT_SECRET || ''
+    };
+  }
+
+  private getRedirectUri(isDeployed: boolean): string {
+    // Always use localhost redirect for local development
+    return isDeployed
+      ? process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/callback'
+      : process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/callback';
   }
 
   // Check if user is admin (has direct tokens) or team member (should use shared connection)
@@ -135,12 +179,12 @@ export class QuickBooksClient {
     const scope = 'com.intuit.quickbooks.accounting openid';
 
     // Encode environment in state parameter for callback detection
-    const config = getQuickBooksConfig();
     const randomState = Math.random().toString(36).substring(2);
-    const state = `${config.environment}_${randomState}`;
+    const state = `${this.environment}_${randomState}`;
 
-    // Use dynamic environment parameter
-    const environmentParam = getOAuthEnvironmentParam();
+    // Use environment-specific parameter - this is critical for sandbox mode
+    const environmentParam = this.environment === 'sandbox' ? '&environment=sandbox' : '';
+
     return `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
            `&response_type=code&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
            `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`;

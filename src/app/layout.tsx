@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { SessionProvider } from '@/components/SessionProvider';
 import { AppLayout } from '@/components/AppLayout';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { EnvironmentIndicator } from '@/components/EnvironmentIndicator';
 
 export const metadata: Metadata = {
   title: 'Runway Analysis Dashboard',
@@ -22,6 +23,7 @@ export default function RootLayout({
             <AppLayout>
               {children}
             </AppLayout>
+            <EnvironmentIndicator />
           </SessionProvider>
         </ThemeProvider>
       </body>

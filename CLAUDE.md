@@ -19,6 +19,32 @@ This file provides guidance to Claude Code when working with this AI-powered fin
 - Core Architecture if services are modified
 - Remove deprecated information immediately
 
+## 🚨 CRITICAL LIMITATIONS
+
+### QuickBooks OAuth Redirect URI Restrictions
+
+**IMPORTANT**: Intuit does **NOT** allow localhost redirect URIs to be registered on production QuickBooks applications.
+
+**Key Facts**:
+- ❌ **Production QuickBooks apps**: Cannot add `http://localhost:3000/api/quickbooks/callback` as redirect URI
+- ✅ **Sandbox QuickBooks apps**: Can use localhost redirect URIs for development
+- 🔒 **Production apps**: Only allow HTTPS redirect URIs (e.g., `https://app.netflo.ai/api/quickbooks/callback`)
+
+**Practical Impact**:
+- **Production QB companies cannot be tested on localhost** - this is a platform limitation, not a bug
+- **Only sandbox environment works on localhost** via `?env=sandbox` parameter
+- **Production testing requires deployment** to a domain with HTTPS
+
+**Current Architecture Status**:
+- ✅ `localhost:3000/forecast?env=sandbox` → Works (sandbox companies)
+- ❌ `localhost:3000/forecast` → Cannot work (production companies blocked by Intuit)
+- ✅ `app.netflo.ai/forecast` → Works (production companies with HTTPS redirect)
+
+**Do NOT suggest**:
+- Adding localhost redirect URIs to production QuickBooks app (impossible)
+- Configuring production credentials to work on localhost (platform restriction)
+- "Fixing" redirect URI configuration for production localhost access (not allowed by Intuit)
+
 ## Commands
 
 ```bash
@@ -111,14 +137,14 @@ quickbooks_connections: company_id, access_token, refresh_token, ...
 
 ## Environment Variables
 
-### QuickBooks Hybrid Credential Configuration
+### QuickBooks Environment Switching Configuration
 
-**Production Integration Status**: ✅ LIVE - Dynamic credential selection implemented
+**Production Integration Status**: ✅ LIVE - URL parameter-based environment switching implemented
 
-**Architecture**: Environment-based credential selection for security and flexibility
-- **Local Development**: Uses development credentials + localhost redirect
-- **Deployed Environments**: Uses production credentials + HTTPS redirects
-- **Automatic Detection**: Based on `VERCEL_URL` and `NODE_ENV` environment variables
+**Architecture**: Clean URL parameter-based environment detection for flexible local testing
+- **Production Default**: `localhost:3000/forecast` → production APIs + production credentials + localhost redirect
+- **Sandbox Override**: `localhost:3000/forecast?env=sandbox` → sandbox APIs + development credentials + localhost redirect
+- **Deployed**: `app.netflo.ai/forecast` → production APIs + production credentials + HTTPS redirect
 
 ```bash
 # QuickBooks Development Credentials (for localhost environments)
@@ -151,16 +177,34 @@ OPENAI_API_KEY=your_openai_key
 ### QuickBooks Environment Detection Logic
 
 ```typescript
-// QuickBooksClient constructor automatically detects environment
-const isLocalhost = process.env.VERCEL_URL === undefined &&
-                   process.env.NODE_ENV !== 'production';
+// URL parameter-based environment detection
+function detectEnvironment(requestUrl?: string): 'sandbox' | 'production' {
+  if (requestUrl) {
+    // Server-side: extract from request URL
+    const url = new URL(requestUrl);
+    return url.searchParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+  }
 
-// Credentials selected based on environment
-localhost: development credentials + localhost redirect
-deployed: production credentials + HTTPS redirect
+  if (typeof window !== 'undefined') {
+    // Client-side: extract from window.location
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+  }
+
+  return 'production'; // Default for SSR
+}
+
+// Environment determines both API endpoints and credentials
+production environment → production APIs + production credentials
+sandbox environment → sandbox APIs + development credentials
 ```
 
-**Important**: Production credentials can only be tested on deployed HTTPS environments due to QuickBooks security restrictions. Localhost testing uses development credentials only.
+**Key Features**:
+- **Explicit switching**: Add `?env=sandbox` to test sandbox companies locally
+- **Production default**: Default behavior uses production companies for realistic testing
+- **UI indicator**: Sandbox mode shows orange "🧪 Sandbox Mode" badge
+- **Localhost redirects**: Both environments use localhost redirects for local testing
+- **State preservation**: Environment choice preserved through OAuth flow
 
 ## Current Status (September 2025)
 
@@ -184,14 +228,19 @@ deployed: production credentials + HTTPS redirect
 - Smart analytics (materiality, variability, growth rate analysis)
 - AI chat integration for detailed financial exploration
 
-**QuickBooks Production Integration**:
-- Hybrid credential system with automatic environment detection
-- Development credentials for localhost environments (security isolation)
-- Production credentials for deployed environments (real business data access)
-- Dynamic redirect URI selection based on deployment context
-- Production credentials only accessible via HTTPS deployment (QuickBooks security restriction)
+**QuickBooks Environment Switching**:
+- URL parameter-based environment detection (`?env=sandbox` for sandbox mode)
+- Production-first approach with explicit sandbox testing
+- Both environments work on localhost with appropriate redirects
+- Environment indicator UI for clear mode awareness
+- Clean separation of API endpoints and credentials based on environment
 
 ### 🎯 Current User Experience
+
+**Environment Switching**:
+- **Production Companies**: Visit `/forecast` (default)
+- **Sandbox Testing**: Visit `/forecast?env=sandbox`
+- **Environment Indicator**: Orange "🧪 Sandbox Mode" badge appears in sandbox mode
 
 **Main Interface** (`/forecast`):
 1. **Drivers Tab** - Discovered drivers with materiality scores and business insights
