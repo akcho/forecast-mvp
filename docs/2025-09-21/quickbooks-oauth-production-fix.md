@@ -170,3 +170,41 @@ Production debug endpoint shows correct configuration:
 - Configuration appears correct in debug output
 - Issue likely lies in QuickBooks app setup or Intuit platform connectivity
 - Need to verify redirect URI configuration took effect and app is properly published
+
+## OAuth Redirect URI Testing (September 21, Night)
+
+### Discovery: Hardcoded Redirect URI Issue
+During testing, discovered that changing the QuickBooks app redirect URI in Intuit Developer Console had no effect. The OAuth URL still showed `/callback` instead of the expected `/test-callback`.
+
+**Root Cause**: Redirect URI is hardcoded in app code, not controlled by QuickBooks app settings.
+
+In `src/lib/quickbooks/client.ts`, the `getRedirectUri()` method uses:
+```typescript
+return isDeployed
+  ? process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/callback'
+  : process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/callback';
+```
+
+### Testing Implementation
+**Commit 9c81314**: Initial attempt to change fallback to `/test-callback`
+- Still failed because `PRODUCTION_REDIRECT_URI` environment variable took precedence
+
+**Commit 3e51cec**: Fixed by commenting out environment variable check
+```typescript
+return isDeployed
+  ? /* process.env.PRODUCTION_REDIRECT_URI || */ 'https://app.netflo.ai/api/quickbooks/test-callback'
+  : process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/test-callback';
+```
+
+### Testing Status
+- ✅ Changes deployed to bypass environment variable
+- 🔄 Waiting for deployment to take effect
+- ⏳ Ready to test OAuth flow with `/test-callback` endpoint
+- 📋 Will immediately revert changes after testing
+
+### Expected Results
+If test callback gets hit with OAuth parameters (`code`, `realmId`, `state`):
+- ✅ QuickBooks can reach the app → Issue is in callback processing logic
+
+If test callback never gets hit:
+- ❌ QuickBooks cannot reach the app → Issue is with QB app configuration or Intuit platform
