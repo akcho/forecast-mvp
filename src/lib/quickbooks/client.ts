@@ -159,7 +159,7 @@ export class QuickBooksClient {
   private getRedirectUri(isDeployed: boolean): string {
     // Always use localhost redirect for local development
     return isDeployed
-      ? process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/test-callback'
+      ? /* process.env.PRODUCTION_REDIRECT_URI || */ 'https://app.netflo.ai/api/quickbooks/test-callback'
       : process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/test-callback';
   }
 
