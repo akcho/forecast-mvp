@@ -57,7 +57,7 @@ export async function GET(request: Request) {
         environment: environment || 'not specified',
         hasEnvironmentParam: !!environment
       },
-      recommendations: []
+      recommendations: [] as string[]
     };
 
     // Add recommendations based on findings
