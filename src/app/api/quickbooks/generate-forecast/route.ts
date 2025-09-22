@@ -197,6 +197,9 @@ export async function GET(request: NextRequest) {
     const monthsToProject = parseInt(searchParams.get('months') || '3');
     const includeConfidenceBands = searchParams.get('confidence') !== 'false';
 
+    // Extract environment parameter from request URL
+    const environment = searchParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+
     console.log(`🔮 Generating simple forecast: ${monthsToProject} months`);
 
     // Get valid QuickBooks connection
