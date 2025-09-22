@@ -142,8 +142,9 @@ export class QuickBooksClient {
   }
 
   private getCredentials(environment: 'sandbox' | 'production', isDeployed: boolean) {
-    // Use production credentials for production environment OR when deployed
-    const useProductionCredentials = environment === 'production' || isDeployed;
+    // Use production credentials only for production environment
+    // Environment should override deployment status for credential selection
+    const useProductionCredentials = environment === 'production';
 
     return {
       clientId: useProductionCredentials

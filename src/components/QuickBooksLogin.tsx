@@ -153,8 +153,21 @@ export function QuickBooksLogin({ onConnectionChange }: QuickBooksLoginProps) {
 
   const handleQuickBooksConnect = () => {
     console.log('=== QUICKBOOKS CONNECT ===');
-    console.log('Redirecting to QuickBooks OAuth URL: /api/quickbooks/auth');
-    window.location.href = '/api/quickbooks/auth';
+
+    // Preserve environment parameter if present in current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const environment = urlParams.get('env');
+
+    let authUrl = '/api/quickbooks/auth';
+    if (environment === 'sandbox') {
+      authUrl += '?env=sandbox';
+      console.log('Sandbox environment detected, using sandbox OAuth URL');
+    } else {
+      console.log('Production environment (default), using production OAuth URL');
+    }
+
+    console.log('Redirecting to QuickBooks OAuth URL:', authUrl);
+    window.location.href = authUrl;
   };
 
   const handleDisconnect = async () => {
