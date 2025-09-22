@@ -101,3 +101,28 @@ export function getEnvironmentMessage(envInfo: EnvironmentInfo): string | null {
 
   return null;
 }
+
+/**
+ * Appends environment parameter to API URLs when needed
+ */
+export function buildApiUrl(baseUrl: string, environment?: 'sandbox' | 'production'): string {
+  if (!environment) {
+    const envInfo = detectEnvironment();
+    environment = envInfo.environment;
+  }
+
+  const url = new URL(baseUrl, window.location.origin);
+
+  if (environment === 'sandbox') {
+    url.searchParams.set('env', 'sandbox');
+  }
+
+  return url.toString();
+}
+
+/**
+ * Gets current environment from URL for API calls
+ */
+export function getCurrentEnvironment(): 'sandbox' | 'production' {
+  return detectEnvironment().environment;
+}

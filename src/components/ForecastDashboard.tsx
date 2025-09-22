@@ -24,15 +24,16 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
-import { 
-  BaseForecast, 
-  AdjustedForecast, 
-  DriverAdjustment, 
+import {
+  BaseForecast,
+  AdjustedForecast,
+  DriverAdjustment,
   ProjectedDriver,
   KeyMetricCard,
-  ForecastResponse 
+  ForecastResponse
 } from '@/types/forecastTypes';
 import { LoadingState } from './LoadingSpinner';
+import { buildApiUrl } from '@/lib/utils/environmentDetection';
 
 interface ForecastDashboardProps {
   className?: string;
@@ -68,7 +69,8 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       setError(null);
 
       // Check connection status first
-      const statusResponse = await fetch(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
+      const statusUrl = buildApiUrl(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
+      const statusResponse = await fetch(statusUrl);
       const statusData = await statusResponse.json();
 
       if (!statusData.hasConnection || !statusData.companyConnection) {
@@ -77,7 +79,8 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
         return;
       }
 
-      const response = await fetch('/api/quickbooks/generate-forecast', {
+      const forecastUrl = buildApiUrl('/api/quickbooks/generate-forecast');
+      const response = await fetch(forecastUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ companyId: selectedCompanyId })
@@ -114,7 +117,8 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       setUpdating(true);
 
       if (newAdjustments.length > 0) {
-        const response = await fetch('/api/quickbooks/generate-forecast', {
+        const forecastUrl = buildApiUrl('/api/quickbooks/generate-forecast');
+        const response = await fetch(forecastUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -129,7 +133,12 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
         }
       } else {
         // No adjustments - get base forecast without setting loading state
-        const response = await fetch('/api/quickbooks/generate-forecast');
+        const forecastUrl = buildApiUrl('/api/quickbooks/generate-forecast');
+        const response = await fetch(forecastUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId: selectedCompanyId })
+        });
         const data: ForecastResponse = await response.json();
         if (data.success && data.forecast) {
           setForecast(data.forecast);

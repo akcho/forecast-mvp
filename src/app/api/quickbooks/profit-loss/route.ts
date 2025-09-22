@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('end_date');
     const summarizeColumnBy = searchParams.get('summarize_column_by');
     const parsed = searchParams.get('parsed') === 'true';
+    const environment = searchParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
 
     // Get valid connection (handles token refresh automatically)
     // Pass company_id to use selected company instead of defaulting to first
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     const realmId = connection.realm_id;
 
     // Build the QuickBooks API URL with parameters
-    let url = `${getQuickBooksApiUrl(realmId, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual`;
+    let url = `${getQuickBooksApiUrl(realmId, 'reports/ProfitAndLoss', environment)}?minorversion=65&accounting_method=Accrual`;
     
     if (startDate) {
       url += `&start_date=${startDate}`;

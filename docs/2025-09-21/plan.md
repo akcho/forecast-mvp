@@ -397,10 +397,72 @@ https://appcenter.intuit.com/connect/oauth2?client_id=...&environment=sandbox
 - ✅ **Error Eliminated**: "Attempting to get sandbox before it's been defined" console error resolved
 - ✅ **Testing Enabled**: Both production and sandbox environments now fully functional for local testing
 
+## ✅ AUTOMATIC LOCALHOST SANDBOX REDIRECT COMPLETED (September 21, 2025)
+
+### Issue: User Frustration with Production Localhost Testing
+
+**Problem**: Users visiting `localhost:3000/forecast` couldn't connect QuickBooks companies because production apps cannot use localhost redirect URIs (Intuit platform restriction).
+
+**Root Cause**: No automatic detection of localhost environment to guide users to the working sandbox mode.
+
+### Solution Implemented ✅
+
+**Smart Auto-Redirect System**: Automatic environment detection with intelligent localhost handling
+
+**Files Created**:
+- `src/lib/utils/environmentDetection.ts` - Core environment detection logic
+- `src/components/EnvironmentSwitcher.tsx` - Manual environment switching controls
+
+**Files Modified**:
+- `src/app/forecast/page.tsx` - Auto-redirect on page load
+- `CLAUDE.md` - Updated documentation with critical limitations section
+
+### Implementation Details ✅
+
+**Auto-Redirect Logic**:
+```typescript
+// Only auto-redirect when:
+const shouldRedirectToSandbox = isLocalhost &&           // On localhost
+                               environment === 'production' && // In production mode
+                               !envParam;               // No explicit choice made
+```
+
+**User Experience**:
+1. **Visit** `localhost:3000/forecast` → **Auto-redirects** to `localhost:3000/forecast?env=sandbox`
+2. **Explicitly visit** `localhost:3000/forecast?env=production` → **Respects choice** (shows error)
+3. **Deploy to** `app.netflo.ai/forecast` → **Uses production** (no redirect)
+
+### Testing Results ✅
+
+**Before Implementation**:
+```
+URL: localhost:3000/forecast
+Result: ❌ Instant redirect failure with production companies
+User Experience: Frustrating and confusing
+```
+
+**After Implementation**:
+```
+URL: localhost:3000/forecast
+Auto-redirect: localhost:3000/forecast?env=sandbox
+Result: ✅ Seamless connection with sandbox companies
+User Experience: Smooth and intuitive
+```
+
+### Benefits Achieved ✅
+
+- ✅ **Eliminated User Frustration**: No more failed production connections on localhost
+- ✅ **Intelligent Defaults**: Localhost automatically uses working environment
+- ✅ **User Choice Preserved**: Explicit URLs still honored for advanced testing
+- ✅ **Production Deployment Unaffected**: Deployed environments use production by default
+- ✅ **Clear Environment Awareness**: UI indicators make current mode obvious
+
+**Commit**: `a55987b` - "Add automatic sandbox redirect for localhost environments"
+
 ## Future Enhancements
 
-1. **Environment Switching UI**: Add toggle in app header for easier switching
+1. **Environment Switching UI**: Add toggle in app header for easier switching ✅ (EnvironmentSwitcher component available)
 2. **Persistent Preferences**: Remember user's preferred environment in localStorage
 3. **Environment-Specific Styling**: Additional visual distinctions for sandbox mode
 4. **Admin Tools**: Environment status in debugging/admin panels
-5. **Deep Link Preservation**: Maintain environment parameter across all navigation
+5. **Deep Link Preservation**: Maintain environment parameter across all navigation ✅ (Implemented in OAuth flow)

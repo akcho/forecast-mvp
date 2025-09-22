@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
       companyId
     } = body;
 
+    // Extract environment parameter from request URL
+    const url = new URL(request.url);
+    const environment = url.searchParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+
     console.log(`🔮 Generating forecast for user ${session.user.dbId}`);
     console.log(`📊 Parameters: ${monthsToProject} months, ${scenarios.length} scenarios, ${adjustments.length} adjustments`);
 
@@ -61,7 +65,7 @@ export async function POST(request: NextRequest) {
     startDate.setMonth(startDate.getMonth() - 24);
     const endDate = new Date();
     
-    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss', environment)}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
     
     const qbResponse = await fetch(qbUrl, {
       headers: {
@@ -209,7 +213,7 @@ export async function GET(request: NextRequest) {
     startDate.setMonth(startDate.getMonth() - 24);
     const endDate = new Date();
     
-    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss')}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
+    const qbUrl = `${getQuickBooksApiUrl(connection.realm_id, 'reports/ProfitAndLoss', environment)}?minorversion=65&accounting_method=Accrual&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&summarize_column_by=Month`;
     
     const qbResponse = await fetch(qbUrl, {
       headers: {
