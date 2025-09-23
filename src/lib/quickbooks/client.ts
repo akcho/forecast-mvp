@@ -96,43 +96,107 @@ export class QuickBooksClient {
   private environment: "sandbox" | "production";
 
   constructor(requestUrl?: string) {
-    console.log("Initializing QuickBooks client");
+    console.log("=== QUICKBOOKS CLIENT INITIALIZATION START ===");
+    console.log("Constructor input:", {
+      requestUrl: requestUrl || "not provided",
+      hostname: requestUrl ? new URL(requestUrl).hostname : "N/A"
+    });
 
     // Detect environment from URL parameter
+    console.log("=== ENVIRONMENT DETECTION ===");
     this.environment = this.detectEnvironment(requestUrl);
+    console.log("Environment detection result:", {
+      detectedEnvironment: this.environment,
+      requestUrl: requestUrl || "N/A",
+      envParam: requestUrl ? new URL(requestUrl).searchParams.get('env') : "N/A"
+    });
 
     // Detect deployment status - use request URL domain if available
+    console.log("=== DEPLOYMENT DETECTION ===");
     const isDeployed = this.isProductionDeployment(requestUrl);
+    console.log("Deployment detection result:", {
+      isDeployed,
+      hostname: requestUrl ? new URL(requestUrl).hostname : "N/A",
+      vercelUrl: process.env.VERCEL_URL ? "set" : "not set",
+      nodeEnv: process.env.NODE_ENV
+    });
 
     // Select credentials based on environment and deployment
+    console.log("=== CREDENTIAL SELECTION ===");
+    console.log("Available environment variables:", {
+      PRODUCTION_QB_CLIENT_ID: process.env.PRODUCTION_QB_CLIENT_ID ? `${process.env.PRODUCTION_QB_CLIENT_ID.substring(0, 10)}...` : "not set",
+      PRODUCTION_QB_CLIENT_SECRET: process.env.PRODUCTION_QB_CLIENT_SECRET ? "set" : "not set",
+      QB_CLIENT_ID: process.env.QB_CLIENT_ID ? `${process.env.QB_CLIENT_ID.substring(0, 10)}...` : "not set",
+      QB_CLIENT_SECRET: process.env.QB_CLIENT_SECRET ? "set" : "not set"
+    });
+
     const credentials = this.getCredentials(this.environment);
     this.clientId = credentials.clientId;
     this.clientSecret = credentials.clientSecret;
 
-    // Select redirect URI based on deployment only
-    this.redirectUri = this.getRedirectUri(isDeployed);
+    console.log("Credential selection result:", {
+      environment: this.environment,
+      selectedClientId: this.clientId ? `${this.clientId.substring(0, 10)}...` : "not selected",
+      hasSelectedSecret: !!this.clientSecret,
+      credentialSource: this.environment === 'production' ?
+        (process.env.PRODUCTION_QB_CLIENT_ID ? 'PRODUCTION_QB_CLIENT_ID' : 'QB_CLIENT_ID fallback') :
+        (process.env.QB_CLIENT_ID ? 'QB_CLIENT_ID' : 'PRODUCTION_QB_CLIENT_ID fallback')
+    });
 
+    // Select redirect URI based on deployment only
+    console.log("=== REDIRECT URI SELECTION ===");
+    console.log("Redirect URI environment variables:", {
+      PRODUCTION_REDIRECT_URI: process.env.PRODUCTION_REDIRECT_URI || "not set",
+      DEVELOPMENT_REDIRECT_URI: process.env.DEVELOPMENT_REDIRECT_URI || "not set",
+      QB_REDIRECT_URI: process.env.QB_REDIRECT_URI || "not set"
+    });
+
+    this.redirectUri = this.getRedirectUri(isDeployed);
+    console.log("Redirect URI selection result:", {
+      isDeployed,
+      selectedRedirectUri: this.redirectUri,
+      source: isDeployed ?
+        (process.env.PRODUCTION_REDIRECT_URI ? 'PRODUCTION_REDIRECT_URI' :
+         process.env.QB_REDIRECT_URI ? 'QB_REDIRECT_URI' : 'hardcoded fallback') :
+        (process.env.DEVELOPMENT_REDIRECT_URI ? 'DEVELOPMENT_REDIRECT_URI' :
+         process.env.QB_REDIRECT_URI ? 'QB_REDIRECT_URI' : 'hardcoded fallback')
+    });
+
+    // Enhanced validation with detailed error reporting
+    console.log("=== CREDENTIAL VALIDATION ===");
     if (!this.clientId || !this.clientSecret) {
-      console.warn("QuickBooks credentials are missing", {
+      console.error("❌ QuickBooks credentials are missing");
+      console.error("Missing credential details:", {
         environment: this.environment,
         hasClientId: !!this.clientId,
         hasClientSecret: !!this.clientSecret,
+        clientIdLength: this.clientId?.length || 0,
+        availableEnvVars: {
+          PRODUCTION_QB_CLIENT_ID: !!process.env.PRODUCTION_QB_CLIENT_ID,
+          PRODUCTION_QB_CLIENT_SECRET: !!process.env.PRODUCTION_QB_CLIENT_SECRET,
+          QB_CLIENT_ID: !!process.env.QB_CLIENT_ID,
+          QB_CLIENT_SECRET: !!process.env.QB_CLIENT_SECRET
+        }
       });
+      throw new Error("QuickBooks OAuth credentials are not configured");
     }
 
     if (!this.redirectUri) {
+      console.error("❌ QuickBooks redirect URI is not configured");
       throw new Error("QuickBooks redirect URI is not configured");
     }
 
-    console.log("QuickBooks client initialized:", {
+    console.log("✅ QuickBooks client validation successful");
+    console.log("=== FINAL CLIENT CONFIGURATION ===");
+    console.log("Client configuration summary:", {
       environment: this.environment,
       isDeployed,
-      requestUrl: requestUrl ? new URL(requestUrl).hostname : "no-url",
-      hasClientId: !!this.clientId,
+      clientId: this.clientId ? `${this.clientId.substring(0, 10)}...` : "missing",
       hasClientSecret: !!this.clientSecret,
-      hasRedirectUri: !!this.redirectUri,
       redirectUri: this.redirectUri,
+      requestHostname: requestUrl ? new URL(requestUrl).hostname : "no-url"
     });
+    console.log("=== QUICKBOOKS CLIENT INITIALIZATION COMPLETE ===");
   }
 
   private detectEnvironment(requestUrl?: string): "sandbox" | "production" {
@@ -226,7 +290,10 @@ export class QuickBooksClient {
   }
 
   getAuthorizationUrl(): string {
+    console.log("=== GENERATING OAUTH AUTHORIZATION URL ===");
+
     if (!this.clientId) {
+      console.error("❌ Cannot generate OAuth URL: Client ID is missing");
       throw new Error("QuickBooks Client ID is not configured");
     }
 
@@ -241,13 +308,77 @@ export class QuickBooksClient {
     const environmentParam =
       this.environment === "sandbox" ? "&environment=sandbox" : "";
 
-    return (
+    console.log("OAuth URL components being generated:", {
+      baseUrl: "https://appcenter.intuit.com/connect/oauth2",
+      clientId: this.clientId ? `${this.clientId.substring(0, 10)}...` : "missing",
+      responseType: "code",
+      redirectUri: this.redirectUri,
+      scope: scope,
+      state: state,
+      environmentParam: environmentParam || "none (production)",
+      environment: this.environment
+    });
+
+    const authUrl = (
       `https://appcenter.intuit.com/connect/oauth2?client_id=${this.clientId}` +
       `&response_type=code&redirect_uri=${encodeURIComponent(
         this.redirectUri
       )}` +
       `&scope=${encodeURIComponent(scope)}&state=${state}${environmentParam}`
     );
+
+    console.log("=== FINAL OAUTH URL ANALYSIS ===");
+    console.log("Generated OAuth URL:", authUrl);
+
+    // Parse and validate the generated URL
+    try {
+      const urlObj = new URL(authUrl);
+      console.log("OAuth URL validation:", {
+        protocol: urlObj.protocol,
+        hostname: urlObj.hostname,
+        pathname: urlObj.pathname,
+        hasClientId: urlObj.searchParams.has('client_id'),
+        hasRedirectUri: urlObj.searchParams.has('redirect_uri'),
+        hasScope: urlObj.searchParams.has('scope'),
+        hasState: urlObj.searchParams.has('state'),
+        hasEnvironment: urlObj.searchParams.has('environment'),
+        clientIdValue: urlObj.searchParams.get('client_id'),
+        redirectUriValue: urlObj.searchParams.get('redirect_uri'),
+        environmentValue: urlObj.searchParams.get('environment') || 'not set'
+      });
+
+      // Validate redirect URI format
+      const redirectUriParam = urlObj.searchParams.get('redirect_uri');
+      if (redirectUriParam) {
+        try {
+          const redirectUrl = new URL(redirectUriParam);
+          console.log("Redirect URI validation:", {
+            redirectUri: redirectUriParam,
+            protocol: redirectUrl.protocol,
+            hostname: redirectUrl.hostname,
+            pathname: redirectUrl.pathname,
+            isValid: true
+          });
+        } catch (redirectError) {
+          console.error("❌ Invalid redirect URI in OAuth URL:", {
+            redirectUri: redirectUriParam,
+            error: redirectError instanceof Error ? redirectError.message : 'Unknown error'
+          });
+        }
+      }
+
+      console.log("✅ OAuth URL generated and validated successfully");
+
+    } catch (urlError) {
+      console.error("❌ Generated OAuth URL is invalid:", {
+        url: authUrl,
+        error: urlError instanceof Error ? urlError.message : 'Unknown error'
+      });
+      throw new Error("Generated OAuth URL is invalid");
+    }
+
+    console.log("=== OAUTH URL GENERATION COMPLETE ===");
+    return authUrl;
   }
 
   getAuthorizationUrlWithRedirectUri(redirectUri: string): string {
