@@ -101,10 +101,8 @@ export class QuickBooksClient {
     // Detect environment from URL parameter
     this.environment = this.detectEnvironment(requestUrl);
 
-    // Detect deployment status
-    const isDeployed =
-      process.env.VERCEL_URL !== undefined ||
-      process.env.NODE_ENV === "production";
+    // Detect deployment status - use request URL domain if available
+    const isDeployed = this.isProductionDeployment(requestUrl);
 
     // Select credentials based on environment and deployment
     const credentials = this.getCredentials(this.environment, isDeployed);
@@ -117,6 +115,7 @@ export class QuickBooksClient {
     console.log("QuickBooks client initialized:", {
       environment: this.environment,
       isDeployed,
+      requestUrl: requestUrl ? new URL(requestUrl).hostname : "no-url",
       hasClientId: !!this.clientId,
       hasClientSecret: !!this.clientSecret,
       hasRedirectUri: !!this.redirectUri,
@@ -145,6 +144,26 @@ export class QuickBooksClient {
 
     // Default for SSR
     return "production";
+  }
+
+  private isProductionDeployment(requestUrl?: string): boolean {
+    // First, check if we have a request URL and can determine from domain
+    if (requestUrl) {
+      try {
+        const url = new URL(requestUrl);
+        const hostname = url.hostname;
+        // Consider it deployed if it's not localhost
+        return hostname !== "localhost" && hostname !== "127.0.0.1";
+      } catch (error) {
+        // If URL parsing fails, fall back to environment variables
+      }
+    }
+
+    // Fall back to environment variable detection
+    return (
+      process.env.VERCEL_URL !== undefined ||
+      process.env.NODE_ENV === "production"
+    );
   }
 
   private getCredentials(
