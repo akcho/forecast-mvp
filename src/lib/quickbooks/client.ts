@@ -105,12 +105,24 @@ export class QuickBooksClient {
     const isDeployed = this.isProductionDeployment(requestUrl);
 
     // Select credentials based on environment and deployment
-    const credentials = this.getCredentials(this.environment, isDeployed);
+    const credentials = this.getCredentials(this.environment);
     this.clientId = credentials.clientId;
     this.clientSecret = credentials.clientSecret;
 
     // Select redirect URI based on deployment only
     this.redirectUri = this.getRedirectUri(isDeployed);
+
+    if (!this.clientId || !this.clientSecret) {
+      console.warn("QuickBooks credentials are missing", {
+        environment: this.environment,
+        hasClientId: !!this.clientId,
+        hasClientSecret: !!this.clientSecret,
+      });
+    }
+
+    if (!this.redirectUri) {
+      throw new Error("QuickBooks redirect URI is not configured");
+    }
 
     console.log("QuickBooks client initialized:", {
       environment: this.environment,
@@ -166,31 +178,43 @@ export class QuickBooksClient {
     );
   }
 
-  private getCredentials(
-    environment: "sandbox" | "production",
-    isDeployed: boolean
-  ) {
-    // Use production credentials only for production environment
-    // Environment should override deployment status for credential selection
+  private getCredentials(environment: "sandbox" | "production") {
+    const productionClientId =
+      process.env.PRODUCTION_QB_CLIENT_ID || process.env.QB_CLIENT_ID || "";
+    const productionClientSecret =
+      process.env.PRODUCTION_QB_CLIENT_SECRET ||
+      process.env.QB_CLIENT_SECRET ||
+      "";
+
+    const sandboxClientId =
+      process.env.QB_CLIENT_ID || process.env.PRODUCTION_QB_CLIENT_ID || "";
+    const sandboxClientSecret =
+      process.env.QB_CLIENT_SECRET ||
+      process.env.PRODUCTION_QB_CLIENT_SECRET ||
+      "";
+
     const useProductionCredentials = environment === "production";
 
     return {
-      clientId: useProductionCredentials
-        ? process.env.PRODUCTION_QB_CLIENT_ID || ""
-        : process.env.QB_CLIENT_ID || "",
+      clientId: useProductionCredentials ? productionClientId : sandboxClientId,
       clientSecret: useProductionCredentials
-        ? process.env.PRODUCTION_QB_CLIENT_SECRET || ""
-        : process.env.QB_CLIENT_SECRET || "",
+        ? productionClientSecret
+        : sandboxClientSecret,
     };
   }
 
   private getRedirectUri(isDeployed: boolean): string {
-    // Always use localhost redirect for local development
-    return isDeployed
-      ? process.env.PRODUCTION_REDIRECT_URI ||
-          "https://app.netflo.ai/api/quickbooks/callback"
-      : process.env.DEVELOPMENT_REDIRECT_URI ||
-          "http://localhost:3000/api/quickbooks/callback";
+    const baseFallback = isDeployed
+      ? "https://app.netflo.ai/api/quickbooks/callback"
+      : "http://localhost:3000/api/quickbooks/callback";
+
+    const envOverride = isDeployed
+      ? process.env.PRODUCTION_REDIRECT_URI || process.env.QB_REDIRECT_URI
+      :
+          process.env.DEVELOPMENT_REDIRECT_URI ||
+          process.env.QB_REDIRECT_URI;
+
+    return envOverride || baseFallback;
   }
 
   // Check if user is admin (has direct tokens) or team member (should use shared connection)
