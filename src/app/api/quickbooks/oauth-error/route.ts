@@ -121,8 +121,8 @@ export async function GET(request: NextRequest) {
         referer: request.headers.get('referer')
       },
       troubleshooting: {
-        possibleCauses: [],
-        recommendations: []
+        possibleCauses: [] as string[],
+        recommendations: [] as string[]
       }
     };
 
