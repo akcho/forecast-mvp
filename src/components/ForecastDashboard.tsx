@@ -68,17 +68,6 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
       setLoading(true);
       setError(null);
 
-      // Check connection status first
-      const statusUrl = buildApiUrl(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
-      const statusResponse = await fetch(statusUrl);
-      const statusData = await statusResponse.json();
-
-      if (!statusData.hasConnection || !statusData.companyConnection) {
-        setError('QuickBooks connection required');
-        setLoading(false);
-        return;
-      }
-
       const forecastUrl = buildApiUrl('/api/quickbooks/generate-forecast');
       const response = await fetch(forecastUrl, {
         method: 'POST',
@@ -86,22 +75,22 @@ export function ForecastDashboard({ className = '' }: ForecastDashboardProps) {
         body: JSON.stringify({ companyId: selectedCompanyId })
       });
       const data: ForecastResponse = await response.json();
-      
+
       if (!data.success || !data.forecast) {
         throw new Error(data.error || 'Failed to load forecast');
       }
-      
+
       setForecast(data.forecast);
       console.log('✅ Forecast loaded:', data.forecast.summary);
-      
+
       // Debug driver confidence values
-      console.log('🎯 Driver confidence values received:', 
-        data.forecast.drivers.map(d => ({ 
-          name: d.name, 
-          confidence: d.confidence 
+      console.log('🎯 Driver confidence values received:',
+        data.forecast.drivers.map(d => ({
+          name: d.name,
+          confidence: d.confidence
         }))
       );
-      
+
     } catch (err) {
       console.error('❌ Error loading forecast:', err);
       setError(err instanceof Error ? err.message : 'Failed to load forecast');
