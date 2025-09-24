@@ -20,6 +20,11 @@ export async function GET(request: NextRequest) {
     const debugInfo = {
       generatedUrl: authUrl,
       baseUrl: baseUrl,
+      urlAnalysis: {
+        hasExtraApp: authUrl.includes('/app/connect/'),
+        shouldBe: 'https://appcenter.intuit.com/connect/oauth2',
+        actualBase: baseUrl
+      },
       parameters: {
         client_id: params.get('client_id'),
         response_type: params.get('response_type'),
