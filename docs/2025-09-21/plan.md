@@ -7,6 +7,7 @@
 ## Problem Statement
 
 Currently, the QuickBooks environment detection system has several issues:
+
 1. **Hacky port detection**: Attempts to modify `process.env.QB_ENVIRONMENT` at runtime
 2. **Incomplete implementation**: Port-based detection described in session-summary.md was never fully implemented
 3. **Production testing impossible**: Can't test production QuickBooks companies locally due to redirect URI restrictions
@@ -24,11 +25,11 @@ Replace port-based detection with URL query parameters for clean, explicit envir
 
 ### Configuration Matrix
 
-| Context | URL | Environment | Credentials | Redirect URI | Result |
-|---------|-----|-------------|-------------|--------------|---------|
-| **Local Default** | `localhost:3000/forecast` | Production APIs | Production credentials | localhost redirect | Test real QB companies locally |
-| **Local Sandbox** | `localhost:3000/forecast?env=sandbox` | Sandbox APIs | Development credentials | localhost redirect | Test with sandbox companies |
-| **Deployed** | `app.netflo.ai/forecast` | Production APIs | Production credentials | HTTPS redirect | Live production |
+| Context           | URL                                   | Environment     | Credentials             | Redirect URI       | Result                         |
+| ----------------- | ------------------------------------- | --------------- | ----------------------- | ------------------ | ------------------------------ |
+| **Local Default** | `localhost:3000/forecast`             | Production APIs | Production credentials  | localhost redirect | Test real QB companies locally |
+| **Local Sandbox** | `localhost:3000/forecast?env=sandbox` | Sandbox APIs    | Development credentials | localhost redirect | Test with sandbox companies    |
+| **Deployed**      | `app.netflo.ai/forecast`              | Production APIs | Production credentials  | HTTPS redirect     | Live production                |
 
 ### Benefits
 
@@ -45,28 +46,31 @@ Replace port-based detection with URL query parameters for clean, explicit envir
 
 ```typescript
 // Client-side detection
-function getEnvironmentFromUrl(): 'sandbox' | 'production' {
-  if (typeof window === 'undefined') return 'production'; // SSR default
+function getEnvironmentFromUrl(): "sandbox" | "production" {
+  if (typeof window === "undefined") return "production"; // SSR default
 
   const urlParams = new URLSearchParams(window.location.search);
-  const envParam = urlParams.get('env');
-  return envParam === 'sandbox' ? 'sandbox' : 'production';
+  const envParam = urlParams.get("env");
+  return envParam === "sandbox" ? "sandbox" : "production";
 }
 
 // Server-side detection (for API routes)
-function getEnvironmentFromRequest(request: Request): 'sandbox' | 'production' {
+function getEnvironmentFromRequest(request: Request): "sandbox" | "production" {
   const url = new URL(request.url);
-  const envParam = url.searchParams.get('env');
-  return envParam === 'sandbox' ? 'sandbox' : 'production';
+  const envParam = url.searchParams.get("env");
+  return envParam === "sandbox" ? "sandbox" : "production";
 }
 ```
 
 ### 2. Credential Selection Logic
 
 ```typescript
-function getCredentials(environment: 'sandbox' | 'production', isDeployed: boolean) {
+function getCredentials(
+  environment: "sandbox" | "production",
+  isDeployed: boolean
+) {
   // Use production credentials for production environment OR when deployed
-  const useProductionCredentials = environment === 'production' || isDeployed;
+  const useProductionCredentials = environment === "production" || isDeployed;
 
   return {
     clientId: useProductionCredentials
@@ -74,7 +78,7 @@ function getCredentials(environment: 'sandbox' | 'production', isDeployed: boole
       : process.env.QB_CLIENT_ID,
     clientSecret: useProductionCredentials
       ? process.env.PRODUCTION_QB_CLIENT_SECRET
-      : process.env.QB_CLIENT_SECRET
+      : process.env.QB_CLIENT_SECRET,
   };
 }
 ```
@@ -85,8 +89,10 @@ function getCredentials(environment: 'sandbox' | 'production', isDeployed: boole
 function getRedirectUri(isDeployed: boolean): string {
   // Always use localhost redirect for local development
   return isDeployed
-    ? process.env.PRODUCTION_REDIRECT_URI || 'https://app.netflo.ai/api/quickbooks/callback'
-    : process.env.DEVELOPMENT_REDIRECT_URI || 'http://localhost:3000/api/quickbooks/callback';
+    ? process.env.PRODUCTION_REDIRECT_URI ||
+        "https://app.netflo.ai/api/quickbooks/callback"
+    : process.env.DEVELOPMENT_REDIRECT_URI ||
+        "http://localhost:3000/api/quickbooks/callback";
 }
 ```
 
@@ -95,6 +101,7 @@ function getRedirectUri(isDeployed: boolean): string {
 ### Phase 1: Core Environment Detection
 
 1. **Update QuickBooksClient** (`src/lib/quickbooks/client.ts`)
+
    - Replace current environment detection with URL parameter parsing
    - Implement clean separation of concerns
    - Add both client-side and server-side detection
@@ -107,6 +114,7 @@ function getRedirectUri(isDeployed: boolean): string {
 ### Phase 2: API Route Updates
 
 3. **Update Auth Route** (`src/app/api/quickbooks/auth/route.ts`)
+
    - Detect environment parameter from request URL
    - Pass environment context to QuickBooksClient
    - Preserve environment in OAuth state parameter
@@ -119,6 +127,7 @@ function getRedirectUri(isDeployed: boolean): string {
 ### Phase 3: UI and UX
 
 5. **Add Environment Indicators**
+
    - Environment badge/banner in UI (especially for sandbox mode)
    - Persist environment parameter across navigation
    - Update "Add company" flow to maintain environment
@@ -130,6 +139,7 @@ function getRedirectUri(isDeployed: boolean): string {
 ### Phase 4: Testing and Documentation
 
 7. **Comprehensive Testing**
+
    - Test sandbox flow: `localhost:3000/forecast?env=sandbox`
    - Test production flow: `localhost:3000/forecast`
    - Verify OAuth flows preserve environment
@@ -149,15 +159,16 @@ export class QuickBooksClient {
   private clientId: string;
   private clientSecret: string;
   private redirectUri: string;
-  private environment: 'sandbox' | 'production';
+  private environment: "sandbox" | "production";
 
   constructor(requestUrl?: string) {
     // Detect environment from URL parameter
     this.environment = this.detectEnvironment(requestUrl);
 
     // Detect deployment status
-    const isDeployed = process.env.VERCEL_URL !== undefined ||
-                      process.env.NODE_ENV === 'production';
+    const isDeployed =
+      process.env.VERCEL_URL !== undefined ||
+      process.env.NODE_ENV === "production";
 
     // Select credentials based on environment and deployment
     const credentials = this.getCredentials(this.environment, isDeployed);
@@ -168,21 +179,23 @@ export class QuickBooksClient {
     this.redirectUri = this.getRedirectUri(isDeployed);
   }
 
-  private detectEnvironment(requestUrl?: string): 'sandbox' | 'production' {
+  private detectEnvironment(requestUrl?: string): "sandbox" | "production" {
     // Server-side: use provided request URL
     if (requestUrl) {
       const url = new URL(requestUrl);
-      return url.searchParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+      return url.searchParams.get("env") === "sandbox"
+        ? "sandbox"
+        : "production";
     }
 
     // Client-side: use window.location
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+      return urlParams.get("env") === "sandbox" ? "sandbox" : "production";
     }
 
     // Default for SSR
-    return 'production';
+    return "production";
   }
 }
 ```
@@ -190,25 +203,28 @@ export class QuickBooksClient {
 ### File: `src/lib/quickbooks/config.ts`
 
 ```typescript
-export function getQuickBooksConfig(environment?: 'sandbox' | 'production'): QuickBooksConfig {
+export function getQuickBooksConfig(
+  environment?: "sandbox" | "production"
+): QuickBooksConfig {
   // Use provided environment or detect from URL
   const env = environment || detectEnvironmentFromUrl();
 
   return {
     environment: env,
-    baseUrl: env === 'production'
-      ? 'https://quickbooks.api.intuit.com'
-      : 'https://sandbox-quickbooks.api.intuit.com',
+    baseUrl:
+      env === "production"
+        ? "https://quickbooks.api.intuit.com"
+        : "https://sandbox-quickbooks.api.intuit.com",
     // ... rest of config
   };
 }
 
-function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
-  if (typeof window !== 'undefined') {
+function detectEnvironmentFromUrl(): "sandbox" | "production" {
+  if (typeof window !== "undefined") {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('env') === 'sandbox' ? 'sandbox' : 'production';
+    return urlParams.get("env") === "sandbox" ? "sandbox" : "production";
   }
-  return 'production'; // Default for SSR
+  return "production"; // Default for SSR
 }
 ```
 
@@ -217,6 +233,7 @@ function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
 ### Local Development Testing
 
 1. **Sandbox Testing**:
+
    ```
    URL: http://localhost:3000/forecast?env=sandbox
    Expected: Sandbox companies in OAuth flow
@@ -268,11 +285,13 @@ function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
 ### 1. Environment Detection System ✅
 
 **Implemented**: Clean URL parameter-based environment switching
+
 - **Default behavior**: `localhost:3000/forecast` → production environment
 - **Sandbox testing**: `localhost:3000/forecast?env=sandbox` → sandbox environment
 - **Deployment**: `app.netflo.ai/forecast` → production environment
 
 **Files Modified**:
+
 - `src/lib/quickbooks/client.ts` - Added URL parameter detection logic
 - `src/lib/quickbooks/config.ts` - Updated configuration functions to accept environment parameter
 - `src/app/api/quickbooks/auth/route.ts` - Pass request URL to client for environment detection
@@ -281,6 +300,7 @@ function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
 ### 2. UI Indicators ✅
 
 **Implemented**: Environment awareness in user interface
+
 - **Component**: `src/components/EnvironmentIndicator.tsx`
 - **Integration**: Added to `src/app/layout.tsx`
 - **Behavior**: Shows orange "🧪 Sandbox Mode" badge when `?env=sandbox` is used
@@ -289,15 +309,17 @@ function detectEnvironmentFromUrl(): 'sandbox' | 'production' {
 ### 3. Testing Results ✅
 
 **Production Mode** (`localhost:3000/forecast`):
+
 ```
 Environment: 'production'
-Client ID: ABKdm2ZbOnkBcwq7pqs0hEmlZuzIt36ruKGuyMtUxkY4PhZqNVz (production)
+Client ID: ABKdm2ZbOnkBcwq7pqs0hEmlZuzIt36ruKGuyMtUxkY4PhZqNV (production)
 Redirect URI: localhost:3000/api/quickbooks/callback
 State: production_xxx
 OAuth URL: No &environment=sandbox parameter
 ```
 
 **Sandbox Mode** (`localhost:3000/forecast?env=sandbox`):
+
 ```
 Environment: 'sandbox'
 Client ID: ABnT5kFHyBtDeqymwoRrq612WribCC19qCPR8UnkZB0vG7dWdz (development)
@@ -309,10 +331,12 @@ OAuth URL: Includes &environment=sandbox parameter
 ### 4. Documentation Updated ✅
 
 **Files Updated**:
+
 - `CLAUDE.md` - Updated QuickBooks environment section with new URL parameter approach
 - `docs/2025-09-21/plan.md` - Comprehensive implementation plan and results
 
 **New Documentation Sections**:
+
 - Environment switching usage instructions
 - Technical implementation details
 - Testing scenarios and expected results
@@ -347,6 +371,7 @@ The solution replaces the previous hacky port-based detection with a clean, expl
 ## ✅ CRITICAL BUG FIX COMPLETED (September 22, 2025)
 
 ### Issue: OAuth Sandbox Detection Failure
+
 **Problem**: Console error "Attempting to get sandbox before it's been defined" when trying to add QuickBooks companies in sandbox mode.
 
 **Root Cause**: QuickBooks OAuth flow wasn't properly receiving the `environment=sandbox` parameter, causing the OAuth process to fail during company connection.
@@ -354,18 +379,21 @@ The solution replaces the previous hacky port-based detection with a clean, expl
 ### Solution Implemented ✅
 
 **Fix Applied**: Enhanced OAuth environment parameter passing
+
 1. **Enhanced Environment Detection**: Improved `detectEnvironment()` method in `QuickBooksClient` with proper URL parameter parsing
 2. **OAuth URL Generation**: Ensured `&environment=sandbox` parameter is correctly included in authorization URLs
 3. **State Preservation**: Enhanced callback route to preserve environment parameter through OAuth flow
 4. **Code Cleanup**: Removed debug logging and unused imports
 
 **Files Modified**:
+
 - `src/lib/quickbooks/client.ts` - Fixed environment detection and OAuth URL generation
 - `src/app/api/quickbooks/callback/route.ts` - Enhanced environment preservation and cleanup
 
 ### Testing Results ✅
 
 **Before Fix**:
+
 ```
 Environment: 'development' (incorrect)
 OAuth URL: Missing proper environment parameter
@@ -373,6 +401,7 @@ Result: "Attempting to get sandbox before it's been defined" error
 ```
 
 **After Fix**:
+
 ```
 Environment: 'sandbox' (correct)
 OAuth URL: Includes &environment=sandbox parameter
@@ -381,6 +410,7 @@ Result: ✅ Successful OAuth flow with sandbox companies
 ```
 
 **Verification Commands**:
+
 ```bash
 # Test sandbox environment
 curl "http://localhost:3000/api/quickbooks/auth?env=sandbox"
@@ -410,24 +440,29 @@ https://appcenter.intuit.com/connect/oauth2?client_id=...&environment=sandbox
 **Smart Auto-Redirect System**: Automatic environment detection with intelligent localhost handling
 
 **Files Created**:
+
 - `src/lib/utils/environmentDetection.ts` - Core environment detection logic
 - `src/components/EnvironmentSwitcher.tsx` - Manual environment switching controls
 
 **Files Modified**:
+
 - `src/app/forecast/page.tsx` - Auto-redirect on page load
 - `CLAUDE.md` - Updated documentation with critical limitations section
 
 ### Implementation Details ✅
 
 **Auto-Redirect Logic**:
+
 ```typescript
 // Only auto-redirect when:
-const shouldRedirectToSandbox = isLocalhost &&           // On localhost
-                               environment === 'production' && // In production mode
-                               !envParam;               // No explicit choice made
+const shouldRedirectToSandbox =
+  isLocalhost && // On localhost
+  environment === "production" && // In production mode
+  !envParam; // No explicit choice made
 ```
 
 **User Experience**:
+
 1. **Visit** `localhost:3000/forecast` → **Auto-redirects** to `localhost:3000/forecast?env=sandbox`
 2. **Explicitly visit** `localhost:3000/forecast?env=production` → **Respects choice** (shows error)
 3. **Deploy to** `app.netflo.ai/forecast` → **Uses production** (no redirect)
@@ -435,6 +470,7 @@ const shouldRedirectToSandbox = isLocalhost &&           // On localhost
 ### Testing Results ✅
 
 **Before Implementation**:
+
 ```
 URL: localhost:3000/forecast
 Result: ❌ Instant redirect failure with production companies
@@ -442,6 +478,7 @@ User Experience: Frustrating and confusing
 ```
 
 **After Implementation**:
+
 ```
 URL: localhost:3000/forecast
 Auto-redirect: localhost:3000/forecast?env=sandbox
