@@ -8,8 +8,10 @@ import { LoadingState } from '@/components/LoadingSpinner';
 import { usePageHeader } from '@/components/PageHeaderContext';
 import { Select, SelectItem } from '@tremor/react';
 import { autoRedirectToSandbox, detectEnvironment } from '@/lib/utils/environmentDetection';
+import { useCompany } from '@/lib/context/CompanyContext';
 
 export default function ForecastPage() {
+  const { selectedCompanyId } = useCompany();
   const [isConnected, setIsConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
   const [forecastPeriod, setForecastPeriod] = useState('13weeks');
@@ -56,40 +58,39 @@ export default function ForecastPage() {
         : window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
-    
-    // Check connection status on client side
-    const checkConnection = async () => {
-      if (!session?.user?.dbId) {
-        setConnectionChecked(true);
-        return;
-      }
+  }, []);
 
-      try {
-        const response = await fetch('/api/quickbooks/status');
-        const connectionStatus = await response.json();
-        console.log('📊 Connection status response:', connectionStatus);
-        if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
-          console.log('✅ Found company connection');
-          setIsConnected(true);
-        } else {
-          console.log('❌ No company connection found - hasConnection:', connectionStatus.hasConnection, 'companyConnection:', !!connectionStatus.companyConnection);
-          setIsConnected(false);
-        }
-      } catch (error) {
-        console.error('Error checking connections:', error);
-        setIsConnected(false);
-      }
-      
-      setConnectionChecked(true);
-    };
-
-    if (session?.user?.dbId) {
-      checkConnection();
+  // Check connection status when user is authenticated and company is selected
+  useEffect(() => {
+    if (session?.user?.dbId && selectedCompanyId) {
+      checkConnectionStatus();
     } else if (session === null) {
       // Session loaded but user not authenticated
       setConnectionChecked(true);
     }
-  }, [session]);
+  }, [session, selectedCompanyId]);
+
+  const checkConnectionStatus = async () => {
+    if (!session?.user?.dbId || !selectedCompanyId) return;
+
+    try {
+      const response = await fetch(`/api/quickbooks/status?company_id=${selectedCompanyId}`);
+      const connectionStatus = await response.json();
+
+      if (connectionStatus.hasConnection && connectionStatus.companyConnection) {
+        setIsConnected(true);
+        console.log('✅ Found company connection');
+      } else {
+        setIsConnected(false);
+        console.log('❌ No company connection found');
+      }
+    } catch (error) {
+      console.error('Error checking connection status:', error);
+      setIsConnected(false);
+    } finally {
+      setConnectionChecked(true);
+    }
+  };
 
   // Show loading state while checking connection
   if (!connectionChecked) {
