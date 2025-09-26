@@ -25,12 +25,17 @@ export async function POST(request: NextRequest) {
     const timePeriod = body.timePeriod || '3months';
     const stream = body.stream || false;
 
+    // Extract company_id from URL params or request body
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get('company_id') || body.company_id;
+
     console.log('📨 Request details:', {
       messageLength: message?.length,
       historyLength: messages?.length,
       hasReports: !!currentReports,
       timePeriod,
-      streaming: stream
+      streaming: stream,
+      companyId
     });
 
     if (!message) {
@@ -61,23 +66,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if user has QuickBooks connection
+    // Check if user has QuickBooks connection using direct connection manager call
     try {
-      const statusResponse = await fetch(`${request.nextUrl.origin}/api/quickbooks/status`, {
-        headers: {
-          'Cookie': request.headers.get('Cookie') || ''
-        }
-      });
-      
-      if (!statusResponse.ok) {
-        throw new Error(`Failed to check connection status: ${statusResponse.status} ${statusResponse.statusText}`);
-      }
-      
-      const connectionStatus = await statusResponse.json();
-      
+      const { getConnectionStatus } = await import('@/lib/quickbooks/connectionManager');
+      const connectionStatus = await getConnectionStatus(session.user.dbId, companyId || undefined, true);
+
       // Check if user is authenticated and has a company connection
-      const hasConnection = connectionStatus.hasConnection && connectionStatus.companyConnection;
-      
+      const hasConnection = !!connectionStatus.companyConnection && !connectionStatus.error;
+
       if (!hasConnection) {
         return NextResponse.json({
           type: 'auth_required',
@@ -130,7 +126,7 @@ export async function POST(request: NextRequest) {
       
       // Fallback to original P&L-only approach
       try {
-        const connection = await getValidConnection(session.user.dbId);
+        const connection = await getValidConnection(session.user.dbId, companyId || undefined);
         
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 24);

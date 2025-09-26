@@ -20,13 +20,15 @@ interface ChatPanelProps {
     cashFlow?: any;
   };
   timePeriod?: string;
+  companyId?: string;
 }
 
-export default function ChatPanel({ 
-  initialInput = '', 
+export default function ChatPanel({
+  initialInput = '',
   onInputChange,
   currentReports,
-  timePeriod = '3months'
+  timePeriod = '3months',
+  companyId
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialInput);
@@ -182,6 +184,7 @@ export default function ChatPanel({
             messages: messages, // Send conversation history
             currentReports: currentReports,
             timePeriod: timePeriod,
+            company_id: companyId,
             stream: true, // Re-enable streaming
           }),
         });

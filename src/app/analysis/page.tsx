@@ -7,6 +7,7 @@ import { PnlTable } from '.';
 import { QuickBooksLogin } from '@/components/QuickBooksLogin';
 import { useSession } from 'next-auth/react';
 import { LoadingState, FinancialDataLoading } from '@/components/LoadingSpinner';
+import { useCompany } from '@/lib/context/CompanyContext';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), {
   ssr: false,
@@ -20,6 +21,7 @@ function useIsMobile() {
 }
 
 function AnalysisContent() {
+  const { selectedCompanyId } = useCompany();
   const [timePeriod, setTimePeriod] = useState('3months');
   const [aiPanelMinimized, setAiPanelMinimized] = useState(false);
   const [activeStatement, setActiveStatement] = useState<'profitLoss' | 'balanceSheet' | 'cashFlow'>('profitLoss');
@@ -311,12 +313,13 @@ function AnalysisContent() {
                   </Button>
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                  <ChatPanel 
+                  <ChatPanel
                     currentReports={{
                       profitLoss: reports['profitLoss'],
                       balanceSheet: reports['balanceSheet'],
                       cashFlow: reports['cashFlow']
                     }}
+                    companyId={selectedCompanyId || undefined}
                   />
                 </div>
               </div>

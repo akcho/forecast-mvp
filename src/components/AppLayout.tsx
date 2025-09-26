@@ -9,7 +9,7 @@ import ChatPanel from './ChatPanel';
 import { PageHeader } from './PageHeader';
 import { PageHeaderProvider, usePageHeader } from './PageHeaderContext';
 import { useSession } from 'next-auth/react';
-import { CompanyProvider } from '@/lib/context/CompanyContext';
+import { CompanyProvider, useCompany } from '@/lib/context/CompanyContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,6 +17,7 @@ interface AppLayoutProps {
 
 function AppLayoutInner({ children }: AppLayoutProps) {
   const { data: session, status } = useSession();
+  const { selectedCompanyId } = useCompany();
   const router = useRouter();
   const pathname = usePathname();
   const { headerConfig } = usePageHeader();
@@ -284,9 +285,10 @@ function AppLayoutInner({ children }: AppLayoutProps) {
           
           {/* Panel Content */}
           <div className="flex-1 min-h-0">
-            <ChatPanel 
+            <ChatPanel
               currentReports={financialData}
               timePeriod="12months"
+              companyId={selectedCompanyId || undefined}
             />
           </div>
         </div>

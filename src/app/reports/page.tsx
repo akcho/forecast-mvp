@@ -204,12 +204,13 @@ function ReportsContent() {
           {!reportsLoaded ? (
             <FinancialDataLoading loadingStates={loading} />
           ) : (
-            <ChatPanel 
+            <ChatPanel
               currentReports={{
                 profitLoss: reports['profitLoss'],
                 balanceSheet: reports['balanceSheet'],
                 cashFlow: reports['cashFlow']
               }}
+              companyId={selectedCompanyId || undefined}
             />
           )}
         </div>
