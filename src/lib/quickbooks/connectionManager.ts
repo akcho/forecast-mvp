@@ -522,7 +522,9 @@ export async function getValidConnection(
   
   // Test the connection by making a simple QuickBooks API call (CompanyInfo)
   try {
-    const testUrl = getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`);
+    // Determine environment from NODE_ENV and connection context
+    const environment = process.env.NODE_ENV === 'production' ? 'production' : 'sandbox';
+    const testUrl = getQuickBooksApiUrl(connection.realm_id, `companyinfo/${connection.realm_id}`, environment);
     const testResponse = await fetch(testUrl, {
       method: 'GET',
       headers: {
@@ -535,7 +537,7 @@ export async function getValidConnection(
       if (testResponse.status === 401 || testResponse.status === 403) {
         // Token expired, try to refresh
         console.log('Token expired, attempting refresh...');
-        const refreshed = await refreshQuickBooksToken(connection.refresh_token);
+        const refreshed = await refreshQuickBooksToken(connection.refresh_token, environment);
         
         // Use service role key for server-side operations
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -602,10 +604,17 @@ export async function getValidConnection(
 }
 
 // Helper to refresh QuickBooks tokens
-async function refreshQuickBooksToken(refreshToken: string) {
-  // Make the refresh call directly to QuickBooks
-  const clientId = process.env.QB_CLIENT_ID;
-  const clientSecret = process.env.QB_CLIENT_SECRET;
+async function refreshQuickBooksToken(refreshToken: string, environment?: 'sandbox' | 'production') {
+  // Make the refresh call directly to QuickBooks using environment-appropriate credentials
+  const useProductionCredentials = environment === 'production' || (!environment && process.env.NODE_ENV === 'production');
+
+  const clientId = useProductionCredentials
+    ? (process.env.PRODUCTION_QB_CLIENT_ID || process.env.QB_CLIENT_ID)
+    : (process.env.QB_CLIENT_ID || process.env.PRODUCTION_QB_CLIENT_ID);
+
+  const clientSecret = useProductionCredentials
+    ? (process.env.PRODUCTION_QB_CLIENT_SECRET || process.env.QB_CLIENT_SECRET)
+    : (process.env.QB_CLIENT_SECRET || process.env.PRODUCTION_QB_CLIENT_SECRET);
   
   if (!clientId || !clientSecret) {
     throw new Error('QuickBooks client credentials not configured');
